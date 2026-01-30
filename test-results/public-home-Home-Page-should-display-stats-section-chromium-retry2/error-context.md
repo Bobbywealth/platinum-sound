@@ -1,0 +1,47 @@
+# Page snapshot
+
+```yaml
+- dialog "Unhandled Runtime Error" [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - navigation [ref=e7]:
+          - button "previous" [disabled] [ref=e8]:
+            - img "previous" [ref=e9]
+          - button "next" [disabled] [ref=e11]:
+            - img "next" [ref=e12]
+          - generic [ref=e14]: 1 of 1 unhandled error
+        - button "Close" [ref=e15] [cursor=pointer]:
+          - img [ref=e17]
+      - heading "Unhandled Runtime Error" [level=1] [ref=e20]
+      - paragraph [ref=e21]: "Error: Event handlers cannot be passed to Client Component props. <button className=... onClick={function} children=...> ^^^^^^^^^^ If you need interactivity, consider converting part of this to a Client Component."
+    - generic [ref=e22]:
+      - heading "Call Stack" [level=2] [ref=e23]
+      - generic [ref=e24]:
+        - heading "<unknown>" [level=3] [ref=e25]
+        - generic [ref=e27]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:280828)
+      - generic [ref=e28]:
+        - heading "Object.toJSON" [level=3] [ref=e29]
+        - generic [ref=e31]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:281723)
+      - generic [ref=e32]:
+        - heading "stringify" [level=3] [ref=e33]
+        - generic [ref=e35]: <anonymous>
+      - generic [ref=e36]:
+        - heading "<unknown>" [level=3] [ref=e37]
+        - generic [ref=e39]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:268079)
+      - generic [ref=e40]:
+        - heading "ez" [level=3] [ref=e41]
+        - generic [ref=e43]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:268158)
+      - generic [ref=e44]:
+        - heading "eH" [level=3] [ref=e45]
+        - generic [ref=e47]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:268559)
+      - generic [ref=e48]:
+        - heading "Timeout._onTimeout" [level=3] [ref=e49]
+        - generic [ref=e51]: /Users/bobbyc/Desktop/Platinum-sound-studios/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js (35:265057)
+      - generic [ref=e52]:
+        - heading "listOnTimeout" [level=3] [ref=e53]
+        - generic [ref=e55]: node:internal/timers (608:17)
+      - generic [ref=e56]:
+        - heading "process.processTimers" [level=3] [ref=e57]
+        - generic [ref=e59]: node:internal/timers (543:7)
+```
