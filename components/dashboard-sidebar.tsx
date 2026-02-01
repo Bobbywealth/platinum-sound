@@ -15,6 +15,7 @@ import {
   Building2,
   Mail,
   MessageSquare,
+  LogOut,
 } from "lucide-react"
 
 interface NavItem {
@@ -118,7 +119,7 @@ export default function DashboardSidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t">
+      <div className="p-4 border-t space-y-2">
         <div className="flex items-center gap-3 px-4 py-2">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-medium">
             SM
@@ -130,6 +131,13 @@ export default function DashboardSidebar() {
             </p>
           </div>
         </div>
+        <Link
+          href="/"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+        >
+          <LogOut className="h-5 w-5" />
+          Sign Out
+        </Link>
       </div>
     </aside>
   )
