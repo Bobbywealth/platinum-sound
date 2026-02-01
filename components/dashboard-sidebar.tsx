@@ -12,6 +12,8 @@ import {
   Clock,
   Mic2,
   Building2,
+  Mail,
+  MessageSquare,
 } from "lucide-react"
 
 interface NavItem {
@@ -43,6 +45,13 @@ const navSections: NavSection[] = [
     items: [
       { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
       { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    label: "MARKETING",
+    items: [
+      { href: "/dashboard/marketing/email", label: "Email Campaigns", icon: Mail },
+      { href: "/dashboard/marketing/sms", label: "SMS Campaigns", icon: MessageSquare },
     ],
   },
   {
