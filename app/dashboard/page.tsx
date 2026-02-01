@@ -7,14 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatCurrency, formatTime, getRelativeTime } from "@/lib/utils"
 import {
-  BarChart3,
-  TrendingUp,
   Users,
   Calendar,
   DollarSign,
-  Clock,
   Activity,
-  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -270,40 +266,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Link href="/dashboard/bookings">
-              <Button variant="outline" className="w-full justify-start">
-                <Calendar className="mr-2 h-4 w-4" />
-                New Booking
-              </Button>
-            </Link>
-            <Link href="/dashboard/clients">
-              <Button variant="outline" className="w-full justify-start">
-                <Users className="mr-2 h-4 w-4" />
-                Add Client
-              </Button>
-            </Link>
-            <Link href="/dashboard/invoices">
-              <Button variant="outline" className="w-full justify-start">
-                <DollarSign className="mr-2 h-4 w-4" />
-                Create Invoice
-              </Button>
-            </Link>
-            <Link href="/dashboard/schedule">
-              <Button variant="outline" className="w-full justify-start">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                View Schedule
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }
