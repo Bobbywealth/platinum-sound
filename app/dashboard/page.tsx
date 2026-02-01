@@ -6,6 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatCurrency, formatTime, getRelativeTime } from "@/lib/utils"
+import { SectionHeader } from "@/components/section-header"
+import { StatCard } from "@/components/stat-card"
+import { DarkSection } from "@/components/dark-section"
+import { CTASection } from "@/components/cta-section"
 import {
   Users,
   Calendar,
@@ -79,6 +83,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Stats Grid */}
+      <SectionHeader
+        title="Overview"
+        description="Track your studio's performance at a glance"
+      />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
@@ -101,15 +109,13 @@ export default function DashboardPage() {
         <StatCard
           title="Pending Invoices"
           value={data.stats.pendingInvoices.toString()}
-          subtitle={formatCurrency(data.stats.pendingAmount)}
+          description={`${formatCurrency(data.stats.pendingAmount)} pending`}
           icon={Activity}
-          variant="warning"
         />
       </div>
 
-      {/* Main Content Grid */}
+      {/* Today's Sessions */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Today's Sessions */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">Today's Sessions</CardTitle>
@@ -202,116 +208,71 @@ export default function DashboardPage() {
       </div>
 
       {/* Studio Status */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Studio A Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Current Session</span>
-                <span className="font-medium">Drake - Recording</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Engineer</span>
-                <span className="font-medium">Noel Cadastre</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Next Available</span>
-                <span className="font-medium">10:00 PM</span>
-              </div>
-              <div className="flex items-center gap-2 mt-4">
-                <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-green-500 font-medium">
-                  In Session
-                </span>
-              </div>
+      <DarkSection>
+        <SectionHeader
+          title="Studio Status"
+          description="Real-time overview of your recording studios"
+          action={
+            <Link href="/dashboard/studios">
+              <Button variant="secondary" size="sm">
+                Manage Studios
+              </Button>
+            </Link>
+          }
+        />
+        <div className="grid gap-4 md:grid-cols-2 mt-6">
+          <div className="space-y-4 p-6 rounded-lg bg-gray-800">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Current Session</span>
+              <span className="font-medium">Drake - Recording</span>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" />
-              Studio B Status
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Current Session</span>
-                <span className="font-medium">Rihanna - Recording</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Engineer</span>
-                <span className="font-medium">Young Guru</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Next Available</span>
-                <span className="font-medium">8:00 PM</span>
-              </div>
-              <div className="flex items-center gap-2 mt-4">
-                <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-                <span className="text-sm text-green-500 font-medium">
-                  In Session
-                </span>
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Engineer</span>
+              <span className="font-medium">Noel Cadastre</span>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-    </div>
-  )
-}
-
-function StatCard({
-  title,
-  value,
-  change,
-  subtitle,
-  icon: Icon,
-  variant,
-}: {
-  title: string
-  value: string
-  change?: number
-  subtitle?: string
-  icon: React.ElementType
-  variant?: "default" | "warning"
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {(change !== undefined || subtitle) && (
-          <div className="flex items-center gap-2">
-            {change !== undefined && (
-              <span
-                className={`text-xs font-medium ${
-                  change >= 0 ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {change >= 0 ? "+" : ""}
-                {change}%
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Next Available</span>
+              <span className="font-medium">10:00 PM</span>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm text-green-500 font-medium">
+                In Session
               </span>
-            )}
-            {subtitle && (
-              <span className="text-xs text-muted-foreground">{subtitle}</span>
-            )}
+            </div>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          <div className="space-y-4 p-6 rounded-lg bg-gray-800">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Current Session</span>
+              <span className="font-medium">Rihanna - Recording</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Engineer</span>
+              <span className="font-medium">Young Guru</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400">Next Available</span>
+              <span className="font-medium">8:00 PM</span>
+            </div>
+            <div className="flex items-center gap-2 mt-4">
+              <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-sm text-green-500 font-medium">
+                In Session
+              </span>
+            </div>
+          </div>
+        </div>
+      </DarkSection>
+
+      {/* CTA Section */}
+      <CTASection
+        title="Ready to book a session?"
+        description="Schedule your next recording session in just a few clicks"
+        buttonText="Book Now"
+        buttonHref="/dashboard/bookings"
+      />
+    </div>
   )
 }
 
@@ -321,12 +282,10 @@ function DashboardSkeleton() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
           <Card key={i}>
-            <CardHeader className="space-y-0 pb-2">
-              <Skeleton className="h-4 w-24" />
-            </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
+              <Skeleton className="h-4 w-24 mb-2" />
               <Skeleton className="h-8 w-32 mb-2" />
-              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-4 w-16" />
             </CardContent>
           </Card>
         ))}
