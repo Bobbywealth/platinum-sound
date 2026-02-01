@@ -184,24 +184,134 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Team</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Meet the talented professionals behind platinum records
+              Innovative. Experienced. Professional.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { name: "Jerry 'Wonda' Duplessis", role: "Founder & Producer", icon: Music },
-              { name: "Wyclef Jean", role: "Co-Founder & Producer", icon: Music },
-              { name: "David Kahne", role: "Lead Engineer", icon: Sliders },
-              { name: "Mike Dean", role: "Mixing Engineer", icon: Sliders },
-            ].map((member, i) => (
-              <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <member.icon className="h-8 w-8 text-primary" />
+
+          {/* Founder/Owner */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold mb-8 text-center">Founder/Owner</h3>
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center p-8 rounded-2xl border bg-background">
+                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                  <Music className="h-12 w-12 text-primary" />
                 </div>
-                <h3 className="font-bold mb-1">{member.name}</h3>
-                <p className="text-sm text-muted-foreground">{member.role}</p>
+                <h4 className="text-2xl font-bold mb-2">Jerry "Wonda" Duplessis</h4>
+                <p className="text-primary font-medium mb-4">Founder/Owner</p>
+                <p className="text-muted-foreground leading-relaxed">
+                  Jerry "Wonda" Duplessis is a legendary figure in the music industry, known for his groundbreaking work as a producer, songwriter, and musician. Co-founding Platinum Sound Studios in 2000 alongside his cousin Wyclef Jean, Jerry Wonda has built the studio into a world-class recording destination in New York City. With a Grammy-winning portfolio that includes work with icons like Shakira, Whitney Houston, and U2, his influence spans genres and decades. Platinum Sound Studios stands as a testament to his dedication to creating high-quality, genre-defining music.
+                </p>
               </div>
-            ))}
+            </div>
+          </div>
+
+          {/* Management */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold mb-8 text-center">Management</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { name: "Lisa Hershfield", role: "General Manager" },
+                { name: "Jasmine Hunt", role: "Manager" },
+                { name: "Spice", role: "Booking Manager" },
+                { name: "Gary Valentino", role: "CFO Manager" },
+              ].map((member, i) => (
+                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-10 w-10 text-primary" />
+                  </div>
+                  <h4 className="font-bold text-lg mb-1">{member.name}</h4>
+                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Engineers */}
+          <div className="mb-16">
+            <h3 className="text-2xl font-bold mb-8 text-center">Engineers</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                {
+                  name: "Serge \"Surgical\" Tsai",
+                  role: "Chief Engineer",
+                  bio: "Grammy-winning, multi-platinum recording and mix engineer with over 20 years of experience. Based in NYC since 1989, Serge is Chief Engineer at Platinum Sound, working with artists like Shakira, Kanye West, Justin Bieber, and Beyonce. His credits include Grammy-winning albums, an Oscar-nominated soundtrack, and collabs with Aretha Franklin and Carlos Santana. Known for his \"Sonic Air Bending\" techniques, he also mentors upcoming engineers and artists."
+                },
+                {
+                  name: "Devonne \"Knice\" Knights",
+                  role: "Recording & Immersive Mixing Engineer",
+                  bio: "Recording and Immersive Mixing engineer from Brooklyn, New York. Knice graduated from SAE with a 4.0 and went on to work up the ranks at Platinum Sound Studios as a recording engineer, ultimately joining the Senior Engineer Staff. Has worked with French Montana, Brandy, Miguel, EST Gee, Lola Brooke, Desiigner, Rich The Kid, and many more label and local artists."
+                },
+                {
+                  name: "Zel Omar Campbell",
+                  role: "Recording Engineer",
+                  bio: "Multi-platinum recording engineer from the Bronx, began his music journey at 13 under Public Enemy's DJ Johnny Juice. After earning a bachelor's in recording arts from Full Sail University, he joined Platinum Sound in 2017. Has worked with top artists like Rich The Kid, Mariah Carey, and Jadakiss."
+                },
+                {
+                  name: "Julian \"Finesse\" Wright",
+                  role: "Producer & Recording Engineer",
+                  bio: "Producer and recording engineer with a background in live sound and a degree from SUNY Purchase College. Furthered his education at SAE NY and has since worked with artists like Wyclef Jean, KRS-ONE, and Dionne Warwick."
+                },
+                {
+                  name: "Darren \"The Clinic\" Blanckensee",
+                  role: "Recording & Dolby Atmos Engineer",
+                  bio: "South African recording engineer specializing in hip hop, R&B, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
+                },
+                {
+                  name: "Rene \"DeZ BuDdha\" Desrivieres",
+                  role: "Recording & Mixing Engineer",
+                  bio: "Brooklyn-born recording and mixing engineer, joined Platinum Sound in 2015 and has worked with top artists like Wyclef Jean and Mary J. Blige. Known for his exceptional quality, he also mentors the next generation of audio engineers. Recently expanded into Dolby Atmos Surround Sound, earning credits with artists like French Montana."
+                },
+                {
+                  name: "Chris \"Apex\" Valerio",
+                  role: "Audio Engineer & Producer",
+                  bio: "Brooklyn-born Audio Engineer and Producer, developed his craft at LaGuardia Community College. Has worked with top artists like Nas, Wyclef Jean, Maino, Jim Jones, Homixide Gang, and Asian Doll, reflecting his commitment and influence in the music industry."
+                },
+                {
+                  name: "Suzi",
+                  role: "Audio Engineer & Singer-Songwriter",
+                  bio: "Versatile audio engineer and singer-songwriter who brings a unique creative perspective to Platinum Sound. As an artist-turned-engineer, has amassed over 300 million streams worldwide. Has collaborated with top talent including Fetty Wap, Tory Lanez, French Montana, Lil' Kim, Dascha Polanco, Kiko El Crazy, and many others."
+                },
+                {
+                  name: "Jack \"Smack\" Vayo",
+                  role: "Audio Engineer",
+                  bio: "Skilled audio engineer renowned for his precision and speed. Raised in Florida, began building his own studio straight out of high school. After refining skills at SAE Institute of New York, his exceptional ear for detail has led to collaborations with top artists including Fivio Foreign, Wyclef Jean, Scorey, Nino Paid, Capella Grey, and Rondodasosa."
+                },
+              ].map((member, i) => (
+                <div key={i} className="p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <Sliders className="h-7 w-7 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">{member.name}</h4>
+                      <p className="text-sm text-primary">{member.role}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Support Staff */}
+          <div>
+            <h3 className="text-2xl font-bold mb-8 text-center">Support Staff</h3>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { name: "Solon Ramirez", role: "Photographer/Videographer" },
+                { name: "Marshall Morton", role: "Studio Tech" },
+                { name: "Stephen \"Stitch\" Keech", role: "Studio Tech" },
+                { name: "Scotty \"Too Fly\"", role: "Public Relations" },
+              ].map((member, i) => (
+                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                  <h4 className="font-bold mb-1">{member.name}</h4>
+                  <p className="text-sm text-muted-foreground">{member.role}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
