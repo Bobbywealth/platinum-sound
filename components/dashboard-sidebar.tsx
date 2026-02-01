@@ -11,7 +11,6 @@ import {
   BarChart3,
   Settings,
   Clock,
-  Mic2,
   Building2,
   Mail,
   LogOut,
@@ -58,7 +57,7 @@ const navSections: NavSection[] = [
     label: "PEOPLE",
     items: [
       { href: "/dashboard/clients", label: "Clients", icon: Users },
-      { href: "/dashboard/staff", label: "Staff", icon: Mic2 },
+      { href: "/dashboard/staff", label: "Staff", icon: Users },
     ],
   },
   {
@@ -86,14 +85,14 @@ export default function DashboardSidebar() {
         </Link>
       </div>
 
-      {/* Navigation - Right Aligned */}
+      {/* Navigation - Centered */}
       <nav className="flex-1 p-4 space-y-6 overflow-auto bg-black">
         {navSections.map((section) => (
           <div key={section.label}>
-            <h3 className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">
+            <h3 className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">
               {section.label}
             </h3>
-            <div className="space-y-1 flex flex-col items-end">
+            <div className="space-y-1">
               {section.items.map((item) => {
                 const isActive =
                   pathname === item.href ||
@@ -103,14 +102,14 @@ export default function DashboardSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors w-full justify-end ${
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       isActive
                         ? "bg-white/10 text-white"
                         : "text-gray-300 hover:bg-white/10 hover:text-white"
                     }`}
                   >
-                    <span className="text-right">{item.label}</span>
                     <item.icon className="h-5 w-5 flex-shrink-0" />
+                    <span>{item.label}</span>
                   </Link>
                 )
               })}
@@ -125,7 +124,7 @@ export default function DashboardSidebar() {
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white text-sm font-medium">
             SM
           </div>
-          <div className="flex-1 min-w-0 text-right">
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-white truncate">Studio Manager</p>
             <p className="text-xs text-gray-400 truncate">
               manager@platinumsound.com
@@ -134,10 +133,10 @@ export default function DashboardSidebar() {
         </div>
         <Link
           href="/"
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors w-full justify-end"
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-white/10 hover:text-white transition-colors"
         >
-          <span className="text-right">Sign Out</span>
           <LogOut className="h-5 w-5 flex-shrink-0" />
+          <span>Sign Out</span>
         </Link>
       </div>
     </aside>
