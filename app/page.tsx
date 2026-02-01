@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star, Play } from "lucide-react"
+import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star, Play, Image as ImageIcon } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
@@ -15,8 +14,11 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <Link href="/dashboard">
-              <Button>Enter CRM</Button>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Enter CRM
             </Link>
           </div>
         </div>
@@ -39,16 +41,20 @@ export default function Home() {
             Celebrating 20+ years of excellence in the heart of New York City.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <Play className="mr-2 h-5 w-5" />
-                Book a Session
-              </Button>
+            <Link
+              href="/dashboard/bookings"
+              className="inline-flex items-center justify-center rounded-md text-lg font-medium h-14 px-8 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Play className="mr-2 h-5 w-5" />
+              Book a Session
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6">
+            <a
+              href="tel:212-265-6060"
+              className="inline-flex items-center justify-center rounded-md text-lg font-medium h-14 px-8 border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
               <Phone className="mr-2 h-5 w-5" />
               212-265-6060
-            </Button>
+            </a>
           </div>
         </div>
       </section>
@@ -86,14 +92,21 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             {/* Studio A */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-primary/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative">
+            <div className="group relative overflow-hidden rounded-2xl border bg-card hover:border-primary/50 transition-all duration-300">
+              {/* Studio Image Placeholder */}
+              <div className="aspect-video bg-gradient-to-br from-primary/20 via-card to-card flex items-center justify-center border-b">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Sliders className="h-8 w-8 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Neve 88R Console</p>
+                </div>
+              </div>
+              <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-2xl font-bold text-primary">Studio A</h3>
                   <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">FLAGSHIP</span>
                 </div>
-                <p className="text-xl font-semibold mb-2">Neve 88R Console</p>
                 <p className="text-muted-foreground mb-6">
                   Our flagship room featuring a legendary Neve 88R console,
                   perfect for tracking, mixing, and immersive audio experiences.
@@ -116,14 +129,21 @@ export default function Home() {
             </div>
 
             {/* Studio B */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-primary/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative">
+            <div className="group relative overflow-hidden rounded-2xl border bg-card hover:border-primary/50 transition-all duration-300">
+              {/* Studio Image Placeholder */}
+              <div className="aspect-video bg-gradient-to-br from-blue-500/20 via-card to-card flex items-center justify-center border-b">
+                <div className="text-center">
+                  <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
+                    <Headphones className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">SSL 9000K Console</p>
+                </div>
+              </div>
+              <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-2xl font-bold text-primary">Studio B</h3>
                   <span className="text-xs font-medium px-3 py-1 rounded-full bg-secondary text-secondary-foreground">MIXING</span>
                 </div>
-                <p className="text-xl font-semibold mb-2">SSL 9000K Console</p>
                 <p className="text-muted-foreground mb-6">
                   A mixing powerhouse with the iconic SSL 9000K,
                   delivering the punch and clarity that defined countless hit records.
@@ -187,20 +207,27 @@ export default function Home() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { artist: "Drake", project: "Certified Lover Boy Sessions", rating: 5 },
-              { artist: "Rihanna", project: "Vocal Recording & Production", rating: 5 },
-              { artist: "The Weeknd", project: "After Hours Album", rating: 5 },
-              { artist: "Bad Bunny", project: "Un Verano Sin Ti", rating: 5 },
-              { artist: "Wyclef Jean", project: "Carnival Series", rating: 5 },
-              { artist: "A$AP Rocky", project: "Mixing Sessions", rating: 5 },
+              { artist: "Drake", project: "Certified Lover Boy Sessions", rating: 5, initials: "DK" },
+              { artist: "Rihanna", project: "Vocal Recording & Production", rating: 5, initials: "RH" },
+              { artist: "The Weeknd", project: "After Hours Album", rating: 5, initials: "TW" },
+              { artist: "Bad Bunny", project: "Un Verano Sin Ti", rating: 5, initials: "BB" },
+              { artist: "Wyclef Jean", project: "Carnival Series", rating: 5, initials: "WJ" },
+              { artist: "A$AP Rocky", project: "Mixing Sessions", rating: 5, initials: "AR" },
             ].map((client, i) => (
               <div key={i} className="p-6 rounded-xl border bg-card hover:border-primary/50 transition-colors">
-                <div className="flex gap-1 mb-3">
-                  {[...Array(client.rating)].map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-bold">
+                    {client.initials}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">{client.artist}</h3>
+                    <div className="flex gap-0.5">
+                      {[...Array(client.rating)].map((_, j) => (
+                        <Star key={j} className="h-3 w-3 fill-primary text-primary" />
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-bold text-lg mb-1">{client.artist}</h3>
                 <p className="text-sm text-muted-foreground">{client.project}</p>
               </div>
             ))}
@@ -216,15 +243,19 @@ export default function Home() {
             Book your session today and join the legacy of platinum records
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8">
-                Access Studio CRM
-              </Button>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center justify-center rounded-md text-lg font-medium h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              Access Studio CRM
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8">
+            <a
+              href="mailto:info@platinumsoundny.com"
+              className="inline-flex items-center justify-center rounded-md text-lg font-medium h-12 px-8 border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
               <Mail className="mr-2 h-5 w-5" />
               info@platinumsoundny.com
-            </Button>
+            </a>
           </div>
         </div>
       </section>
