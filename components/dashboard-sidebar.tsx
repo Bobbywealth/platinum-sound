@@ -123,10 +123,7 @@ export default function DashboardSidebar() {
                     {financeOpen && (
                       <div className="ml-4 space-y-0.5 mt-1">
                         {section.items.map((item) => {
-                          const isActive =
-                            pathname === item.href ||
-                            (item.href !== "/dashboard" &&
-                              pathname.startsWith(item.href))
+                          const isActive = pathname === item.href
                           return (
                             <Link
                               key={item.href}
@@ -147,10 +144,7 @@ export default function DashboardSidebar() {
                   </>
                 ) : (
                   section.items.map((item) => {
-                    const isActive =
-                      pathname === item.href ||
-                      (item.href !== "/dashboard" &&
-                        pathname.startsWith(item.href))
+                    const isActive = pathname === item.href
                     return (
                       <Link
                         key={item.href}
