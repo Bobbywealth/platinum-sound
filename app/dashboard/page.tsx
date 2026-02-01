@@ -81,13 +81,13 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       {/* Stats Grid */}
       <SectionHeader
         title="Overview"
         description="Track your studio's performance at a glance"
       />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
           value={formatCurrency(data.stats.totalRevenue)}
@@ -115,24 +115,24 @@ export default function DashboardPage() {
       </div>
 
       {/* Today's Sessions */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Today's Sessions</CardTitle>
-            <Button variant="outline" size="sm">
+          <CardHeader className="flex flex-row items-center justify-between p-8">
+            <CardTitle className="text-2xl">Today's Sessions</CardTitle>
+            <Button variant="outline" size="lg">
               View All
             </Button>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-8 pt-0">
+            <div className="space-y-6">
               {data.todaySessions.map((session, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                  className="flex items-center justify-between p-6 rounded-lg border bg-card"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6">
                     <div
-                      className={`w-2 h-2 rounded-full ${
+                      className={`w-4 h-4 rounded-full ${
                         session.status === "active"
                           ? "bg-green-500 animate-pulse"
                           : session.status === "pending"
@@ -141,15 +141,15 @@ export default function DashboardPage() {
                       }`}
                     />
                     <div>
-                      <p className="font-medium">{session.artist}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xl font-medium">{session.artist}</p>
+                      <p className="text-lg text-muted-foreground">
                         {session.studio}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{session.time}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xl font-medium">{session.time}</p>
+                    <p className="text-lg text-muted-foreground">
                       {session.engineer}
                     </p>
                   </div>
@@ -161,33 +161,33 @@ export default function DashboardPage() {
 
         {/* Upcoming Bookings */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Upcoming Bookings</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between p-8">
+            <CardTitle className="text-2xl">Upcoming Bookings</CardTitle>
             <Link href="/dashboard/bookings">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="lg">
                 View All
               </Button>
             </Link>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className="p-8 pt-0">
+            <div className="space-y-6">
               {data.upcomingBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                  className="flex items-center justify-between p-6 rounded-lg border bg-card"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-6">
                     {booking.isVip && (
-                      <Badge variant="warning">VIP</Badge>
+                      <Badge variant="warning" className="text-lg px-4 py-1">VIP</Badge>
                     )}
                     <div>
-                      <p className="font-medium">{booking.clientName}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xl font-medium">{booking.clientName}</p>
+                      <p className="text-lg text-muted-foreground">
                         {booking.studio} • {formatTime(booking.startTime)}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-4">
                     <Badge
                       variant={
                         booking.status === "confirmed"
@@ -196,6 +196,7 @@ export default function DashboardPage() {
                           ? "warning"
                           : "secondary"
                       }
+                      className="text-lg px-4 py-1"
                     >
                       {booking.status}
                     </Badge>
@@ -214,50 +215,50 @@ export default function DashboardPage() {
           description="Real-time overview of your recording studios"
           action={
             <Link href="/dashboard/studios">
-              <Button variant="secondary" size="sm">
+              <Button variant="secondary" size="lg">
                 Manage Studios
               </Button>
             </Link>
           }
         />
-        <div className="grid gap-4 md:grid-cols-2 mt-6">
-          <div className="space-y-4 p-6 rounded-lg bg-gray-800">
+        <div className="grid gap-6 md:grid-cols-2 mt-8">
+          <div className="space-y-6 p-8 rounded-lg bg-gray-800">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Current Session</span>
-              <span className="font-medium">Drake - Recording</span>
+              <span className="text-xl text-gray-400">Current Session</span>
+              <span className="text-xl font-medium">Drake - Recording</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Engineer</span>
-              <span className="font-medium">Noel Cadastre</span>
+              <span className="text-xl text-gray-400">Engineer</span>
+              <span className="text-xl font-medium">Noel Cadastre</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Next Available</span>
-              <span className="font-medium">10:00 PM</span>
+              <span className="text-xl text-gray-400">Next Available</span>
+              <span className="text-xl font-medium">10:00 PM</span>
             </div>
-            <div className="flex items-center gap-2 mt-4">
-              <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-green-500 font-medium">
+            <div className="flex items-center gap-3 mt-6">
+              <span className="w-5 h-5 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-lg text-green-500 font-medium">
                 In Session
               </span>
             </div>
           </div>
 
-          <div className="space-y-4 p-6 rounded-lg bg-gray-800">
+          <div className="space-y-6 p-8 rounded-lg bg-gray-800">
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Current Session</span>
-              <span className="font-medium">Rihanna - Recording</span>
+              <span className="text-xl text-gray-400">Current Session</span>
+              <span className="text-xl font-medium">Rihanna - Recording</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Engineer</span>
-              <span className="font-medium">Young Guru</span>
+              <span className="text-xl text-gray-400">Engineer</span>
+              <span className="text-xl font-medium">Young Guru</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-400">Next Available</span>
-              <span className="font-medium">8:00 PM</span>
+              <span className="text-xl text-gray-400">Next Available</span>
+              <span className="text-xl font-medium">8:00 PM</span>
             </div>
-            <div className="flex items-center gap-2 mt-4">
-              <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-green-500 font-medium">
+            <div className="flex items-center gap-3 mt-6">
+              <span className="w-5 h-5 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-lg text-green-500 font-medium">
                 In Session
               </span>
             </div>
