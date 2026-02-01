@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
@@ -74,10 +75,14 @@ export default function DashboardSidebar() {
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:min-h-screen lg:border-r bg-card">
       <div className="p-6 border-b">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <Mic2 className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-bold text-lg">Platinum Sound</span>
+          <Image
+            src="/platinum_sound_transparent.png"
+            alt="Platinum Sound Logo"
+            width={180}
+            height={40}
+            className="h-10 w-auto"
+            priority
+          />
         </Link>
       </div>
 

@@ -14,9 +14,9 @@ export default function Home() {
             <Image
               src="/platinum_sound_transparent.png"
               alt="Platinum Sound Logo"
-              width={180}
-              height={40}
-              className="h-8 w-auto"
+              width={360}
+              height={80}
+              className="h-16 w-auto"
               priority
             />
           </div>
