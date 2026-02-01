@@ -1,5 +1,5 @@
-import { Metadata } from "next"
-import Link from "next/link"
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,13 +8,21 @@ import { Input } from "@/components/ui/input"
 import { staff } from "@/lib/data"
 import { getInitials } from "@/lib/utils"
 import { Plus, Mail, Phone, Search, MoreHorizontal } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Staff Management",
-  description: "Manage studio staff and engineers",
-}
+import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 export default function StaffPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -25,10 +33,52 @@ export default function StaffPage() {
             Manage studio engineers and staff members
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Staff Member
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Staff Member
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Staff Member</DialogTitle>
+              <DialogDescription>
+                Add a new staff member or engineer
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="staffName">Full Name</Label>
+                <Input id="staffName" placeholder="Enter full name" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="staffEmail">Email</Label>
+                <Input id="staffEmail" type="email" placeholder="email@example.com" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="staffPhone">Phone</Label>
+                <Input id="staffPhone" placeholder="Phone number" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="staffRole">Role</Label>
+                <Input id="staffRole" placeholder="e.g., Senior Engineer" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="staffSpecialty">Specialty</Label>
+                <Input id="staffSpecialty" placeholder="e.g., Mixing, Recording" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setIsDialogOpen(false)}>
+                Add Staff Member
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Search */}

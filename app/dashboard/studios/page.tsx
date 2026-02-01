@@ -1,5 +1,5 @@
-import { Metadata } from "next"
-import Link from "next/link"
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -15,11 +15,18 @@ import {
   Settings,
   Plus,
 } from "lucide-react"
-
-export const metadata: Metadata = {
-  title: "Studios",
-  description: "Manage Platinum Sound recording studios",
-}
+import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 const studios = [
   {
@@ -75,6 +82,8 @@ const studios = [
 ]
 
 export default function StudiosPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -85,10 +94,48 @@ export default function StudiosPage() {
             Manage your world-class recording facilities
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Studio
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Studio
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Studio</DialogTitle>
+              <DialogDescription>
+                Add a new recording studio to your facility
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="studioName">Studio Name</Label>
+                <Input id="studioName" placeholder="e.g., Studio C" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="studioConsole">Console</Label>
+                <Input id="studioConsole" placeholder="e.g., Neve 8078" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="studioType">Type</Label>
+                <Input id="studioType" placeholder="e.g., Recording, Mixing" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="studioEngineer">Primary Engineer</Label>
+                <Input id="studioEngineer" placeholder="Engineer name" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setIsDialogOpen(false)}>
+                Add Studio
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Studio Status Overview */}

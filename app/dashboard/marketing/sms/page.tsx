@@ -1,278 +1,304 @@
-import { Metadata } from "next"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   MessageSquare,
   Send,
   Users,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   Plus,
   Search,
-  Filter,
-  MoreHorizontal,
-  Phone,
   Eye,
+  Edit,
+  Phone,
+  Calendar,
 } from "lucide-react"
 
-export const metadata: Metadata = {
-  title: "SMS Campaigns",
-  description: "Manage SMS marketing campaigns",
-}
-
-// Mock SMS campaigns data
 const smsCampaigns = [
   {
-    id: "sms-1",
-    name: "Session Reminder - Drake",
-    message: "Reminder: Your session at Platinum Sound Studio A is tomorrow at 10AM. See you there!",
+    id: "SMS001",
+    name: "Session Reminder - Today",
+    message: "Reminder: Your studio session is today at {time}. See you soon!",
+    status: "sent",
+    sentDate: "2024-01-15",
+    recipients: 12,
+    deliveryRate: 100,
+  },
+  {
+    id: "SMS002",
+    name: "Booking Confirmation",
+    message: "Your studio booking for {date} has been confirmed. See you at Platinum Sound!",
     status: "sent",
     sentDate: "2024-01-14",
-    recipients: 1,
-    delivered: 1,
+    recipients: 8,
+    deliveryRate: 100,
   },
   {
-    id: "sms-2",
-    name: "Booking Confirmation - Rihanna",
-    message: "Your studio booking at Platinum Sound is confirmed for Jan 15th, 2PM-8PM in Studio B.",
+    id: "SMS003",
+    name: "Last Minute Opening",
+    message: "Studio B just opened up for tonight! Reply to book your session.",
     status: "sent",
-    sentDate: "2024-01-10",
-    recipients: 1,
-    delivered: 1,
-  },
-  {
-    id: "sms-3",
-    name: "Last Minute Availability",
-    message: "Studio A just opened up tonight at Platinum Sound. Want to book? Call 212-265-6060",
-    status: "scheduled",
-    scheduledDate: "2024-01-20",
+    sentDate: "2024-01-13",
     recipients: 45,
-    delivered: 0,
+    deliveryRate: 95.5,
   },
   {
-    id: "sms-4",
-    name: "VIP Client Early Access",
-    message: "Exclusive opportunity: Book your preferred studio time before we open bookings to the public.",
+    id: "SMS004",
+    name: "VIP Early Access",
+    message: "VIP Exclusive: Early access to our new mastering suite. Book now!",
     status: "draft",
+    sentDate: null,
     recipients: 0,
-    delivered: 0,
+    deliveryRate: 0,
   },
 ]
 
-export default function SMSCampaignsPage() {
+const smsTemplates = [
+  {
+    id: "ST001",
+    name: "Session Reminder",
+    message: "Reminder: Your studio session is tomorrow at {time}. See you soon!",
+    lastUsed: "2024-01-15",
+  },
+  {
+    id: "ST002",
+    name: "Booking Confirmation",
+    message: "Your studio booking for {date} has been confirmed. See you at Platinum Sound!",
+    lastUsed: "2024-01-14",
+  },
+  {
+    id: "ST003",
+    name: "Check-In Link",
+    message: "Check in for your session: {checkin_url}",
+    lastUsed: "2024-01-12",
+  },
+  {
+    id: "ST004",
+    name: "Session Complete",
+    message: "Thanks for recording at Platinum Sound! We hope to see you again soon.",
+    lastUsed: "2024-01-10",
+  },
+]
+
+export default function SmsCampaignsPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("campaigns")
+
+  const filteredCampaigns = smsCampaigns.filter(
+    (campaign) =>
+      campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.message.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">SMS Campaigns</h1>
-          <p className="text-muted-foreground">
-            Send SMS notifications and marketing messages to clients
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight">SMS Campaigns</h2>
+          <p className="text-muted-foreground">Manage SMS marketing and notifications</p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          New SMS Campaign
+          New Campaign
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">4</p>
-                <p className="text-sm text-muted-foreground">Total Campaigns</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{smsCampaigns.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Messages Sent</CardTitle>
+            <Send className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {smsCampaigns.reduce((acc, c) => acc + c.recipients, 0)}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">47</p>
-                <p className="text-sm text-muted-foreground">Messages Sent</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Delivery Rate</CardTitle>
+            <Phone className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-500">
+              {Math.round(
+                smsCampaigns
+                  .filter((c) => c.deliveryRate > 0)
+                  .reduce((acc, c) => acc + c.deliveryRate, 0) /
+                  smsCampaigns.filter((c) => c.deliveryRate > 0).length
+              )}%
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">100%</p>
-                <p className="text-sm text-muted-foreground">Delivery Rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-purple-500" />
-              <div>
-                <p className="text-2xl font-bold">89</p>
-                <p className="text-sm text-muted-foreground">Recipients</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Scheduled</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {smsCampaigns.filter((c) => c.status === "scheduled").length}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Send Card */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Quick SMS Send
-          </CardTitle>
-          <CardDescription>
-            Send a quick SMS to a client or group
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Recipients</label>
-              <select className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">Select recipient(s)...</option>
-                <option value="all">All Clients (89)</option>
-                <option value="vip">VIP Clients (8)</option>
-                <option value="active">Active Clients (24)</option>
-                <option value="individual">Individual Client</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Template (Optional)</label>
-              <select className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
-                <option value="">No template</option>
-                <option value="reminder">Session Reminder</option>
-                <option value="confirmation">Booking Confirmation</option>
-                <option value="promo">Promotional</option>
-              </select>
-            </div>
-            <div className="md:col-span-2 space-y-2">
-              <label className="text-sm font-medium">Message</label>
-              <textarea
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary h-24 resize-none"
-                placeholder="Enter your message (max 160 characters for single SMS)..."
-                maxLength={320}
-              />
-              <p className="text-xs text-muted-foreground text-right">0/320 characters</p>
-            </div>
-            <div className="md:col-span-2">
-              <Button className="w-full">
-                <Send className="mr-2 h-4 w-4" />
-                Send SMS
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="contacts">Contacts</TabsTrigger>
+        </TabsList>
 
-      {/* Campaigns List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Recent SMS Campaigns</CardTitle>
-              <CardDescription>
-                View and manage your SMS marketing campaigns
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search campaigns..."
-                  className="pl-9 pr-4 py-2 text-sm border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
+        <TabsContent value="campaigns" className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search campaigns..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {smsCampaigns.map((campaign) => (
-              <div
-                key={campaign.id}
-                className="flex items-start justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-start gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      campaign.status === "sent"
-                        ? "bg-green-100 text-green-600"
-                        : campaign.status === "scheduled"
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                  </div>
-                  <div className="max-w-xl">
-                    <p className="font-medium">{campaign.name}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {campaign.message}
-                    </p>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {campaign.recipients} recipient(s)
-                      </span>
-                      {campaign.status === "sent" && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Sent {campaign.sentDate}
-                        </span>
-                      )}
-                      {campaign.status === "scheduled" && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          Scheduled for {campaign.scheduledDate}
-                        </span>
+
+          {/* Campaigns List */}
+          <div className="grid gap-4">
+            {filteredCampaigns.map((campaign) => (
+              <Card key={campaign.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold">{campaign.name}</h3>
+                        <Badge
+                          variant={
+                            campaign.status === "sent"
+                              ? "success"
+                              : campaign.status === "scheduled"
+                              ? "info"
+                              : "secondary"
+                          }
+                        >
+                          {campaign.status.charAt(0).toUpperCase() +
+                            campaign.status.slice(1)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+                        {campaign.message}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        {campaign.sentDate && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              Sent:{" "}
+                              {new Date(campaign.sentDate).toLocaleDateString()}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          <span>{campaign.recipients} recipients</span>
+                        </div>
+                        {campaign.deliveryRate > 0 && (
+                          <span className="text-green-500">
+                            {campaign.deliveryRate}% delivered
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon" title="Edit">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" title="View">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {campaign.status === "draft" && (
+                        <Button variant="outline" size="sm">
+                          <Send className="mr-2 h-4 w-4" />
+                          Send
+                        </Button>
                       )}
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  {campaign.status === "sent" && campaign.delivered === campaign.recipients && (
-                    <Badge variant="success" className="flex items-center gap-1">
-                      <CheckCircle2 className="h-3 w-3" />
-                      Delivered
-                    </Badge>
-                  )}
-                  <Badge
-                    variant={
-                      campaign.status === "sent"
-                        ? "success"
-                        : campaign.status === "scheduled"
-                        ? "info"
-                        : "secondary"
-                    }
-                  >
-                    {campaign.status}
-                  </Badge>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-4">
+          <div className="flex justify-end">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Template
+            </Button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {smsTemplates.map((template) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base">{template.name}</CardTitle>
+                      <CardDescription>Last used: {template.lastUsed}</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm bg-muted/50 p-3 rounded-lg">{template.message}</p>
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" size="sm">
+                      Preview
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Use Template
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="contacts">
+          <Card>
+            <CardHeader>
+              <CardTitle>SMS Contacts</CardTitle>
+              <CardDescription>
+                Manage contacts who receive SMS notifications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                Contact management coming soon
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

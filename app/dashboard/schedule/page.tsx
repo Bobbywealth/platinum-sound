@@ -5,9 +5,21 @@ import { Button } from "@/components/ui/button"
 import { bookings } from "@/lib/data"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function SchedulePage() {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15)) // Mock current date
+  const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15))
+  const [isDialogOpen, setIsDialogOpen] = useState(false) // Mock current date
 
   const studioABookings = bookings.filter((b) => b.studio === "Studio A")
   const studioBBookings = bookings.filter((b) => b.studio === "Studio B")
@@ -34,10 +46,52 @@ export default function SchedulePage() {
           <h2 className="text-3xl font-bold tracking-tight">Studio Schedule</h2>
           <p className="text-muted-foreground">Manage studio bookings and sessions</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          New Booking
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Booking
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Schedule New Booking</DialogTitle>
+              <DialogDescription>
+                Book a studio session
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="scheduleClient">Client Name</Label>
+                <Input id="scheduleClient" placeholder="Enter client name" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="scheduleStudio">Studio</Label>
+                <Input id="scheduleStudio" placeholder="Studio A or Studio B" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="scheduleDate">Date</Label>
+                <Input id="scheduleDate" type="date" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="scheduleStart">Start Time</Label>
+                <Input id="scheduleStart" type="time" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="scheduleEnd">End Time</Label>
+                <Input id="scheduleEnd" type="time" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setIsDialogOpen(false)}>
+                Schedule Booking
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Date Navigation */}

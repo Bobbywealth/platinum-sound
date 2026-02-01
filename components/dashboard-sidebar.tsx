@@ -15,6 +15,7 @@ import {
   Mail,
   MessageSquare,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavItem {
   href: string
@@ -118,7 +119,14 @@ export default function DashboardSidebar({
           ))}
         </nav>
 
-        <div className="p-4 border-t">
+        <div className="p-4 border-t space-y-3">
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between px-4 py-2">
+            <span className="text-sm text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
+
+          {/* User Profile */}
           <div className="flex items-center gap-3 px-4 py-2">
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-medium">
               SM

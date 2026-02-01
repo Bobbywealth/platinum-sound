@@ -1,250 +1,350 @@
-import { Metadata } from "next"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+"use client"
+
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Mail,
-  MessageSquare,
   Send,
   Users,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   Plus,
   Search,
-  Filter,
-  MoreHorizontal,
+  MoreVertical,
   Eye,
   Edit,
-  Trash2,
+  Trash,
+  Play,
+  Pause,
 } from "lucide-react"
 
-export const metadata: Metadata = {
-  title: "Email Campaigns",
-  description: "Manage email marketing campaigns",
-}
-
-// Mock email campaigns data
 const emailCampaigns = [
   {
-    id: "email-1",
-    name: "New Year Studio Promotion",
-    subject: "Start 2024 with Platinum Sound - Special Rates!",
+    id: "EC001",
+    name: "Holiday Session Promotion",
+    subject: "25% Off Holiday Studio Sessions",
     status: "sent",
-    sentDate: "2024-01-15",
-    recipients: 245,
-    opens: 189,
-    clicks: 67,
-    openRate: "77.1%",
-    clickRate: "27.3%",
+    sentDate: "2024-01-10",
+    recipients: 156,
+    openRate: 45.2,
+    clickRate: 12.8,
   },
   {
-    id: "email-2",
-    name: "VIP Client Early Access",
-    subject: "Exclusive: Book Your Sessions Before Anyone Else",
+    id: "EC002",
+    name: "New Year New Album",
+    subject: "Start Your 2024 Album at Platinum Sound",
     status: "draft",
+    sentDate: null,
     recipients: 0,
-    opens: 0,
-    clicks: 0,
-    openRate: "0%",
-    clickRate: "0%",
+    openRate: 0,
+    clickRate: 0,
   },
   {
-    id: "email-3",
-    name: "Studio A Upgrade Announcement",
-    subject: "Our Flagship Studio Just Got Better",
+    id: "EC003",
+    name: "VIP Client Update",
+    subject: "Exclusive VIP Perks for 2024",
     status: "scheduled",
     scheduledDate: "2024-02-01",
-    recipients: 312,
-    opens: 0,
-    clicks: 0,
-    openRate: "0%",
-    clickRate: "0%",
+    recipients: 89,
+    openRate: 0,
+    clickRate: 0,
   },
 ]
 
-// Mock SMS campaigns data
-const smsCampaigns = [
+const emailTemplates = [
   {
-    id: "sms-1",
-    name: "Session Reminder - Drake",
-    message: "Reminder: Your session at Platinum Sound Studio A is tomorrow at 10AM. See you there!",
-    status: "sent",
-    sentDate: "2024-01-14",
-    recipients: 1,
-    delivered: 1,
+    id: "ET001",
+    name: "Booking Confirmation",
+    subject: "Your Studio Session is Confirmed",
+    lastUsed: "2024-01-14",
   },
   {
-    id: "sms-2",
-    name: "Booking Confirmation - Rihanna",
-    message: "Your studio booking at Platinum Sound is confirmed for Jan 15th, 2PM-8PM in Studio B.",
-    status: "sent",
-    sentDate: "2024-01-10",
-    recipients: 1,
-    delivered: 1,
+    id: "ET002",
+    name: "Session Reminder",
+    subject: "Reminder: Your Session Tomorrow",
+    lastUsed: "2024-01-13",
   },
   {
-    id: "sms-3",
-    name: "Last Minute Availability",
-    message: "Studio A just opened up tonight at Platinum Sound. Want to book? Call 212-265-6060",
-    status: "scheduled",
-    scheduledDate: "2024-01-20",
-    recipients: 45,
-    delivered: 0,
+    id: "ET003",
+    name: "Invoice Receipt",
+    subject: "Payment Received - Thank You",
+    lastUsed: "2024-01-12",
+  },
+  {
+    id: "ET004",
+    name: "Follow Up",
+    subject: "How Was Your Session?",
+    lastUsed: "2024-01-10",
   },
 ]
 
 export default function EmailCampaignsPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("campaigns")
+
+  const filteredCampaigns = emailCampaigns.filter(
+    (campaign) =>
+      campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      campaign.subject.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Email Campaigns</h1>
-          <p className="text-muted-foreground">
-            Create and manage email marketing campaigns
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight">Email Campaigns</h2>
+          <p className="text-muted-foreground">Manage email marketing campaigns</p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          New Email Campaign
+          New Campaign
         </Button>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Mail className="h-5 w-5 text-blue-500" />
-              <div>
-                <p className="text-2xl font-bold">3</p>
-                <p className="text-sm text-muted-foreground">Total Campaigns</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
+            <Mail className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{emailCampaigns.length}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Sent</CardTitle>
+            <Send className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {emailCampaigns.filter((c) => c.status === "sent").length}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Send className="h-5 w-5 text-green-500" />
-              <div>
-                <p className="text-2xl font-bold">557</p>
-                <p className="text-sm text-muted-foreground">Emails Sent</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Recipients</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {emailCampaigns.reduce((acc, c) => acc + c.recipients, 0)}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-purple-500" />
-              <div>
-                <p className="text-2xl font-bold">77.1%</p>
-                <p className="text-sm text-muted-foreground">Avg Open Rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-2xl font-bold">312</p>
-                <p className="text-sm text-muted-foreground">Subscribers</p>
-              </div>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg Open Rate</CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {Math.round(
+                emailCampaigns
+                  .filter((c) => c.openRate > 0)
+                  .reduce((acc, c) => acc + c.openRate, 0) /
+                  emailCampaigns.filter((c) => c.openRate > 0).length
+              )}%
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Campaigns List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Recent Campaigns</CardTitle>
-              <CardDescription>
-                View and manage your email marketing campaigns
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search campaigns..."
-                  className="pl-9 pr-4 py-2 text-sm border rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="campaigns" className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search campaigns..."
+              className="pl-10"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {emailCampaigns.map((campaign) => (
-              <div
-                key={campaign.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      campaign.status === "sent"
-                        ? "bg-green-100 text-green-600"
-                        : campaign.status === "scheduled"
-                        ? "bg-blue-100 text-blue-600"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    <Mail className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="font-medium">{campaign.name}</p>
-                    <p className="text-sm text-muted-foreground truncate max-w-md">
-                      {campaign.subject}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-6">
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{campaign.recipients}</p>
-                    <p className="text-xs text-muted-foreground">Recipients</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{campaign.openRate}</p>
-                    <p className="text-xs text-muted-foreground">Open Rate</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm font-medium">{campaign.clickRate}</p>
-                    <p className="text-xs text-muted-foreground">Click Rate</p>
-                  </div>
-                  <Badge
-                    variant={
-                      campaign.status === "sent"
-                        ? "success"
-                        : campaign.status === "scheduled"
-                        ? "info"
-                        : "secondary"
-                    }
-                  >
-                    {campaign.status}
-                  </Badge>
-                  <Button variant="ghost" size="icon">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
+
+          {/* Campaigns List */}
+          <Card>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Campaign
+                      </th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Status
+                      </th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Recipients
+                      </th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Open Rate
+                      </th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Click Rate
+                      </th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredCampaigns.map((campaign) => (
+                      <tr
+                        key={campaign.id}
+                        className="border-b hover:bg-muted/50 transition-colors"
+                      >
+                        <td className="p-4">
+                          <div>
+                            <div className="font-medium">{campaign.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {campaign.subject}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge
+                            variant={
+                              campaign.status === "sent"
+                                ? "success"
+                                : campaign.status === "scheduled"
+                                ? "info"
+                                : "secondary"
+                            }
+                          >
+                            {campaign.status.charAt(0).toUpperCase() +
+                              campaign.status.slice(1)}
+                          </Badge>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span>{campaign.recipients}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={
+                              campaign.openRate > 0
+                                ? "text-green-500 font-medium"
+                                : "-"
+                            }
+                          >
+                            {campaign.openRate > 0 ? `${campaign.openRate}%` : "-"}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span
+                            className={
+                              campaign.clickRate > 0
+                                ? "text-primary font-medium"
+                                : "-"
+                            }
+                          >
+                            {campaign.clickRate > 0 ? `${campaign.clickRate}%` : "-"}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" title="Edit">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" title="View">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            {campaign.status === "draft" && (
+                              <Button variant="ghost" size="icon" title="Send">
+                                <Send className="h-4 w-4" />
+                              </Button>
+                            )}
+                            {campaign.status === "scheduled" && (
+                              <Button variant="ghost" size="icon" title="Pause">
+                                <Pause className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-4">
+          <div className="flex justify-end">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Template
+            </Button>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            {emailTemplates.map((template) => (
+              <Card key={template.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base">{template.name}</CardTitle>
+                      <CardDescription>{template.subject}</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      <span>Last used: {template.lastUsed}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Preview
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="subscribers">
+          <Card>
+            <CardHeader>
+              <CardTitle>Email Subscribers</CardTitle>
+              <CardDescription>
+                Manage your email marketing subscriber list
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                Subscriber management coming soon
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

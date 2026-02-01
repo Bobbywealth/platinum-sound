@@ -6,9 +6,21 @@ import { clients } from "@/lib/data"
 import { formatCurrency, getInitials } from "@/lib/utils"
 import { Plus, Search, Mail, Phone, MoreVertical } from "lucide-react"
 import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("")
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const filteredClients = clients.filter(
     (client) =>
@@ -27,10 +39,56 @@ export default function ClientsPage() {
           <h2 className="text-3xl font-bold tracking-tight">Client Roster</h2>
           <p className="text-muted-foreground">Manage your studio clients and projects</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Client
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Client
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Client</DialogTitle>
+              <DialogDescription>
+                Add a new client to your roster
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="clientName">Client Name</Label>
+                <Input id="clientName" placeholder="Enter client name" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="clientEmail">Email</Label>
+                <Input id="clientEmail" type="email" placeholder="client@example.com" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="clientPhone">Phone</Label>
+                <Input id="clientPhone" placeholder="Phone number" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="label">Label / Company</Label>
+                <Input id="label" placeholder="Record label or company" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="project">Project</Label>
+                <Input id="project" placeholder="Current project" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="budget">Budget</Label>
+                <Input id="budget" type="number" placeholder="Project budget" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setIsDialogOpen(false)}>
+                Add Client
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}

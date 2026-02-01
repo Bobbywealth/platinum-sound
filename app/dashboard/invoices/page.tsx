@@ -6,9 +6,21 @@ import { invoices } from "@/lib/data"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Plus, Download, Send, DollarSign, Clock, AlertTriangle, CheckCircle } from "lucide-react"
 import { useState } from "react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function InvoicesPage() {
   const [filter, setFilter] = useState<string>("all")
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const filteredInvoices = filter === "all"
     ? invoices
@@ -28,10 +40,48 @@ export default function InvoicesPage() {
           <h2 className="text-3xl font-bold tracking-tight">Invoices</h2>
           <p className="text-muted-foreground">Manage billing and payments</p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Invoice
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Invoice</DialogTitle>
+              <DialogDescription>
+                Create a new invoice for a client
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="invoiceClient">Client</Label>
+                <Input id="invoiceClient" placeholder="Select client" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="invoiceAmount">Amount</Label>
+                <Input id="invoiceAmount" type="number" placeholder="0.00" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="dueDate">Due Date</Label>
+                <Input id="dueDate" type="date" />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Input id="description" placeholder="Service description" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => setIsDialogOpen(false)}>
+                Create Invoice
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Stats */}
