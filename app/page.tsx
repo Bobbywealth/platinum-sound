@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star, Play, Image as ImageIcon } from "lucide-react"
+import Image from "next/image"
+import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star, Play } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
@@ -93,13 +94,19 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-8">
             {/* Studio A */}
             <div className="group relative overflow-hidden rounded-2xl border bg-card hover:border-primary/50 transition-all duration-300">
-              {/* Studio Image Placeholder */}
-              <div className="aspect-video bg-gradient-to-br from-primary/20 via-card to-card flex items-center justify-center border-b">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Sliders className="h-8 w-8 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">Neve 88R Console</p>
+              {/* Studio Image */}
+              <div className="aspect-video relative overflow-hidden border-b">
+                <Image
+                  src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=80"
+                  alt="Studio A - Neve 88R Console"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/90 text-primary-foreground">
+                    Neve 88R Console
+                  </span>
                 </div>
               </div>
               <div className="p-6">
@@ -130,13 +137,19 @@ export default function Home() {
 
             {/* Studio B */}
             <div className="group relative overflow-hidden rounded-2xl border bg-card hover:border-primary/50 transition-all duration-300">
-              {/* Studio Image Placeholder */}
-              <div className="aspect-video bg-gradient-to-br from-blue-500/20 via-card to-card flex items-center justify-center border-b">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
-                    <Headphones className="h-8 w-8 text-blue-500" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">SSL 9000K Console</p>
+              {/* Studio Image */}
+              <div className="aspect-video relative overflow-hidden border-b">
+                <Image
+                  src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=80"
+                  alt="Studio B - SSL 9000K Console"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-blue-500/90 text-white">
+                    SSL 9000K Console
+                  </span>
                 </div>
               </div>
               <div className="p-6">
