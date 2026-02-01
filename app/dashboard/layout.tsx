@@ -1,8 +1,8 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
-import Link from "next/link"
-import { DashboardSkeleton } from "@/components/skeletons"
 import DashboardSidebar from "@/components/dashboard-sidebar"
+import { DashboardSkeleton } from "@/components/skeletons"
+import DashboardHeader from "@/components/dashboard-header"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -15,10 +15,16 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardSidebar>
-        {children}
-      </DashboardSidebar>
-    </Suspense>
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <DashboardHeader title="Dashboard" />
+        <main className="flex-1 p-6 overflow-auto">
+          <Suspense fallback={<DashboardSkeleton />}>
+            {children}
+          </Suspense>
+        </main>
+      </div>
+    </div>
   )
 }
