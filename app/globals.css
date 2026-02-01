@@ -131,3 +131,13 @@
 .card-hover {
   @apply transition-all duration-300 hover:shadow-lg hover:border-primary/50;
 }
+
+/* Dark sidebar styling */
+.sidebar-dark {
+  background: #000000;
+}
+
+.sidebar-dark .nav-item {
+  text-align: right;
+  justify-content: flex-end;
+}
