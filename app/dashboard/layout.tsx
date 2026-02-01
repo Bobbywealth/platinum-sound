@@ -1,6 +1,8 @@
 import { Metadata } from "next"
 import { Suspense } from "react"
+import Link from "next/link"
 import { DashboardSkeleton } from "@/components/skeletons"
+import DashboardSidebar from "@/components/dashboard-sidebar"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -14,7 +16,9 @@ export default function DashboardLayout({
 }) {
   return (
     <Suspense fallback={<DashboardSkeleton />}>
-      {children}
+      <DashboardSidebar>
+        {children}
+      </DashboardSidebar>
     </Suspense>
   )
 }
