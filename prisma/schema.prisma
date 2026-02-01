@@ -1,0 +1,129 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      Role     @default(MANAGER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  ENGINEER
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  phone     String?
+  label     String?
+  project   String?
+  budget    Float?
+  status    ClientStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  invoices  Invoice[]
+}
+
+enum ClientStatus {
+  ACTIVE
+  PENDING
+  COMPLETED
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+  studio      Studio
+  date        DateTime
+  startTime   String
+  endTime     String
+  engineer    String
+  sessionType SessionType
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  isVip       Boolean       @default(false)
+  bookingCode String        @unique
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum Studio {
+  STUDIO_A
+  STUDIO_B
+}
+
+enum SessionType {
+  RECORDING
+  MIXING
+  MASTERING
+  PRODUCTION
+}
+
+enum BookingStatus {
+  CONFIRMED
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model Invoice {
+  id          String       @id @default(cuid())
+  clientId    String
+  client      Client       @relation(fields: [clientId], references: [id])
+  amount      Float
+  status      InvoiceStatus @default(PENDING)
+  dueDate     DateTime
+  issuedDate  DateTime     @default(now())
+  items       Json
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum InvoiceStatus {
+  PAID
+  PENDING
+  OVERDUE
+}
+
+model Staff {
+  id               String    @id @default(cuid())
+  name             String
+  email            String    @unique
+  phone            String?
+  role             String
+  specialty        String?
+  status           StaffStatus @default(AVAILABLE)
+  currentAssignment String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+enum StaffStatus {
+  AVAILABLE
+  IN_SESSION
+  OFF
+}
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

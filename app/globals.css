@@ -5,51 +5,47 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 45 74% 53%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 43 76% 56%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 45 74% 53%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 43 76% 56%;
     --radius: 0.5rem;
-    --gold: 43 74% 49%;
-    --platinum: 240 3% 89%;
   }
 
   .dark {
-    --background: 240 10% 2%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 5%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 5%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 43 74% 49%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 217.2 32.6% 12%;
+    --primary: 43 76% 56%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 217.2 32.6% 12%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 12%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 43 74% 49%;
-    --gold: 43 74% 49%;
-    --platinum: 240 3% 89%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 43 76% 56%;
   }
 }
 
@@ -64,63 +60,57 @@
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: transparent;
+  @apply bg-muted;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 10px;
+  @apply bg-muted-foreground/30 rounded-full;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  @apply bg-muted-foreground/50;
 }
 
-/* Gold gradient text */
-.text-gold-gradient {
-  background: linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 74% 65%) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Platinum gradient text */
+/* Gold/platinum gradient text */
 .text-platinum-gradient {
-  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  background: linear-gradient(135deg, #e5e4e2 0%, #d4af37 50%, #e5e4e2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Glass effect */
-.glass {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Hero gradient background */
+.hero-gradient {
+  background: linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--primary)/0.05) 100%);
 }
 
 /* Status dots */
 .status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.status-active {
-  background-color: #4ade80;
-  box-shadow: 0 0 8px rgba(74, 222, 128, 0.4);
-}
-.status-pending {
-  background-color: hsl(43 74% 49%);
-  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
-}
-.status-booked {
-  background-color: #3b82f6;
-  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+  @apply w-2 h-2 rounded-full;
 }
 
-/* Animation */
+.status-dot.active {
+  @apply bg-green-500 animate-pulse;
+}
+
+.status-dot.pending {
+  @apply bg-yellow-500;
+}
+
+.status-dot.booked {
+  @apply bg-primary;
+}
+
+/* Animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -132,13 +122,12 @@
   }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.6s ease forwards;
+/* Glass effect */
+.glass {
+  @apply bg-background/80 backdrop-blur-md;
 }
 
-/* Hero background gradients */
-.hero-gradient {
-  background-image:
-    radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.15), transparent 40%),
-    radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.08), transparent 40%);
+/* Card hover effect */
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:border-primary/50;
 }

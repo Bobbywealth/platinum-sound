@@ -1,128 +1,155 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Music, Users, Calendar, DollarSign, TrendingUp, Clock, AlertCircle } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { formatCurrency, formatTime, getRelativeTime } from "@/lib/utils"
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Calendar,
+  DollarSign,
+  Clock,
+  Activity,
+  AlertCircle,
+} from "lucide-react"
 import Link from "next/link"
-import { dashboardStats, todaySessions, bookings, invoices } from "@/lib/data"
-import { formatCurrency } from "@/lib/utils"
+
+interface DashboardData {
+  stats: {
+    totalRevenue: number
+    revenueChange: number
+    activeClients: number
+    clientsChange: number
+    activeBookings: number
+    bookingsChange: number
+    pendingInvoices: number
+    pendingAmount: number
+  }
+  todaySessions: Array<{
+    time: string
+    artist: string
+    studio: string
+    engineer: string
+    status: "active" | "pending" | "booked"
+  }>
+  upcomingBookings: Array<{
+    id: string
+    clientName: string
+    studio: string
+    date: string
+    startTime: string
+    endTime: string
+    status: string
+    isVip?: boolean
+  }>
+}
 
 export default function DashboardPage() {
-  const pendingInvoices = invoices.filter((inv) => inv.status === "pending" || inv.status === "overdue")
-  const upcomingBookings = bookings.filter((b) => b.status === "confirmed" || b.status === "pending").slice(0, 3)
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<DashboardData | null>(null)
+
+  useEffect(() => {
+    async function fetchDashboard() {
+      try {
+        const res = await fetch("/api/dashboard")
+        const dashboardData = await res.json()
+        setData(dashboardData)
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboard()
+  }, [])
+
+  if (loading) {
+    return <DashboardSkeleton />
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <p className="text-muted-foreground">Failed to load dashboard data</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
-        <div className="flex gap-2">
-          <Link href="/dashboard/bookings">
-            <Button>
-              <Calendar className="mr-2 h-4 w-4" />
-              New Booking
-            </Button>
-          </Link>
-        </div>
-      </div>
-
+    <div className="space-y-8">
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(dashboardStats.totalRevenue)}</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-green-500" />
-              <span className="text-green-500">+{dashboardStats.revenueChange}%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.activeClients}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+{dashboardStats.clientsChange}</span> new this week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.activeBookings}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+{dashboardStats.bookingsChange}%</span> from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Invoices</CardTitle>
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{dashboardStats.pendingInvoices}</div>
-            <p className="text-xs text-muted-foreground">
-              {formatCurrency(dashboardStats.pendingAmount)} outstanding
-            </p>
-          </CardContent>
-        </Card>
+        <StatCard
+          title="Total Revenue"
+          value={formatCurrency(data.stats.totalRevenue)}
+          change={data.stats.revenueChange}
+          icon={DollarSign}
+        />
+        <StatCard
+          title="Active Clients"
+          value={data.stats.activeClients.toString()}
+          change={data.stats.clientsChange}
+          icon={Users}
+        />
+        <StatCard
+          title="Active Bookings"
+          value={data.stats.activeBookings.toString()}
+          change={data.stats.bookingsChange}
+          icon={Calendar}
+        />
+        <StatCard
+          title="Pending Invoices"
+          value={data.stats.pendingInvoices.toString()}
+          subtitle={formatCurrency(data.stats.pendingAmount)}
+          icon={Activity}
+          variant="warning"
+        />
       </div>
 
+      {/* Main Content Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Today's Sessions */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              Today&apos;s Sessions
-            </CardTitle>
-            <Link href="/dashboard/schedule">
-              <Button variant="ghost" size="sm">View All</Button>
-            </Link>
+            <CardTitle className="text-lg">Today's Sessions</CardTitle>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {todaySessions.map((session, index) => (
+              {data.todaySessions.map((session, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="text-sm font-semibold text-primary min-w-[80px]">
-                      {session.time}
-                    </div>
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        session.status === "active"
+                          ? "bg-green-500 animate-pulse"
+                          : session.status === "pending"
+                          ? "bg-yellow-500"
+                          : "bg-primary"
+                      }`}
+                    />
                     <div>
-                      <div className="font-medium">{session.artist}</div>
-                      <div className="text-sm text-muted-foreground">{session.studio}</div>
+                      <p className="font-medium">{session.artist}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {session.studio}
+                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm text-muted-foreground hidden sm:block">
+                  <div className="text-right">
+                    <p className="font-medium">{session.time}</p>
+                    <p className="text-sm text-muted-foreground">
                       {session.engineer}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span
-                        className={`status-dot ${
-                          session.status === "active"
-                            ? "status-active"
-                            : session.status === "pending"
-                            ? "status-pending"
-                            : "status-booked"
-                        }`}
-                      />
-                      <span className="text-xs capitalize">{session.status}</span>
-                    </span>
+                    </p>
                   </div>
                 </div>
               ))}
@@ -133,39 +160,43 @@ export default function DashboardPage() {
         {/* Upcoming Bookings */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Upcoming Bookings
-            </CardTitle>
+            <CardTitle className="text-lg">Upcoming Bookings</CardTitle>
             <Link href="/dashboard/bookings">
-              <Button variant="ghost" size="sm">View All</Button>
+              <Button variant="outline" size="sm">
+                View All
+              </Button>
             </Link>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {upcomingBookings.map((booking) => (
+              {data.upcomingBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border bg-card"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="text-sm font-semibold text-primary min-w-[80px]">
-                      {booking.date.split("-").slice(1).join("/")}
-                    </div>
+                    {booking.isVip && (
+                      <Badge variant="warning">VIP</Badge>
+                    )}
                     <div>
-                      <div className="font-medium flex items-center gap-2">
-                        {booking.clientName}
-                        {booking.isVip && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">VIP</span>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {booking.studio} | {booking.sessionType}
-                      </div>
+                      <p className="font-medium">{booking.clientName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {booking.studio} • {formatTime(booking.startTime)}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {booking.startTime}
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={
+                        booking.status === "confirmed"
+                          ? "success"
+                          : booking.status === "pending"
+                          ? "warning"
+                          : "secondary"
+                      }
+                    >
+                      {booking.status}
+                    </Badge>
                   </div>
                 </div>
               ))}
@@ -174,77 +205,33 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Pending Invoices Alert */}
-      {pendingInvoices.length > 0 && (
-        <Card className="border-yellow-500/50 bg-yellow-500/5">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
-              <AlertCircle className="h-5 w-5" />
-              Action Required: Pending Invoices
-            </CardTitle>
-            <Link href="/dashboard/invoices">
-              <Button variant="outline" size="sm">View Invoices</Button>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {pendingInvoices.slice(0, 3).map((invoice) => (
-                <div
-                  key={invoice.id}
-                  className="flex items-center justify-between text-sm"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-muted-foreground">{invoice.id}</span>
-                    <span>{invoice.clientName}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-semibold">{formatCurrency(invoice.amount)}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded text-xs ${
-                        invoice.status === "overdue"
-                          ? "bg-red-500/10 text-red-500"
-                          : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-500"
-                      }`}
-                    >
-                      {invoice.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Stats */}
+      {/* Studio Status */}
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Music className="h-5 w-5 text-primary" />
-              Studio Status
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Studio A Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div>
-                  <div className="font-medium">Studio A (Neve 88R)</div>
-                  <div className="text-sm text-muted-foreground">Drake - Recording Session</div>
-                </div>
-                <span className="flex items-center gap-2 text-green-500">
-                  <span className="status-dot status-active" />
-                  In Use
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Current Session</span>
+                <span className="font-medium">Drake - Recording</span>
               </div>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                <div>
-                  <div className="font-medium">Studio B (SSL 9000K)</div>
-                  <div className="text-sm text-muted-foreground">Next: Rihanna @ 2:00 PM</div>
-                </div>
-                <span className="flex items-center gap-2 text-muted-foreground">
-                  <span className="status-dot" style={{ backgroundColor: "#666" }} />
-                  Available
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Engineer</span>
+                <span className="font-medium">Noel Cadastre</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Next Available</span>
+                <span className="font-medium">10:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm text-green-500 font-medium">
+                  In Session
                 </span>
               </div>
             </div>
@@ -253,35 +240,150 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Staff On Duty
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              Studio B Status
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {[
-                { name: "Jerry 'Wonda' Duplessis", role: "Producer", status: "Studio A" },
-                { name: "Noel Cadastre", role: "Engineer", status: "Studio A" },
-                { name: "Young Guru", role: "Head Engineer", status: "Available" },
-              ].map((staff, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{staff.name}</div>
-                    <div className="text-sm text-muted-foreground">{staff.role}</div>
-                  </div>
-                  <span
-                    className={`text-sm ${
-                      staff.status === "Available" ? "text-muted-foreground" : "text-primary"
-                    }`}
-                  >
-                    {staff.status}
-                  </span>
-                </div>
-              ))}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Current Session</span>
+                <span className="font-medium">Rihanna - Recording</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Engineer</span>
+                <span className="font-medium">Young Guru</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Next Available</span>
+                <span className="font-medium">8:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm text-green-500 font-medium">
+                  In Session
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Link href="/dashboard/bookings">
+              <Button variant="outline" className="w-full justify-start">
+                <Calendar className="mr-2 h-4 w-4" />
+                New Booking
+              </Button>
+            </Link>
+            <Link href="/dashboard/clients">
+              <Button variant="outline" className="w-full justify-start">
+                <Users className="mr-2 h-4 w-4" />
+                Add Client
+              </Button>
+            </Link>
+            <Link href="/dashboard/invoices">
+              <Button variant="outline" className="w-full justify-start">
+                <DollarSign className="mr-2 h-4 w-4" />
+                Create Invoice
+              </Button>
+            </Link>
+            <Link href="/dashboard/schedule">
+              <Button variant="outline" className="w-full justify-start">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Schedule
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+function StatCard({
+  title,
+  value,
+  change,
+  subtitle,
+  icon: Icon,
+  variant,
+}: {
+  title: string
+  value: string
+  change?: number
+  subtitle?: string
+  icon: React.ElementType
+  variant?: "default" | "warning"
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        {(change !== undefined || subtitle) && (
+          <div className="flex items-center gap-2">
+            {change !== undefined && (
+              <span
+                className={`text-xs font-medium ${
+                  change >= 0 ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {change >= 0 ? "+" : ""}
+                {change}%
+              </span>
+            )}
+            {subtitle && (
+              <span className="text-xs text-muted-foreground">{subtitle}</span>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-3 w-16" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        {[...Array(2)].map((_, i) => (
+          <Card key={i}>
+            <CardHeader>
+              <Skeleton className="h-5 w-32" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, j) => (
+                  <Skeleton key={j} className="h-16 w-full" />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
