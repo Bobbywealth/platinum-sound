@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, MessageSquare, ArrowRight } from "lucide-react"
+import { ArrowRight, Mail, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
 export default function MarketingPage() {

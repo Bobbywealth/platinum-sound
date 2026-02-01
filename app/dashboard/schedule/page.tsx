@@ -111,40 +111,53 @@ export default function SchedulePage() {
       <div className="grid md:grid-cols-2 gap-6">
         {/* Studio A */}
         <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="text-primary">Studio A (Neve 88R)</CardTitle>
+          <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="text-primary flex items-center gap-2">
+              Studio A (Neve 88R)
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="p-6 space-y-4">
             {studioABookings.length > 0 ? (
               studioABookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className={`p-4 rounded-lg border-l-4 bg-muted/50 ${
-                    booking.isVip ? "border-l-primary" : "border-l-blue-500"
+                  className={`p-4 rounded-lg border bg-card ${
+                    booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-blue-500"
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`font-bold ${booking.isVip ? "text-primary" : ""}`}>
-                      {booking.clientName}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <span className={`font-semibold text-lg ${booking.isVip ? "text-primary" : ""}`}>
+                        {booking.clientName}
+                      </span>
+                      {booking.isVip && (
+                        <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          VIP
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full">
                       {booking.startTime} - {booking.endTime}
                     </span>
                   </div>
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {booking.sessionType}
-                  </div>
-                  <div className="text-sm">
-                    Engineer: {booking.engineer}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="w-20">Session</span>
+                      <span>{booking.sessionType}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="w-20">Engineer</span>
+                      <span>{booking.engineer}</span>
+                    </div>
                   </div>
                   {booking.notes && (
-                    <div className="text-xs text-muted-foreground mt-2 italic">
+                    <div className="mt-3 pt-3 border-t text-xs text-muted-foreground italic">
                       {booking.notes}
                     </div>
                   )}
-                  <div className="mt-2">
+                  <div className="mt-3 flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                         booking.status === "in-progress"
                           ? "bg-green-500/10 text-green-500"
                           : booking.status === "confirmed"
@@ -152,7 +165,10 @@ export default function SchedulePage() {
                           : "bg-yellow-500/10 text-yellow-500"
                       }`}
                     >
-                      <span className="status-dot status-active mr-2" />
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        booking.status === "in-progress" ? "bg-green-500 animate-pulse" :
+                        booking.status === "confirmed" ? "bg-blue-500" : "bg-yellow-500"
+                      }`} />
                       {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                     </span>
                   </div>
@@ -168,35 +184,48 @@ export default function SchedulePage() {
 
         {/* Studio B */}
         <Card>
-          <CardHeader className="border-b">
-            <CardTitle className="text-primary">Studio B (SSL 9000K)</CardTitle>
+          <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="text-primary flex items-center gap-2">
+              Studio B (SSL 9000K)
+            </CardTitle>
           </CardHeader>
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="p-6 space-y-4">
             {studioBBookings.length > 0 ? (
               studioBBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className={`p-4 rounded-lg border-l-4 bg-muted/50 ${
-                    booking.isVip ? "border-l-primary" : "border-l-blue-500"
+                  className={`p-4 rounded-lg border bg-card ${
+                    booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-blue-500"
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`font-bold ${booking.isVip ? "text-primary" : ""}`}>
-                      {booking.clientName}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <span className={`font-semibold text-lg ${booking.isVip ? "text-primary" : ""}`}>
+                        {booking.clientName}
+                      </span>
+                      {booking.isVip && (
+                        <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                          VIP
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full">
                       {booking.startTime} - {booking.endTime}
                     </span>
                   </div>
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {booking.sessionType}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="w-20">Session</span>
+                      <span>{booking.sessionType}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="w-20">Engineer</span>
+                      <span>{booking.engineer}</span>
+                    </div>
                   </div>
-                  <div className="text-sm">
-                    Engineer: {booking.engineer}
-                  </div>
-                  <div className="mt-2">
+                  <div className="mt-3 flex items-center gap-2">
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${
                         booking.status === "in-progress"
                           ? "bg-green-500/10 text-green-500"
                           : booking.status === "confirmed"
@@ -204,6 +233,10 @@ export default function SchedulePage() {
                           : "bg-yellow-500/10 text-yellow-500"
                       }`}
                     >
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        booking.status === "in-progress" ? "bg-green-500 animate-pulse" :
+                        booking.status === "confirmed" ? "bg-blue-500" : "bg-yellow-500"
+                      }`} />
                       {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                     </span>
                   </div>
@@ -220,18 +253,18 @@ export default function SchedulePage() {
 
       {/* Upcoming Bookings */}
       <Card>
-        <CardHeader>
+        <CardHeader className="border-b">
           <CardTitle>Upcoming Bookings</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
+        <CardContent className="p-6">
+          <div className="space-y-3">
             {bookings.slice(0, 5).map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="text-sm font-medium text-primary">{booking.date}</div>
+                  <div className="text-sm font-medium text-primary min-w-[100px]">{booking.date}</div>
                   <div>
                     <div className="font-medium">{booking.clientName}</div>
                     <div className="text-sm text-muted-foreground">
@@ -239,10 +272,10 @@ export default function SchedulePage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <span className="text-sm text-muted-foreground">{booking.engineer}</span>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
                       booking.status === "confirmed"
                         ? "bg-blue-500/10 text-blue-500"
                         : booking.status === "pending"

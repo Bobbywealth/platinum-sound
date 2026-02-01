@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { formatCurrency, formatTime } from "@/lib/utils"
+import { formatCurrency } from "@/lib/utils"
 import { SectionHeader } from "@/components/section-header"
 import { StatCard } from "@/components/stat-card"
 import { DarkSection } from "@/components/dark-section"
@@ -36,16 +35,6 @@ interface DashboardData {
     studio: string
     engineer: string
     status: "active" | "pending" | "booked"
-  }>
-  upcomingBookings: Array<{
-    id: string
-    clientName: string
-    studio: string
-    date: string
-    startTime: string
-    endTime: string
-    status: string
-    isVip?: boolean
   }>
 }
 
@@ -152,117 +141,153 @@ export default function DashboardPage() {
         />
       </motion.div>
 
-      {/* Today's Sessions & Upcoming Bookings */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <motion.div variants={itemVariants}>
-          <Card className="card-hover">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">Today's Sessions</CardTitle>
-              <Button variant="outline" size="sm">
-                View All
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {data.todaySessions.map((session, index) => (
-                  <motion.div
-                    key={index}
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01, x: 4 }}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer"
-                  >
-                    <div className="flex items-center gap-4">
-                      <motion.div
-                        className={`w-2 h-2 rounded-full ${
-                          session.status === "active"
-                            ? "bg-green-500"
-                            : session.status === "pending"
-                            ? "bg-yellow-500"
-                            : "bg-primary"
-                        }`}
-                        animate={
-                          session.status === "active"
-                            ? {
-                                scale: [1, 1.2, 1],
-                                opacity: [1, 0.7, 1],
-                              }
-                            : {}
-                        }
-                        transition={{
-                          duration: session.status === "active" ? 1.5 : 0,
-                          repeat: session.status === "active" ? Infinity : 0,
-                        }}
-                      />
-                      <div>
-                        <p className="font-medium">{session.artist}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {session.studio}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{session.time}</p>
+      {/* Today's Sessions */}
+      <motion.div variants={itemVariants}>
+        <Card className="card-hover">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Today's Sessions</CardTitle>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {data.todaySessions.map((session, index) => (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.01, x: 4 }}
+                  className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <motion.div
+                      className={`w-2 h-2 rounded-full ${
+                        session.status === "active"
+                          ? "bg-green-500"
+                          : session.status === "pending"
+                          ? "bg-yellow-500"
+                          : "bg-primary"
+                      }`}
+                      animate={
+                        session.status === "active"
+                          ? {
+                              scale: [1, 1.2, 1],
+                              opacity: [1, 0.7, 1],
+                            }
+                          : {}
+                      }
+                      transition={{
+                        duration: session.status === "active" ? 1.5 : 0,
+                        repeat: session.status === "active" ? Infinity : 0,
+                      }}
+                    />
+                    <div>
+                      <p className="font-medium">{session.artist}</p>
                       <p className="text-sm text-muted-foreground">
-                        {session.engineer}
+                        {session.studio}
                       </p>
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{session.time}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {session.engineer}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-        <motion.div variants={itemVariants}>
-          <Card className="card-hover">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg">Upcoming Bookings</CardTitle>
-              <Link href="/dashboard/bookings">
-                <Button variant="outline" size="sm">
-                  View All
+      {/* Studio Status */}
+      <motion.div variants={itemVariants}>
+        <DarkSection>
+          <SectionHeader
+            title="Studio Status"
+            description="Real-time overview of your recording studios"
+            action={
+              <Link href="/dashboard/studios">
+                <Button variant="secondary" size="sm">
+                  Manage Studios
                 </Button>
               </Link>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {data.upcomingBookings.map((booking, index) => (
-                  <motion.div
-                    key={booking.id}
-                    variants={itemVariants}
-                    whileHover={{ scale: 1.01, x: 4 }}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card cursor-pointer"
-                  >
-                    <div className="flex items-center gap-4">
-                      {booking.isVip && (
-                        <Badge variant="warning">VIP</Badge>
-                      )}
-                      <div>
-                        <p className="font-medium">{booking.clientName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {booking.studio} - {formatTime(booking.startTime)}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          booking.status === "confirmed"
-                            ? "success"
-                            : booking.status === "pending"
-                            ? "warning"
-                            : "secondary"
-                        }
-                      >
-                        {booking.status}
-                      </Badge>
-                    </div>
-                  </motion.div>
-                ))}
+            }
+          />
+          <div className="grid gap-4 md:grid-cols-2 mt-6">
+            <motion.div
+              className="space-y-4 p-6 rounded-lg bg-gray-800"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Current Session</span>
+                <span className="font-medium">Drake - Recording</span>
               </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Engineer</span>
+                <span className="font-medium">Noel Cadastre</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Next Available</span>
+                <span className="font-medium">10:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <motion.span
+                  className="w-3 h-3 bg-green-500 rounded-full"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [1, 0.6, 1],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                  }}
+                />
+                <span className="text-sm text-green-500 font-medium">
+                  In Session
+                </span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="space-y-4 p-6 rounded-lg bg-gray-800"
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Current Session</span>
+                <span className="font-medium">Rihanna - Recording</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Engineer</span>
+                <span className="font-medium">Young Guru</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Next Available</span>
+                <span className="font-medium">8:00 PM</span>
+              </div>
+              <div className="flex items-center gap-2 mt-4">
+                <motion.span
+                  className="w-3 h-3 bg-green-500 rounded-full"
+                  animate={{
+                    scale: [1, 1.2, 1],
+                    opacity: [1, 0.6, 1],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                  }}
+                />
+                <span className="text-sm text-green-500 font-medium">
+                  In Session
+                </span>
+              </div>
+            </motion.div>
+          </div>
+        </DarkSection>
+      </motion.div>
 
       {/* Studio Status */}
       <motion.div variants={itemVariants}>

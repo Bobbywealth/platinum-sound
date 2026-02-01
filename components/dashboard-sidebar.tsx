@@ -86,37 +86,38 @@ export default function DashboardSidebar() {
       </div>
 
       {/* Navigation - Centered */}
-      <nav className="flex-1 p-4 space-y-6 overflow-auto bg-black">
-        {navSections.map((section) => (
-          <div key={section.label}>
-            <h3 className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">
-              {section.label}
-            </h3>
-            <div className="space-y-1">
-              {section.items.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== "/dashboard" &&
-                    pathname.startsWith(item.href))
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-white/10 text-white"
-                        : "text-gray-300 hover:bg-white/10 hover:text-white"
-                    }`}
-                  >
-                    <item.icon className="h-5 w-5 flex-shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                )
-              })}
+      <nav className="flex-1 flex flex-col justify-between p-4 space-y-6 bg-black">
+        <div className="space-y-6">
+          {navSections.map((section) => (
+            <div key={section.label}>
+              <h3 className="px-4 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">
+                {section.label}
+              </h3>
+              <div className="space-y-1">
+                {section.items.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    (item.href !== "/dashboard" &&
+                      pathname.startsWith(item.href))
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors w-full ${
+                        isActive
+                          ? "bg-white/10 text-white"
+                          : "text-gray-300 hover:bg-white/10 hover:text-white"
+                      }`}
+                    >
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span>{item.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </nav>
+          ))}
+        </div>
 
       {/* Footer - User Profile & Sign Out */}
       <div className="p-4 border-t bg-black space-y-2">
