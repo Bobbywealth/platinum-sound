@@ -3,6 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 import {
   LayoutDashboard,
   Calendar,
@@ -14,6 +15,9 @@ import {
   Building2,
   Mail,
   LogOut,
+  DollarSign,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 
 interface NavItem {
@@ -43,8 +47,9 @@ const navSections: NavSection[] = [
   {
     label: "FINANCE",
     items: [
-      { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
       { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+      { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
+      { href: "/dashboard/expenses", label: "Expenses", icon: DollarSign },
     ],
   },
   {
@@ -68,6 +73,7 @@ const navSections: NavSection[] = [
 
 export default function DashboardSidebar() {
   const pathname = usePathname()
+  const [financeOpen, setFinanceOpen] = useState(true)
 
   return (
     <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r sidebar-dark">
@@ -94,26 +100,73 @@ export default function DashboardSidebar() {
                 {section.label}
               </h3>
               <div className="space-y-0.5">
-                {section.items.map((item) => {
-                  const isActive =
-                    pathname === item.href ||
-                    (item.href !== "/dashboard" &&
-                      pathname.startsWith(item.href))
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors ${
-                        isActive
+                {section.label === "FINANCE" ? (
+                  <>
+                    {/* Finance Toggle Button */}
+                    <button
+                      onClick={() => setFinanceOpen(!financeOpen)}
+                      className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors w-full ${
+                        financeOpen
                           ? "bg-white text-black"
                           : "text-gray-300 hover:text-white"
                       }`}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
-                  )
-                })}
+                      <DollarSign className="h-4 w-4 flex-shrink-0" />
+                      <span>Finance</span>
+                      {financeOpen ? (
+                        <ChevronUp className="h-3 w-3 ml-auto" />
+                      ) : (
+                        <ChevronDown className="h-3 w-3 ml-auto" />
+                      )}
+                    </button>
+                    {/* Finance Dropdown Items */}
+                    {financeOpen && (
+                      <div className="ml-4 space-y-0.5 mt-1">
+                        {section.items.map((item) => {
+                          const isActive =
+                            pathname === item.href ||
+                            (item.href !== "/dashboard" &&
+                              pathname.startsWith(item.href))
+                          return (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className={`flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium transition-colors ${
+                                isActive
+                                  ? "bg-white text-black"
+                                  : "text-gray-300 hover:text-white"
+                              }`}
+                            >
+                              <item.icon className="h-4 w-4 flex-shrink-0" />
+                              <span>{item.label}</span>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  section.items.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== "/dashboard" &&
+                        pathname.startsWith(item.href))
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors ${
+                          isActive
+                            ? "bg-white text-black"
+                            : "text-gray-300 hover:text-white"
+                        }`}
+                      >
+                        <item.icon className="h-4 w-4 flex-shrink-0" />
+                        <span>{item.label}</span>
+                      </Link>
+                    )
+                  })
+                )}
               </div>
             </div>
           ))}
