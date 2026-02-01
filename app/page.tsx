@@ -13,6 +13,26 @@ export default function Home() {
             <Music className="h-6 w-6 text-primary" />
             <span className="font-bold text-lg">Platinum Sound</span>
           </div>
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              HOME
+            </Link>
+            <Link href="#studios" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              STUDIOS
+            </Link>
+            <Link href="#team" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              TEAM
+            </Link>
+            <Link href="#services" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              SERVICES
+            </Link>
+            <Link href="#clients" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+              CLIENTS
+            </Link>
+            <Link href="/dashboard/bookings" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              BOOKING
+            </Link>
+          </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Link href="/dashboard">
@@ -76,7 +96,7 @@ export default function Home() {
       </section>
 
       {/* Studios Section */}
-      <section className="py-20 px-6">
+      <section id="studios" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">World-Class Studios</h2>
@@ -148,8 +168,36 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Team Section */}
+      <section id="team" className="py-20 px-6 bg-card/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Team</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Meet the talented professionals behind platinum records
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { name: "Jerry 'Wonda' Duplessis", role: "Founder & Producer", icon: Music },
+              { name: "Wyclef Jean", role: "Co-Founder & Producer", icon: Music },
+              { name: "David Kahne", role: "Lead Engineer", icon: Sliders },
+              { name: "Mike Dean", role: "Mixing Engineer", icon: Sliders },
+            ].map((member, i) => (
+              <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <member.icon className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="font-bold mb-1">{member.name}</h3>
+                <p className="text-sm text-muted-foreground">{member.role}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Services Section */}
-      <section className="py-20 px-6 bg-card/50 border-y">
+      <section id="services" className="py-20 px-6 bg-card/50 border-y">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Services</h2>
@@ -177,7 +225,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials / Notable Clients */}
-      <section className="py-20 px-6">
+      <section id="clients" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Notable Sessions</h2>
