@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
 
 export function DashboardSkeleton() {
   return (
@@ -6,39 +7,44 @@ export function DashboardSkeleton() {
       {/* Stats Grid Skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className="rounded-lg border bg-card p-6 animate-pulse"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
           >
-            <div className="flex items-center justify-between">
-              <div className="h-4 w-24 bg-muted rounded" />
-              <div className="h-4 w-4 bg-muted rounded" />
+            <div className="rounded-lg border bg-card p-6">
+              <div className="flex items-center justify-between">
+                <Shimmer className="h-4 w-24" />
+                <Shimmer className="h-4 w-4 rounded-full" />
+              </div>
+              <div className="mt-4">
+                <Shimmer className="h-8 w-32" />
+                <Shimmer className="h-3 w-16 mt-2" />
+              </div>
             </div>
-            <div className="mt-4">
-              <div className="h-8 w-32 bg-muted rounded" />
-              <div className="h-3 w-16 bg-muted rounded mt-2" />
-            </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Cards Skeleton */}
       <div className="grid gap-6 lg:grid-cols-2">
         {[...Array(2)].map((_, i) => (
-          <div
+          <motion.div
             key={i}
-            className="rounded-lg border bg-card p-6 animate-pulse"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 + i * 0.1 }}
           >
-            <div className="h-5 w-32 bg-muted rounded mb-4" />
-            <div className="space-y-4">
-              {[...Array(3)].map((_, j) => (
-                <div
-                  key={j}
-                  className="h-16 bg-muted rounded"
-                />
-              ))}
+            <div className="rounded-lg border bg-card p-6">
+              <Shimmer className="h-5 w-32 mb-4" />
+              <div className="space-y-4">
+                {[...Array(3)].map((_, j) => (
+                  <Shimmer key={j} className="h-16 w-full rounded-lg" />
+                ))}
+              </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
@@ -49,13 +55,23 @@ export function TableSkeleton() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="h-10 w-64 bg-muted rounded animate-pulse" />
-        <div className="h-10 w-32 bg-muted rounded ml-auto" />
+        <Shimmer className="h-10 w-64" />
+        <Shimmer className="h-10 w-32 ml-auto" />
       </div>
       <div className="rounded-md border">
-        <div className="h-12 border-b bg-muted/50 animate-pulse" />
+        <div className="h-12 border-b flex items-center px-4">
+          <Shimmer className="h-4 w-full" />
+        </div>
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-16 border-b last:border-0 animate-pulse" />
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: i * 0.05 }}
+            className="h-16 border-b last:border-0 flex items-center px-4"
+          >
+            <Shimmer className="h-4 w-full" />
+          </motion.div>
         ))}
       </div>
     </div>
@@ -64,12 +80,12 @@ export function TableSkeleton() {
 
 export function CardSkeleton() {
   return (
-    <div className="rounded-lg border bg-card p-6 animate-pulse">
-      <div className="h-5 w-32 bg-muted rounded mb-4" />
+    <div className="rounded-lg border bg-card p-6">
+      <Shimmer className="h-5 w-32 mb-4" />
       <div className="space-y-3">
-        <div className="h-4 w-full bg-muted rounded" />
-        <div className="h-4 w-3/4 bg-muted rounded" />
-        <div className="h-4 w-1/2 bg-muted rounded" />
+        <Shimmer className="h-4 w-full" />
+        <Shimmer className="h-4 w-3/4" />
+        <Shimmer className="h-4 w-1/2" />
       </div>
     </div>
   )
@@ -77,20 +93,185 @@ export function CardSkeleton() {
 
 export function FormSkeleton() {
   return (
-    <div className="space-y-6 animate-pulse">
+    <div className="space-y-6">
       <div className="space-y-2">
-        <div className="h-4 w-24 bg-muted rounded" />
-        <div className="h-10 w-full bg-muted rounded" />
+        <Shimmer className="h-4 w-24" />
+        <Shimmer className="h-10 w-full" />
       </div>
       <div className="space-y-2">
-        <div className="h-4 w-24 bg-muted rounded" />
-        <div className="h-10 w-full bg-muted rounded" />
+        <Shimmer className="h-4 w-24" />
+        <Shimmer className="h-10 w-full" />
       </div>
       <div className="space-y-2">
-        <div className="h-4 w-24 bg-muted rounded" />
-        <div className="h-24 w-full bg-muted rounded" />
+        <Shimmer className="h-4 w-24" />
+        <Shimmer className="h-24 w-full" />
       </div>
-      <div className="h-10 w-32 bg-muted rounded" />
+      <Shimmer className="h-10 w-32" />
+    </div>
+  )
+}
+
+// Waveform-shaped shimmer for studio-related loading
+export function WaveformSkeleton({ bars = 20 }: { bars?: number }) {
+  return (
+    <div className="flex items-end justify-center gap-1 h-12">
+      {Array.from({ length: bars }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="w-1 bg-primary/30 rounded-full"
+          animate={{
+            height: [8, 24, 12, 32, 8],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+            delay: i * 0.05,
+          }}
+          style={{ minHeight: 8 }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Pulse circle for recording status loading
+export function RecordingSkeleton() {
+  return (
+    <div className="flex items-center gap-2">
+      <motion.div
+        className="w-3 h-3 bg-red-500 rounded-full"
+        animate={{
+          opacity: [1, 0.4, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+      <motion.span
+        className="text-sm font-medium text-red-500"
+        animate={{
+          opacity: [1, 0.6, 1],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        REC
+      </motion.span>
+    </div>
+  )
+}
+
+// Shimmer component with animation
+function Shimmer({
+  className,
+  delay = 0,
+}: {
+  className?: string
+  delay?: number
+}) {
+  return (
+    <motion.div
+      className={cn("relative overflow-hidden rounded bg-muted", className)}
+      initial={{ opacity: 0.5 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay }}
+    >
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        animate={{
+          x: ["-100%", "100%"],
+        }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay,
+        }}
+      />
+    </motion.div>
+  )
+}
+
+// Circular progress skeleton
+export function CircularProgressSkeleton({ size = 48 }: { size?: number }) {
+  return (
+    <motion.div
+      className="relative"
+      style={{ width: size, height: size }}
+      animate={{ rotate: 360 }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "linear",
+      }}
+    >
+      <svg className="w-full h-full" viewBox="0 0 48 48">
+        <circle
+          cx="24"
+          cy="24"
+          r="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          className="text-muted"
+        />
+        <motion.circle
+          cx="24"
+          cy="24"
+          r="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="4"
+          strokeLinecap="round"
+          className="text-primary"
+          strokeDasharray={[80, 120]}
+          animate={{
+            strokeDasharray: ["0, 120", "80, 40", "0, 120"],
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </svg>
+    </motion.div>
+  )
+}
+
+// Activity feed skeleton
+export function ActivityFeedSkeleton({ items = 5 }: { items?: number }) {
+  return (
+    <div className="rounded-lg border bg-card">
+      <div className="p-4 border-b">
+        <div className="flex items-center justify-between">
+          <Shimmer className="h-5 w-32" />
+          <Shimmer className="h-4 w-16" />
+        </div>
+      </div>
+      <div className="divide-y">
+        {Array.from({ length: items }).map((_, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: i * 0.1 }}
+            className="p-4 flex items-start gap-3"
+          >
+            <Shimmer className="h-8 w-8 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Shimmer className="h-4 w-3/4" />
+              <Shimmer className="h-3 w-1/2" />
+            </div>
+          </motion.div>
+        ))}
+      </div>
     </div>
   )
 }
