@@ -230,14 +230,14 @@ export function CircularProgressSkeleton({ size = 48 }: { size?: number }) {
           strokeWidth="4"
           strokeLinecap="round"
           className="text-primary"
-          strokeDasharray={[80, 120]}
+          strokeDasharray="80, 120"
           animate={{
             strokeDasharray: ["0, 120", "80, 40", "0, 120"],
           }}
           transition={{
             duration: 1.5,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "easeInOut" as const,
           }}
         />
       </svg>
