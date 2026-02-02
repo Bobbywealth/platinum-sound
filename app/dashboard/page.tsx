@@ -199,6 +199,37 @@ export default function DashboardPage() {
         </Card>
       </motion.div>
 
+      {/* Rooms Available */}
+      <motion.div variants={itemVariants}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Rooms Available</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="flex items-center justify-between p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                  <div>
+                    <p className="font-medium">Studio A</p>
+                    <p className="text-sm text-muted-foreground">Available now</p>
+                  </div>
+                </div>
+                <span className="text-sm font-medium text-green-500">Free</span>
+              </div>
+              <div className="flex items-center justify-between p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+                  <div>
+                    <p className="font-medium">Studio B</p>
+                    <p className="text-sm text-muted-foreground">Available now</p>
+                  </div>
+                </div>
+                <span className="text-sm font-medium text-green-500">Free</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* CTA Section */}
