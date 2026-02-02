@@ -18,6 +18,7 @@ import {
   DollarSign,
   ChevronDown,
   ChevronUp,
+  Music2,
 } from "lucide-react"
 
 interface NavItem {
@@ -42,6 +43,7 @@ const navSections: NavSection[] = [
       { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
       { href: "/dashboard/schedule", label: "Schedule", icon: Clock },
       { href: "/dashboard/studios", label: "Studios", icon: Building2 },
+      { href: "/dashboard/services", label: "Services", icon: Music2 },
     ],
   },
   {
