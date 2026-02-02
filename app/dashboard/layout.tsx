@@ -1,9 +1,9 @@
-import { Metadata } from "next"
-import { Suspense } from "react"
+import DashboardFooter from "@/components/dashboard-footer"
+import DashboardHeader from "@/components/dashboard-header"
 import DashboardSidebar from "@/components/dashboard-sidebar"
 import { DashboardSkeleton } from "@/components/skeletons"
-import DashboardHeader from "@/components/dashboard-header"
-import DashboardFooter from "@/components/dashboard-footer"
+import { Metadata } from "next"
+import { Suspense } from "react"
 
 export const metadata: Metadata = {
   title: "Dashboard",
