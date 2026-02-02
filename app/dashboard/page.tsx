@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
 import { SectionHeader } from "@/components/section-header"
 import { StatCard } from "@/components/stat-card"
-import { DarkSection } from "@/components/dark-section"
 import { CTASection } from "@/components/cta-section"
 import { AudioWaveform } from "@/components/audio-waveform"
 import { motion } from "framer-motion"
@@ -16,7 +15,6 @@ import {
   DollarSign,
   Activity,
 } from "lucide-react"
-import Link from "next/link"
 
 interface DashboardData {
   stats: {
@@ -201,92 +199,6 @@ export default function DashboardPage() {
         </Card>
       </motion.div>
 
-      {/* Studio Status */}
-      <motion.div variants={itemVariants}>
-        <DarkSection>
-          <SectionHeader
-            title="Studio Status"
-            description="Real-time overview of your recording studios"
-            action={
-              <Link href="/dashboard/studios">
-                <Button variant="secondary" size="sm">
-                  Manage Studios
-                </Button>
-              </Link>
-            }
-          />
-          <div className="grid gap-4 md:grid-cols-2 mt-6">
-            <motion.div
-              className="space-y-4 p-6 rounded-lg bg-gray-800"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Current Session</span>
-                <span className="font-medium">Drake - Recording</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Engineer</span>
-                <span className="font-medium">Noel Cadastre</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Next Available</span>
-                <span className="font-medium">10:00 PM</span>
-              </div>
-              <div className="flex items-center gap-2 mt-4">
-                <motion.span
-                  className="w-3 h-3 bg-green-500 rounded-full"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [1, 0.6, 1],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                  }}
-                />
-                <span className="text-sm text-green-500 font-medium">
-                  In Session
-                </span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              className="space-y-4 p-6 rounded-lg bg-gray-800"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Current Session</span>
-                <span className="font-medium">Rihanna - Recording</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Engineer</span>
-                <span className="font-medium">Young Guru</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-400">Next Available</span>
-                <span className="font-medium">8:00 PM</span>
-              </div>
-              <div className="flex items-center gap-2 mt-4">
-                <motion.span
-                  className="w-3 h-3 bg-green-500 rounded-full"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [1, 0.6, 1],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                  }}
-                />
-                <span className="text-sm text-green-500 font-medium">
-                  In Session
-                </span>
-              </div>
-            </motion.div>
-          </div>
-        </DarkSection>
       </motion.div>
 
       {/* CTA Section */}
