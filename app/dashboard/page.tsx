@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { formatCurrency } from "@/lib/utils"
 import { SectionHeader } from "@/components/section-header"
 import { StatCard } from "@/components/stat-card"
 import { CTASection } from "@/components/cta-section"
@@ -111,14 +110,14 @@ export default function DashboardPage() {
       <motion.div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" variants={itemVariants}>
         <StatCard
           title="Total Revenue"
-          value={formatCurrency(data.stats.totalRevenue)}
+          value="7 Sessions"
           change={data.stats.revenueChange}
           icon={DollarSign}
           index={0}
         />
         <StatCard
           title="Active Clients"
-          value={data.stats.activeClients.toString()}
+          value="24"
           change={data.stats.clientsChange}
           icon={Users}
           index={1}
