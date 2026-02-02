@@ -8,6 +8,7 @@ import { StatCard } from "@/components/stat-card"
 import { CTASection } from "@/components/cta-section"
 import { AudioWaveform } from "@/components/audio-waveform"
 import { motion } from "framer-motion"
+import { cn, formatCurrency } from "@/lib/utils"
 import {
   Users,
   Calendar,
