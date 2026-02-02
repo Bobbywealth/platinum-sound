@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import DashboardSidebar from "@/components/dashboard-sidebar"
 import { DashboardSkeleton } from "@/components/skeletons"
 import DashboardHeader from "@/components/dashboard-header"
+import DashboardFooter from "@/components/dashboard-footer"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -24,6 +25,7 @@ export default function DashboardLayout({
             {children}
           </Suspense>
         </main>
+        <DashboardFooter />
       </div>
     </div>
   )
