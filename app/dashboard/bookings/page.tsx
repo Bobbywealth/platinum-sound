@@ -18,6 +18,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { useState } from "react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 type ViewMode = "grid" | "list" | "calendar"
