@@ -18,24 +18,6 @@ import {
   ChevronRight,
 } from "lucide-react"
 import { useState } from "react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
 type ViewMode = "grid" | "list" | "calendar"
@@ -123,64 +105,12 @@ export default function BookingsPage() {
               <CalendarDays className="h-4 w-4" />
             </Button>
           </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                New Booking
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Booking</DialogTitle>
-                <DialogDescription>
-                  Book a new studio session for a client
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="clientName">Client Name</Label>
-                  <Input id="clientName" placeholder="Enter client name" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="studio">Studio</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select studio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="studio-a">Studio A</SelectItem>
-                      <SelectItem value="studio-b">Studio B</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="date">Date</Label>
-                  <Input id="date" type="date" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="startTime">Start Time</Label>
-                  <Input id="startTime" type="time" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="endTime">End Time</Label>
-                  <Input id="endTime" type="time" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="engineer">Engineer</Label>
-                  <Input id="engineer" placeholder="Engineer name" />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setIsDialogOpen(false)}>
-                  Create Booking
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+          <Link href="/dashboard/bookings/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Booking
+            </Button>
+          </Link>
         </div>
       </div>
 
