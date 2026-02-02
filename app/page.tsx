@@ -1,7 +1,10 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star, Play } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Music, MapPin, Phone, Mail, Clock, Mic2, Headphones, Sliders, Users, Star } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
@@ -82,12 +85,130 @@ export default function Home() {
             Celebrating 20+ years of excellence in the heart of New York City.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard/bookings/new">
+            <a href="#booking">
               <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90">
                 Book Now
               </Button>
-            </Link>
+            </a>
           </div>
+        </div>
+      </section>
+
+      {/* Booking Section */}
+      <section id="booking" className="py-20 px-6 bg-card/50">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Book a Session</h2>
+            <p className="text-muted-foreground">
+              Schedule your recording session at Platinum Sound Studios
+            </p>
+          </div>
+          <Card>
+            <CardContent className="p-8">
+              <div className="grid gap-6">
+                {/* Client Name */}
+                <div className="grid gap-2">
+                  <Label htmlFor="clientName">Client Name</Label>
+                  <Input id="clientName" placeholder="Enter client name" />
+                </div>
+
+                {/* Date Selection */}
+                <div className="grid gap-2">
+                  <Label>Select Date</Label>
+                  <div className="grid grid-cols-7 gap-1">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                      <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
+                        {day}
+                      </div>
+                    ))}
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={`empty-${i}`} className="h-10" />
+                    ))}
+                    {Array.from({ length: 31 }).map((_, i) => {
+                      const day = i + 1
+                      const isAvailable = true
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          disabled={!isAvailable}
+                          className={`h-10 rounded-lg text-sm font-medium transition-colors ${
+                            !isAvailable && "text-muted-foreground/50 cursor-not-allowed"
+                          } ${isAvailable && "hover:bg-muted"}`}
+                        >
+                          {day}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Studio Selection */}
+                <div className="grid gap-2">
+                  <Label>Select Studio</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      type="button"
+                      className="p-4 rounded-lg border-2 border-primary bg-primary/5 text-left"
+                    >
+                      <div className="font-semibold">Studio A</div>
+                      <div className="text-sm text-muted-foreground">Neve 88R</div>
+                    </button>
+                    <button
+                      type="button"
+                      className="p-4 rounded-lg border-2 border-border hover:border-primary/50 text-left"
+                    >
+                      <div className="font-semibold">Studio B</div>
+                      <div className="text-sm text-muted-foreground">SSL 9000K</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Time Slots */}
+                <div className="grid gap-2">
+                  <Label>Select Time</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      "11:00 AM - 12:00 PM",
+                      "12:00 PM - 1:00 PM",
+                      "1:00 PM - 2:00 PM",
+                      "2:00 PM - 3:00 PM",
+                      "3:00 PM - 4:00 PM",
+                      "4:00 PM - 5:00 PM",
+                    ].map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        className="p-3 rounded-lg border text-sm font-medium hover:border-primary/50 transition-colors"
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Engineer Selection */}
+                <div className="grid gap-2">
+                  <Label>Select Engineer</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {["Noel Cadastre", "Young Guru", "Manny Marroquin", "Chris Lord-Alge"].map((engineer) => (
+                      <button
+                        key={engineer}
+                        type="button"
+                        className="p-3 rounded-lg border text-sm font-medium hover:border-primary/50 transition-colors"
+                      >
+                        {engineer}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button size="lg" className="mt-4">
+                  Submit Booking
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
