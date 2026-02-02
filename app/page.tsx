@@ -90,6 +90,10 @@ export default function Home() {
                 Book Now
               </Button>
             </a>
+            <Button size="lg" variant="outline" className="text-lg px-8 py-6 text-white border-white hover:bg-white/10">
+              <Phone className="mr-2 h-5 w-5" />
+              212-265-6060
+            </Button>
           </div>
         </div>
       </section>
