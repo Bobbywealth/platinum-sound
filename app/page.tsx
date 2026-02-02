@@ -68,27 +68,26 @@ export default function Home() {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <div className="mb-6">
-            <Image
-              src="/platinum_sound_transparent.png"
-              alt="Platinum Sound Logo"
-              width={400}
-              height={90}
-              className="h-24 w-auto mx-auto"
-              priority
-            />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4">
-            PLATINUM SOUND STUDIOS
-          </h1>
-          <p className="text-xl md:text-2xl text-white/90 font-medium mb-8">
-            Record Your Vision
+          <p className="text-primary font-bold tracking-[4px] uppercase text-sm mb-4">
+            Est. NYC
           </p>
-          <Link href="/dashboard/bookings/new">
-            <Button size="lg" className="text-lg px-10 py-7 bg-white text-black hover:bg-white/90">
-              Book Now
-            </Button>
-          </Link>
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+            <span className="text-platinum-gradient">PLATINUM SOUNDS</span>
+            <br />
+            <span className="text-primary">RECORDING STUDIOS</span>
+          </h1>
+          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+            Founded by Jerry &apos;Wonda&apos; Duplessis and Wyclef Jean.
+            A beacon of innovation where music, film, and media converge.
+            Celebrating 20+ years of excellence in the heart of New York City.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/dashboard/bookings/new">
+              <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90">
+                Book Now
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
