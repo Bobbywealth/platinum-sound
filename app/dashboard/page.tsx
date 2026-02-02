@@ -1,20 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { AudioWaveform } from "@/components/audio-waveform"
+import { CTASection } from "@/components/cta-section"
 import { SectionHeader } from "@/components/section-header"
 import { StatCard } from "@/components/stat-card"
-import { CTASection } from "@/components/cta-section"
-import { AudioWaveform } from "@/components/audio-waveform"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
+import { formatCurrency } from "@/lib/utils"
 import { motion } from "framer-motion"
-import { cn, formatCurrency } from "@/lib/utils"
 import {
-  Users,
-  Calendar,
-  DollarSign,
-  Activity,
+    Activity,
+    Calendar,
+    DollarSign,
+    Users,
 } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface DashboardData {
   stats: {
