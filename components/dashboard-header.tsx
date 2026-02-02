@@ -1,18 +1,17 @@
 "use client"
 
-import { usePathname } from "next/navigation"
-import Link from "next/link"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
-  Menu,
-  Bell,
-  Search,
-  LogOut,
-  User,
-  X,
+    Bell,
+    LogOut,
+    Search,
+    User,
+    X
 } from "lucide-react"
-import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
 
 interface DashboardHeaderProps {
   title: string

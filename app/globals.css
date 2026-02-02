@@ -137,7 +137,7 @@
 
 /* Card hover effect */
 .card-hover {
-  @apply transition-all duration-300 hover:shadow-lg hover:border-primary/50;
+  @apply transition-all duration-300 hover:shadow-lg hover:border-royal/50;
 }
 
 /* Dark sidebar styling */

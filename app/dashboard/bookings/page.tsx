@@ -1,25 +1,24 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { bookings } from "@/lib/data"
-import {
-  Plus,
-  Filter,
-  Calendar,
-  Clock,
-  User,
-  Mic2,
-  LayoutGrid,
-  List,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react"
-import { useState } from "react"
-import Link from "next/link"
 import { cn } from "@/lib/utils"
+import {
+    Calendar,
+    CalendarDays,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    LayoutGrid,
+    List,
+    Mic2,
+    Plus,
+    User
+} from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
 
 type ViewMode = "grid" | "list" | "calendar"
 

@@ -1,10 +1,10 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Pencil, Trash2, Search, Mail, Phone } from "lucide-react"
+import { Mail, Pencil, Phone, Search, Trash2 } from "lucide-react"
 import { useState } from "react"
 
 interface TeamMember {

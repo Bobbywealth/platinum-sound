@@ -21,22 +21,22 @@ export default function Home() {
             />
           </div>
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
               HOME
             </Link>
-            <Link href="#studios" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#studios" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
               STUDIOS
             </Link>
-            <Link href="#team" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#team" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
               TEAM
             </Link>
-            <Link href="#services" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#services" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
               SERVICES
             </Link>
-            <Link href="#clients" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <Link href="#clients" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
               CLIENTS
             </Link>
-            <Link href="/dashboard/bookings" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+            <Link href="/dashboard/bookings" className="text-sm font-medium text-royal hover:text-royal/80 transition-colors">
               BOOKING
             </Link>
           </div>
@@ -70,13 +70,13 @@ export default function Home() {
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <p className="text-primary font-bold tracking-[4px] uppercase text-sm mb-4">
+          <p className="text-royal font-bold tracking-[4px] uppercase text-sm mb-4">
             Est. NYC
           </p>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
             <span className="text-platinum-gradient">PLATINUM SOUNDS</span>
             <br />
-            <span className="text-primary">RECORDING STUDIOS</span>
+            <span className="text-royal">RECORDING STUDIOS</span>
           </h1>
           <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
             Founded by Jerry &apos;Wonda&apos; Duplessis and Wyclef Jean.
@@ -101,7 +101,7 @@ export default function Home() {
       <section className="py-16 px-6 border-y bg-card/50">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">20+</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-royal mb-2">20+</div>
             <div className="text-muted-foreground text-sm uppercase tracking-wider">Years of Excellence</div>
           </div>
           <div className="text-center">
@@ -109,7 +109,7 @@ export default function Home() {
             <div className="text-muted-foreground text-sm uppercase tracking-wider">Albums Recorded</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">50+</div>
+            <div className="text-4xl md:text-5xl font-extrabold text-royal mb-2">50+</div>
             <div className="text-muted-foreground text-sm uppercase tracking-wider">Grammy Wins</div>
           </div>
           <div className="text-center">
@@ -130,12 +130,12 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             {/* Studio A */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-primary/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-primary">Studio A</h3>
-                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">FLAGSHIP</span>
+                  <h3 className="text-2xl font-bold text-royal">Studio A</h3>
+                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">FLAGSHIP</span>
                 </div>
                 <p className="text-xl font-semibold mb-2">Neve 88R Console</p>
                 <p className="text-muted-foreground mb-6">
@@ -144,15 +144,15 @@ export default function Home() {
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <Mic2 className="h-4 w-4 text-primary" />
+                    <Mic2 className="h-4 w-4 text-royal" />
                     Large live room with isolation booths
                   </li>
                   <li className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-primary" />
+                    <Headphones className="h-4 w-4 text-royal" />
                     5.1 Surround monitoring
                   </li>
                   <li className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-primary" />
+                    <Sliders className="h-4 w-4 text-royal" />
                     Vintage outboard gear collection
                   </li>
                 </ul>
@@ -160,12 +160,12 @@ export default function Home() {
             </div>
 
             {/* Studio B */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-primary/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
+              <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-primary">Studio B</h3>
-                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-secondary text-secondary-foreground">MIXING</span>
+                  <h3 className="text-2xl font-bold text-royal">Studio B</h3>
+                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">MIXING</span>
                 </div>
                 <p className="text-xl font-semibold mb-2">SSL 9000K Console</p>
                 <p className="text-muted-foreground mb-6">
@@ -174,15 +174,15 @@ export default function Home() {
                 </p>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <Mic2 className="h-4 w-4 text-primary" />
+                    <Mic2 className="h-4 w-4 text-royal" />
                     Dedicated vocal booth
                   </li>
                   <li className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-primary" />
+                    <Headphones className="h-4 w-4 text-royal" />
                     Stereo & surround monitoring
                   </li>
                   <li className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-primary" />
+                    <Sliders className="h-4 w-4 text-royal" />
                     Full Pro Tools HDX system
                   </li>
                 </ul>
@@ -207,11 +207,11 @@ export default function Home() {
             <h3 className="text-2xl font-bold mb-8 text-center">Founder/Owner</h3>
             <div className="max-w-3xl mx-auto">
               <div className="text-center p-8 rounded-2xl border bg-background">
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                  <Music className="h-12 w-12 text-primary" />
+                <div className="w-24 h-24 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-6">
+                  <Music className="h-12 w-12 text-royal" />
                 </div>
                 <h4 className="text-2xl font-bold mb-2">Jerry "Wonda" Duplessis</h4>
-                <p className="text-primary font-medium mb-4">Founder/Owner</p>
+                <p className="text-royal font-medium mb-4">Founder/Owner</p>
                 <p className="text-muted-foreground leading-relaxed">
                   Jerry "Wonda" Duplessis is a legendary figure in the music industry, known for his groundbreaking work as a producer, songwriter, and musician. Co-founding Platinum Sound Studios in 2000 alongside his cousin Wyclef Jean, Jerry Wonda has built the studio into a world-class recording destination in New York City. With a Grammy-winning portfolio that includes work with icons like Shakira, Whitney Houston, and U2, his influence spans genres and decades. Platinum Sound Studios stands as a testament to his dedication to creating high-quality, genre-defining music.
                 </p>
@@ -229,9 +229,9 @@ export default function Home() {
                 { name: "Spice", role: "Booking Manager" },
                 { name: "Gary Valentino", role: "CFO Manager" },
               ].map((member, i) => (
-                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-10 w-10 text-primary" />
+                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                  <div className="w-20 h-20 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-10 w-10 text-royal" />
                   </div>
                   <h4 className="font-bold text-lg mb-1">{member.name}</h4>
                   <p className="text-sm text-muted-foreground">{member.role}</p>
@@ -291,14 +291,14 @@ export default function Home() {
                   bio: "Skilled audio engineer renowned for his precision and speed. Raised in Florida, began building his own studio straight out of high school. After refining skills at SAE Institute of New York, his exceptional ear for detail has led to collaborations with top artists including Fivio Foreign, Wyclef Jean, Scorey, Nino Paid, Capella Grey, and Rondodasosa."
                 },
               ].map((member, i) => (
-                <div key={i} className="p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
+                <div key={i} className="p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Sliders className="h-7 w-7 text-primary" />
+                    <div className="w-14 h-14 rounded-full bg-royal/10 flex items-center justify-center shrink-0">
+                      <Sliders className="h-7 w-7 text-royal" />
                     </div>
                     <div>
                       <h4 className="font-bold">{member.name}</h4>
-                      <p className="text-sm text-primary">{member.role}</p>
+                      <p className="text-sm text-royal">{member.role}</p>
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
@@ -317,9 +317,9 @@ export default function Home() {
                 { name: "Stephen \"Stitch\" Keech", role: "Studio Tech" },
                 { name: "Scotty \"Too Fly\"", role: "Public Relations" },
               ].map((member, i) => (
-                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-8 w-8 text-primary" />
+                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                  <div className="w-16 h-16 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
+                    <Users className="h-8 w-8 text-royal" />
                   </div>
                   <h4 className="font-bold mb-1">{member.name}</h4>
                   <p className="text-sm text-muted-foreground">{member.role}</p>
@@ -346,9 +346,9 @@ export default function Home() {
               { icon: Headphones, title: "Mastering", desc: "Final polish for streaming and physical release" },
               { icon: Users, title: "Production", desc: "Full production services with in-house producers" },
             ].map((service, i) => (
-              <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-primary/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="h-6 w-6 text-primary" />
+              <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
+                  <service.icon className="h-6 w-6 text-royal" />
                 </div>
                 <h3 className="font-semibold mb-2">{service.title}</h3>
                 <p className="text-sm text-muted-foreground">{service.desc}</p>
@@ -376,10 +376,10 @@ export default function Home() {
               { artist: "Wyclef Jean", project: "Carnival Series", rating: 5 },
               { artist: "A$AP Rocky", project: "Mixing Sessions", rating: 5 },
             ].map((client, i) => (
-              <div key={i} className="p-6 rounded-xl border bg-card hover:border-primary/50 transition-colors">
+              <div key={i} className="p-6 rounded-xl border bg-card hover:border-royal/50 transition-colors">
                 <div className="flex gap-1 mb-3">
                   {[...Array(client.rating)].map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-primary text-primary" />
+                    <Star key={j} className="h-4 w-4 fill-royal text-royal" />
                   ))}
                 </div>
                 <h3 className="font-bold text-lg mb-1">{client.artist}</h3>
