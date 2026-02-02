@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { bookings } from "@/lib/data"
-import { Clock, Loader2, Mail, MapPin, MessageSquare, Music, Phone, QrCode, User } from "lucide-react"
+import { Clock, Loader2, Mail, MapPin, MessageSquare, Phone, QrCode, User } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 
@@ -40,9 +41,15 @@ export default function CheckInPage() {
       {/* Header */}
       <header className="border-b bg-card/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <Music className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl">Platinum Sound Studios</span>
+          <Link href="/">
+            <Image
+              src="/platinum_sound_transparent.png"
+              alt="Platinum Sound Logo"
+              width={360}
+              height={80}
+              className="h-16 w-auto"
+              priority
+            />
           </Link>
           <Link href="/login">
             <Button variant="outline" size="sm">

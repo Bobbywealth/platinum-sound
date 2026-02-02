@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Loader2, Music } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import Image from "next/image"
 import { signIn } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -47,8 +48,14 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <Link href="/" className="flex items-center justify-center gap-2 mb-4">
-            <Music className="h-8 w-8 text-primary" />
-            <span className="font-bold text-2xl">Platinum Sound</span>
+            <Image
+              src="/platinum_sound_transparent.png"
+              alt="Platinum Sound Logo"
+              width={360}
+              height={80}
+              className="h-16 w-auto mx-auto"
+              priority
+            />
           </Link>
           <CardTitle className="text-2xl">Welcome Back</CardTitle>
           <CardDescription>

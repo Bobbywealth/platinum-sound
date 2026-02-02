@@ -4,7 +4,8 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User } from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Phone, User } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 
@@ -92,9 +93,15 @@ export default function BookingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
-              <Music className="h-6 w-6 text-primary mr-2" />
-              <span className="font-bold text-lg">Platinum Sound</span>
+            <Link href="/">
+              <Image
+                src="/platinum_sound_transparent.png"
+                alt="Platinum Sound Logo"
+                width={360}
+                height={80}
+                className="h-16 w-auto"
+                priority
+              />
             </Link>
           </div>
           <div className="flex items-center gap-4">
