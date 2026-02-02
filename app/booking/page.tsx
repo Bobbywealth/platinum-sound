@@ -95,7 +95,7 @@ export default function BookingPage() {
           <div className="flex items-center">
             <Link href="/">
               <Image
-                src="/platinum_sound_transparent.png"
+                src="/Platinum Sound logo with 3D effect.png"
                 alt="Platinum Sound Logo"
                 width={360}
                 height={80}

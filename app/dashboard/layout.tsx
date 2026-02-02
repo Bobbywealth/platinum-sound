@@ -1,4 +1,3 @@
-import DashboardFooter from "@/components/dashboard-footer"
 import DashboardHeader from "@/components/dashboard-header"
 import DashboardSidebar from "@/components/dashboard-sidebar"
 import { DashboardSkeleton } from "@/components/skeletons"
@@ -19,13 +18,12 @@ export default function DashboardLayout({
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <DashboardHeader title="Dashboard" />
-        <main className="flex-1 p-6 overflow-auto">
+        <DashboardHeader />
+        <main className="flex-1 overflow-auto">
           <Suspense fallback={<DashboardSkeleton />}>
             {children}
           </Suspense>
         </main>
-        <DashboardFooter />
       </div>
     </div>
   )

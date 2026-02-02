@@ -43,7 +43,7 @@ export default function CheckInPage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/">
             <Image
-              src="/platinum_sound_transparent.png"
+              src="/Platinum Sound logo with 3D effect.png"
               alt="Platinum Sound Logo"
               width={360}
               height={80}

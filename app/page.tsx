@@ -12,7 +12,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center">
             <Image
-              src="/platinum_sound_transparent.png"
+              src="/Platinum Sound logo with 3D effect.png"
               alt="Platinum Sound Logo"
               width={360}
               height={80}

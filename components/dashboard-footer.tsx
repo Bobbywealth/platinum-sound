@@ -9,7 +9,7 @@ export default function DashboardFooter() {
           {/* Logo */}
           <Link href="/dashboard">
             <Image
-              src="/platinum_sound_transparent.png"
+              src="/Platinum Sound logo with 3D effect.png"
               alt="Platinum Sound Logo"
               width={120}
               height={26}

@@ -6,15 +6,17 @@ import {
     Calendar,
     ChevronDown,
     ChevronUp,
+    ChevronRight,
     Clock,
     DollarSign,
     FileText,
     LayoutDashboard,
-    LogOut,
     Mail,
+    Menu,
     Music2,
     Settings,
     Users,
+    X,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -64,7 +66,7 @@ const navSections: NavSection[] = [
     label: "PEOPLE",
     items: [
       { href: "/dashboard/clients", label: "Clients", icon: Users },
-      { href: "/dashboard/teams", label: "Teams", icon: Users },
+      { href: "/dashboard/staff", label: "Team", icon: Users },
     ],
   },
   {
@@ -73,17 +75,33 @@ const navSections: NavSection[] = [
   },
 ]
 
-export default function DashboardSidebar() {
+function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
-  const [financeOpen, setFinanceOpen] = useState(true)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    FINANCE: true,
+  })
+
+  const toggleSection = (label: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [label]: !prev[label],
+    }))
+  }
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") {
+      return pathname === href
+    }
+    return pathname.startsWith(href)
+  }
 
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r sidebar-dark">
-      {/* Logo Section */}
+    <>
+      {/* Logo */}
       <div className="p-6 pb-4">
         <Link href="/dashboard" className="flex flex-col items-center justify-center w-full">
           <Image
-            src="/platinum_sound_transparent.png"
+            src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound Logo"
             width={200}
             height={60}
@@ -102,94 +120,136 @@ export default function DashboardSidebar() {
                 {section.label}
               </h3>
               <div className="space-y-0.5">
-                {section.label === "FINANCE" ? (
+                {["FINANCE", "OPERATIONS", "PEOPLE"].includes(section.label) ? (
                   <>
-                    {/* Finance Toggle Button */}
+                    {/* Expandable Section Toggle Button */}
                     <button
-                      onClick={() => setFinanceOpen(!financeOpen)}
+                      onClick={() => toggleSection(section.label)}
                       className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors w-full ${
-                        financeOpen
+                        expandedSections[section.label]
                           ? "bg-white text-black"
                           : "text-gray-300 hover:text-white"
                       }`}
                     >
-                      <DollarSign className="h-4 w-4 flex-shrink-0" />
-                      <span>Finance</span>
-                      {financeOpen ? (
+                      {section.items[0]?.icon && (
+                        <section.items[0].icon className="h-4 w-4 flex-shrink-0" />
+                      )}
+                      <span>{section.label}</span>
+                      {expandedSections[section.label] ? (
                         <ChevronUp className="h-3 w-3 ml-auto" />
                       ) : (
                         <ChevronDown className="h-3 w-3 ml-auto" />
                       )}
                     </button>
-                    {/* Finance Dropdown Items */}
-                    {financeOpen && (
+                    {/* Expanded Items */}
+                    {expandedSections[section.label] && (
                       <div className="ml-4 space-y-0.5 mt-1">
-                        {section.items.map((item) => {
-                          const isActive = pathname === item.href
-                          return (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              className={`flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium transition-colors ${
-                                isActive
-                                  ? "bg-white text-black"
-                                  : "text-gray-300 hover:text-white"
-                              }`}
-                            >
-                              <item.icon className="h-4 w-4 flex-shrink-0" />
-                              <span>{item.label}</span>
-                            </Link>
-                          )
-                        })}
+                        {section.items.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={onClose}
+                            className={`flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium transition-colors ${
+                              isActive(item.href)
+                                ? "bg-white text-black"
+                                : "text-gray-300 hover:text-white"
+                            }`}
+                          >
+                            <item.icon className="h-4 w-4 flex-shrink-0" />
+                            <span>{item.label}</span>
+                            {isActive(item.href) && (
+                              <ChevronRight className="h-3 w-3 ml-auto" />
+                            )}
+                          </Link>
+                        ))}
                       </div>
                     )}
                   </>
                 ) : (
-                  section.items.map((item) => {
-                    const isActive = pathname === item.href
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors ${
-                          isActive
-                            ? "bg-white text-black"
-                            : "text-gray-300 hover:text-white"
-                        }`}
-                      >
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
-                        <span>{item.label}</span>
-                      </Link>
-                    )
-                  })
+                  // Non-expandable sections
+                  section.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onClose}
+                      className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors ${
+                        isActive(item.href)
+                          ? "bg-white text-black"
+                          : "text-gray-300 hover:text-white"
+                      }`}
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <span>{item.label}</span>
+                      {isActive(item.href) && section.label !== "SYSTEM" && (
+                        <ChevronRight className="h-3 w-3 ml-auto" />
+                      )}
+                    </Link>
+                  ))
                 )}
               </div>
             </div>
           ))}
         </div>
-
-        {/* Footer - User Profile & Sign Out */}
-        <div className="mt-2 pt-2 border-t border-gray-800">
-          <div className="flex items-center gap-3 px-3 py-2 mb-1">
-            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-xs font-medium">
-              SM
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white truncate">Studio Manager</p>
-              <p className="text-[10px] text-gray-400 truncate">
-                manager@platinumsound.com
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-medium text-gray-300 hover:text-white transition-colors"
-          >
-            <LogOut className="h-4 w-4 flex-shrink-0" />
-            <span>Sign Out</span>
-          </Link>
-        </div>
       </nav>
-    </aside>
+    </>
+  )
+}
+
+export default function DashboardSidebar() {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  // Check if we're on mobile based on window width
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Update isMobile on resize
+  useState(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  })
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r sidebar-dark">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-background border shadow-sm"
+        aria-label="Open menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Mobile Navigation Overlay */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* Mobile Sidebar */}
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-black h-full flex flex-col">
+            {/* Close Button */}
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SidebarContent onClose={() => setMobileOpen(false)} />
+          </aside>
+        </div>
+      )}
+    </>
   )
 }
