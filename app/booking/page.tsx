@@ -1,13 +1,12 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ChevronLeft, ChevronRight, Clock, User, Calendar, Phone, MapPin, Mail, Music } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
