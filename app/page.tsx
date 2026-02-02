@@ -55,17 +55,19 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section with Background Image */}
-      <section className="relative h-screen min-h-[600px] flex items-center justify-center">
-        {/* Background Image */}
+      {/* Hero Section with Background Video */}
+      <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Background Video */}
         <div className="absolute inset-0 z-0">
-          <Image
-            src="/studio-hero.png"
-            alt="Platinum Sound Studios"
-            fill
-            className="object-cover"
-            priority
-          />
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-black/60" />
         </div>
 
