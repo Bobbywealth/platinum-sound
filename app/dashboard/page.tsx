@@ -65,65 +65,6 @@ export default function DashboardPage() {
         setData(dashboardData)
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error)
-        // Use mock data as fallback
-        setData({
-          stats: {
-            totalRevenue: 12450,
-            revenueChange: 12.5,
-            activeClients: 48,
-            clientsChange: 8.2,
-            activeBookings: 15,
-            bookingsChange: -3.4,
-            pendingInvoices: 7,
-            pendingAmount: 3450,
-          },
-          recentActivity: [
-            {
-              id: "1",
-              type: "booking",
-              title: "New Booking",
-              description: "John Doe booked Studio A for tomorrow at 2 PM",
-              timestamp: new Date(Date.now() - 300000).toISOString(),
-            },
-            {
-              id: "2",
-              type: "payment",
-              title: "Payment Received",
-              description: "Acme Corp paid invoice #1234 ($500)",
-              timestamp: new Date(Date.now() - 3600000).toISOString(),
-            },
-            {
-              id: "3",
-              type: "client",
-              title: "New Client",
-              description: "Sarah Wilson registered as a new client",
-              timestamp: new Date(Date.now() - 7200000).toISOString(),
-            },
-            {
-              id: "4",
-              type: "invoice",
-              title: "Invoice Sent",
-              description: "Invoice #1235 sent to TechStart Inc.",
-              timestamp: new Date(Date.now() - 10800000).toISOString(),
-            },
-            {
-              id: "5",
-              type: "booking",
-              title: "Session Completed",
-              description: "Recording session in Studio B completed successfully",
-              timestamp: new Date(Date.now() - 14400000).toISOString(),
-            },
-          ],
-          revenueChart: [
-            { name: "Mon", revenue: 1200, bookings: 4 },
-            { name: "Tue", revenue: 1800, bookings: 6 },
-            { name: "Wed", revenue: 2400, bookings: 8 },
-            { name: "Thu", revenue: 1600, bookings: 5 },
-            { name: "Fri", revenue: 3200, bookings: 10 },
-            { name: "Sat", revenue: 2800, bookings: 9 },
-            { name: "Sun", revenue: 1450, bookings: 4 },
-          ],
-        })
       } finally {
         setLoading(false)
       }

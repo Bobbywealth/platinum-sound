@@ -2,6 +2,8 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   User,
   Bell,
@@ -9,7 +11,6 @@ import {
   Shield,
   CreditCard,
   Building,
-  Mail,
   Save
 } from "lucide-react"
 import { useState } from "react"
@@ -70,37 +71,37 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Full Name</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
                       type="text"
                       defaultValue="Studio Manager"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Email</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
                       type="email"
                       defaultValue="manager@platinumsound.com"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Phone</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
                       type="tel"
                       defaultValue="212-265-6060"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Role</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Input
+                      id="role"
                       type="text"
                       defaultValue="Studio Manager"
                       disabled
-                      className="w-full px-3 py-2 rounded-lg border bg-muted text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -120,46 +121,46 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Studio Name</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="studioName">Studio Name</Label>
+                    <Input
+                      id="studioName"
                       type="text"
                       defaultValue="Platinum Sound Studios"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Address</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Input
+                      id="address"
                       type="text"
                       defaultValue="122 W. 26th St., New York, NY 10001"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Phone</label>
-                      <input
+                    <div className="space-y-2">
+                      <Label htmlFor="studioPhone">Phone</Label>
+                      <Input
+                        id="studioPhone"
                         type="tel"
                         defaultValue="212-265-6060"
-                        className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Email</label>
-                      <input
+                    <div className="space-y-2">
+                      <Label htmlFor="studioEmail">Email</Label>
+                      <Input
+                        id="studioEmail"
                         type="email"
                         defaultValue="info@platinumsoundny.com"
-                        className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Operating Hours</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label htmlFor="hours">Operating Hours</Label>
+                    <Input
+                      id="hours"
                       type="text"
                       defaultValue="24/7 - Open for Sessions"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                 </div>
@@ -285,20 +286,17 @@ export default function SettingsPage() {
                 <div>
                   <h4 className="font-medium mb-2">Change Password</h4>
                   <div className="space-y-3">
-                    <input
+                    <Input
                       type="password"
                       placeholder="Current password"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <input
+                    <Input
                       type="password"
                       placeholder="New password"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <input
+                    <Input
                       type="password"
                       placeholder="Confirm new password"
-                      className="w-full px-3 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
                   <Button className="mt-4">Update Password</Button>
