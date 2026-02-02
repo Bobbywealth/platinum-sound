@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background hero-gradient">
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -52,34 +52,43 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in">
-          <p className="text-primary font-bold tracking-[4px] uppercase text-sm mb-4">
-            Est. NYC
-          </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
-            <span className="text-platinum-gradient">PLATINUM SOUNDS</span>
-            <br />
-            <span className="text-primary">RECORDING STUDIOS</span>
-          </h1>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-            Founded by Jerry &apos;Wonda&apos; Duplessis and Wyclef Jean.
-            A beacon of innovation where music, film, and media converge.
-            Celebrating 20+ years of excellence in the heart of New York City.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
-              <Button size="lg" className="text-lg px-8 py-6">
-                <Play className="mr-2 h-5 w-5" />
-                Book a Session
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6">
-              <Phone className="mr-2 h-5 w-5" />
-              212-265-6060
-            </Button>
+      {/* Hero Section with Background Image */}
+      <section className="relative h-screen min-h-[600px] flex items-center justify-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/studio-hero.png"
+            alt="Platinum Sound Studios"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/60" />
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
+          <div className="mb-6">
+            <Image
+              src="/platinum_sound_transparent.png"
+              alt="Platinum Sound Logo"
+              width={400}
+              height={90}
+              className="h-24 w-auto mx-auto"
+              priority
+            />
           </div>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4">
+            PLATINUM SOUND STUDIOS
+          </h1>
+          <p className="text-xl md:text-2xl text-white/90 font-medium mb-8">
+            Record Your Vision
+          </p>
+          <Link href="/dashboard/bookings/new">
+            <Button size="lg" className="text-lg px-10 py-7 bg-white text-black hover:bg-white/90">
+              Book Now
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -254,7 +263,7 @@ export default function Home() {
                 {
                   name: "Darren \"The Clinic\" Blanckensee",
                   role: "Recording & Dolby Atmos Engineer",
-                  bio: "South African recording engineer specializing in hip hop, R&B, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
+                  bio: "South African recording hop, R&B engineer specializing in hip, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
                 },
                 {
                   name: "Rene \"DeZ BuDdha\" Desrivieres",
