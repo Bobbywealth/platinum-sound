@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
 import { bookings, dashboardStats, todaySessions } from "@/lib/data"
+import { NextResponse } from "next/server"
 
 export async function GET() {
   return NextResponse.json({

@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server"
 import { bookings } from "@/lib/data"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET() {
   // In production, this would query the database

@@ -67,4 +67,5 @@ const { handlers, signIn, signOut, auth } = NextAuth({
   },
 })
 
-export { handlers, signIn, signOut, auth }
+export { auth, handlers, signIn, signOut }
+

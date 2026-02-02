@@ -1,14 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Music, QrCode, MessageSquare, User, Clock, MapPin, Phone, Mail, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { bookings } from "@/lib/data"
+import { Clock, Loader2, Mail, MapPin, MessageSquare, Music, Phone, QrCode, User } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
 
 export default function CheckInPage() {
   const [bookingCode, setBookingCode] = useState("")

@@ -1,22 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatCurrency } from "@/lib/utils"
 import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Users,
-  Calendar,
-  Activity,
-  Download,
+    Activity,
+    BarChart3,
+    Calendar,
+    DollarSign,
+    Download,
+    TrendingDown,
+    TrendingUp,
+    Users,
 } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface AnalyticsData {
   revenueByMonth: Array<{ month: string; revenue: number }>

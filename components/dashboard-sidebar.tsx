@@ -86,7 +86,7 @@ export default function DashboardSidebar() {
             src="/platinum_sound_transparent.png"
             alt="Platinum Sound Logo"
             width={140}
-            height={30}
+            height={40}
             className="h-10 w-auto"
             priority
           />
