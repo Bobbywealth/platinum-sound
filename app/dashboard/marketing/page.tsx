@@ -19,8 +19,8 @@ export default function MarketingPage() {
           <Card className="cursor-pointer hover:bg-muted/50 transition-colors border-2">
             <CardHeader>
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900">
-                  <Mail className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="p-3 rounded-lg bg-royal/20 dark:bg-royal/30">
+                  <Mail className="h-8 w-8 text-royal dark:text-royal-foreground" />
                 </div>
                 <div>
                   <CardTitle>Email Campaigns</CardTitle>

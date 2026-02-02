@@ -129,10 +129,10 @@ export default function BookingsPage() {
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setFilter("confirmed")}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <div className="w-2 h-2 rounded-full bg-royal" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{stats.confirmed}</div>
+            <div className="text-2xl font-bold text-royal">{stats.confirmed}</div>
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setFilter("pending")}>
@@ -360,7 +360,7 @@ export default function BookingsPage() {
                           key={booking.id}
                           className={cn(
                             "text-xs p-1 rounded truncate",
-                            booking.status === "confirmed" && "bg-blue-500/10 text-blue-600",
+                            booking.status === "confirmed" && "bg-royal/10 text-royal",
                             booking.status === "in-progress" && "bg-green-500/10 text-green-600",
                             booking.status === "pending" && "bg-yellow-500/10 text-yellow-600"
                           )}
@@ -381,7 +381,7 @@ export default function BookingsPage() {
             {/* Legend */}
             <div className="flex items-center gap-4 mt-4 pt-4 border-t">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-blue-500/20" />
+                <div className="w-3 h-3 rounded bg-royal/20" />
                 <span className="text-xs text-muted-foreground">Confirmed</span>
               </div>
               <div className="flex items-center gap-2">

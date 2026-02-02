@@ -78,7 +78,7 @@ export default function DashboardHeader({ title }: DashboardHeaderProps) {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case "client": return "bg-blue-500"
+      case "client": return "bg-royal"
       case "booking": return "bg-green-500"
       case "invoice": return "bg-yellow-500"
       case "staff": return "bg-purple-500"

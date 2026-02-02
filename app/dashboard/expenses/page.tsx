@@ -60,7 +60,7 @@ const categoryIcons: Record<string, React.ElementType> = {
 }
 
 const categoryColors: Record<string, string> = {
-  Equipment: "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
+  Equipment: "bg-royal/20 text-royal dark:bg-royal/30 dark:text-royal-foreground",
   Utilities: "bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400",
   Maintenance: "bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400",
   Other: "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400",

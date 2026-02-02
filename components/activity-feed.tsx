@@ -42,7 +42,7 @@ const activityIcons = {
 }
 
 const activityColors = {
-  booking: "bg-blue-500",
+  booking: "bg-royal",
   check_in: "bg-green-500",
   check_out: "bg-gray-500",
   client_added: "bg-purple-500",
@@ -51,7 +51,7 @@ const activityColors = {
 }
 
 const activityBgColors = {
-  booking: "bg-blue-500/10",
+  booking: "bg-royal/10",
   check_in: "bg-green-500/10",
   check_out: "bg-gray-500/10",
   client_added: "bg-purple-500/10",

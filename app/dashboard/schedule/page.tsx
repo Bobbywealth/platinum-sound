@@ -195,7 +195,7 @@ export default function SchedulePage() {
                 <div
                   key={booking.id}
                   className={`p-4 rounded-lg border bg-card ${
-                    booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-blue-500"
+                    booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-royal"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-3">
@@ -229,13 +229,13 @@ export default function SchedulePage() {
                         booking.status === "in-progress"
                           ? "bg-green-500/10 text-green-500"
                           : booking.status === "confirmed"
-                          ? "bg-blue-500/10 text-blue-500"
+                          ? "bg-royal/10 text-royal"
                           : "bg-yellow-500/10 text-yellow-500"
                       }`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full ${
                         booking.status === "in-progress" ? "bg-green-500 animate-pulse" :
-                        booking.status === "confirmed" ? "bg-blue-500" : "bg-yellow-500"
+                        booking.status === "confirmed" ? "bg-royal" : "bg-yellow-500"
                       }`} />
                       {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                     </span>
@@ -277,8 +277,8 @@ export default function SchedulePage() {
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                       booking.status === "confirmed"
-                        ? "bg-blue-500/10 text-blue-500"
-                        : booking.status === "pending"
+                        ? "bg-royal/10royal"
+                        : text- booking.status === "pending"
                         ? "bg-yellow-500/10 text-yellow-500"
                         : "bg-green-500/10 text-green-500"
                     }`}

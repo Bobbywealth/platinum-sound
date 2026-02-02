@@ -24,6 +24,8 @@
     --input: 240 5.9% 90%;
     --ring: 43 76% 56%;
     --radius: 0.5rem;
+    --royal-blue: 220 85% 55%;
+    --royal-blue-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -46,6 +48,8 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 43 76% 56%;
+    --royal-blue: 220 85% 55%;
+    --royal-blue-foreground: 0 0% 100%;
   }
 }
 
@@ -104,6 +108,10 @@
 
 .status-dot.booked {
   @apply bg-primary;
+}
+
+.status-dot.info {
+  @apply bg-royal;
 }
 
 /* Animation classes */

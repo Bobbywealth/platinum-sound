@@ -161,7 +161,7 @@ export default function StudiosPage() {
                     </span>
                   ) : studio.status === "in-session" ? (
                     <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-royal animate-pulse" />
                       In Session
                     </span>
                   ) : (
@@ -292,7 +292,7 @@ export default function StudiosPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-500" />
+              <Clock className="h-5 w-5 text-royal" />
               <div>
                 <p className="text-2xl font-bold">78%</p>
                 <p className="text-sm text-muted-foreground">Occupancy Rate</p>
