@@ -277,8 +277,8 @@ export default function SchedulePage() {
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
                       booking.status === "confirmed"
-                        ? "bg-royal/10royal"
-                        : text booking.status === "pending"
+                        ? "bg-royal/10 text-royal"
+                        : booking.status === "pending"
                         ? "bg-yellow-500/10 text-yellow-500"
                         : "bg-green-500/10 text-green-500"
                     }`}
