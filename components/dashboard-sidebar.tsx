@@ -131,9 +131,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                           : "text-gray-300 hover:text-white"
                       }`}
                     >
-                      {section.items[0]?.icon && (
-                        <section.items[0].icon className="h-4 w-4 flex-shrink-0" />
-                      )}
+                      {section.items[0]?.icon && createElement(section.items[0].icon, { className: "h-4 w-4 flex-shrink-0" })}
                       <span>{section.label}</span>
                       {expandedSections[section.label] ? (
                         <ChevronUp className="h-3 w-3 ml-auto" />
