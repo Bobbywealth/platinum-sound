@@ -162,7 +162,19 @@ platinum-sound/
 
 ## Deployment
 
-### Vercel (Recommended)
+### Render.com (Recommended for this project)
+
+1. Push to GitHub
+2. Import project in [Render Dashboard](https://dashboard.render.com)
+3. Create a new Web Service:
+   - Connect to your GitHub repository
+   - Branch: `main`
+   - Build Command: `npm install && npm run build`
+   - Start Command: `npm start`
+4. Add environment variables in Render settings
+5. Deploy
+
+### Vercel
 
 1. Push to GitHub
 2. Import project in Vercel
