@@ -21,7 +21,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { createElement, useState } from "react"
+import { createElement, useEffect, useState } from "react"
 
 interface NavItem {
   href: string
@@ -201,14 +201,14 @@ export default function DashboardSidebar() {
   const [isMobile, setIsMobile] = useState(false)
 
   // Update isMobile on resize
-  useState(() => {
+  useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 1024)
     }
     checkMobile()
     window.addEventListener("resize", checkMobile)
     return () => window.removeEventListener("resize", checkMobile)
-  })
+  }, [])
 
   return (
     <>
