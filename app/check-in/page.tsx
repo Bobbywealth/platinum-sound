@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { bookings } from "@/lib/data"
-import { Clock, Loader2, Mail, MapPin, MessageSquare, Phone, QrCode, User } from "lucide-react"
+import { Clock, Loader2, Mail, MapPin, MessageSquare, Music, Phone, QrCode, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -22,10 +22,17 @@ export default function CheckInPage() {
     setError("")
     setFoundBooking(null)
 
+    const normalizedCode = bookingCode.trim().toUpperCase()
+    if (!normalizedCode) {
+      setError("Please enter a booking code.")
+      setLoading(false)
+      return
+    }
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const booking = bookings.find((b) => b.id === bookingCode.toUpperCase())
+    const booking = bookings.find((b) => b.id === normalizedCode)
 
     if (booking) {
       setFoundBooking(booking)
