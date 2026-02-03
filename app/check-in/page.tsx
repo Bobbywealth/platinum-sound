@@ -22,10 +22,17 @@ export default function CheckInPage() {
     setError("")
     setFoundBooking(null)
 
+    const normalizedCode = bookingCode.trim().toUpperCase()
+    if (!normalizedCode) {
+      setError("Please enter a booking code.")
+      setLoading(false)
+      return
+    }
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    const booking = bookings.find((b) => b.id === bookingCode.toUpperCase())
+    const booking = bookings.find((b) => b.id === normalizedCode)
 
     if (booking) {
       setFoundBooking(booking)
