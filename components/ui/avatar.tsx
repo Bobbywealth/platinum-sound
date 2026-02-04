@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import * as React from "react"
 
 function Avatar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
@@ -13,15 +14,23 @@ function Avatar({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   )
 }
 
-function AvatarImage({
-  className,
-  ...props
-}: React.ImgHTMLAttributes<HTMLImageElement>) {
+interface AvatarImageProps extends React.HTMLAttributes<HTMLDivElement> {
+  src?: string
+  alt?: string
+}
+
+function AvatarImage({ className, src, alt, ...props }: AvatarImageProps) {
+  if (!src) return null
   return (
-    <img
-      className={cn("aspect-square h-full w-full", className)}
-      {...props}
-    />
+    <div className={cn("aspect-square h-full w-full", className)} {...props}>
+      <Image
+        src={src}
+        alt={alt || "Avatar"}
+        className="object-cover"
+        fill
+        sizes="40px"
+      />
+    </div>
   )
 }
 

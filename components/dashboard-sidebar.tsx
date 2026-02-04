@@ -88,7 +88,6 @@ const navSections: NavSection[] = [
 const navItemVariants = {
   initial: { opacity: 0, x: -10 },
   animate: { opacity: 1, x: 0 },
-  hover: { scale: 1.02, backgroundColor: "rgba(0, 0, 0, 0.04)" },
   tap: { scale: 0.98 },
 }
 
@@ -141,8 +140,9 @@ const backdropVariants = {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    FINANCE: true,
+  })
 
   const toggleSection = (label: string) => {
     setExpandedSections((prev) => ({
@@ -164,17 +164,16 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   const NavLink = ({ item, isChild = false }: { item: NavItem; isChild?: boolean }) => {
     const active = isActive(item.href)
-    const isHovered = hoveredItem === item.href
+    const [isHovered, setIsHovered] = useState(false)
 
     return (
       <motion.div
         variants={navItemVariants}
         initial="initial"
         animate="animate"
-        whileHover="hover"
         whileTap="tap"
-        onHoverStart={() => setHoveredItem(item.href)}
-        onHoverEnd={() => setHoveredItem(null)}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
         className={isChild ? "relative" : "relative"}
       >
         <Link
@@ -195,7 +194,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             ${isChild ? "ml-4" : ""}
             ${active
               ? "bg-[#E8DCC8] text-gray-900"
-              : "text-gray-600"
+              : "text-gray-600 hover:bg-gray-100"
             }
           `}
           style={{ transformOrigin: "center" }}
@@ -208,16 +207,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.15 }}
-            />
-          )}
-
-          {/* Hover background */}
-          {!active && (
-            <motion.div
-              className="absolute inset-0 rounded-lg bg-gray-100"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.1 }}
             />
           )}
 
