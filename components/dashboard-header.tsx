@@ -63,7 +63,7 @@ const dropdownVariants = {
     scale: 1,
     transition: {
       duration: 0.15,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   exit: {
@@ -72,7 +72,7 @@ const dropdownVariants = {
     scale: 0.95,
     transition: {
       duration: 0.1,
-      ease: "easeIn",
+      ease: "easeIn" as const,
     },
   },
 }

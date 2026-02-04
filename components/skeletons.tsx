@@ -277,3 +277,58 @@ export function ActivityFeedSkeleton({ items = 5 }: { items?: number }) {
     </div>
   )
 }
+
+// Sidebar skeleton for navigation loading states
+export function SidebarSkeleton() {
+  const sections = [
+    { title: "DASHBOARD", items: 1 },
+    { title: "OPERATIONS", items: 4 },
+    { title: "FINANCE", items: 3 },
+    { title: "MARKETING", items: 1 },
+    { title: "PEOPLE", items: 2 },
+    { title: "SYSTEM", items: 1 },
+  ]
+
+  return (
+    <div className="flex flex-col h-full bg-white w-64 border-r">
+      {/* Logo skeleton */}
+      <div className="p-6 pb-6">
+        <div className="flex items-center justify-center">
+          <Shimmer className="h-12 w-36" />
+        </div>
+      </div>
+
+      {/* Navigation skeleton */}
+      <nav className="flex-1 px-3 py-2 overflow-y-auto">
+        <div className="space-y-6">
+          {sections.map((section, sectionIndex) => (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: sectionIndex * 0.1 }}
+            >
+              <h3 className="px-3 mb-2">
+                <Shimmer className="h-3 w-16" />
+              </h3>
+              <div className="space-y-1">
+                {Array.from({ length: section.items }).map((_, itemIndex) => (
+                  <motion.div
+                    key={itemIndex}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: sectionIndex * 0.1 + itemIndex * 0.05 }}
+                    className="flex items-center gap-3 px-3 py-2.5"
+                  >
+                    <Shimmer className="h-5 w-5 rounded" />
+                    <Shimmer className="h-4 w-20" />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </nav>
+    </div>
+  )
+}
