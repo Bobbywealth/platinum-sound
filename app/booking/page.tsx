@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Phone, User } from "lucide-react"
+import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Phone } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
@@ -24,12 +24,6 @@ const timeSlots = [
   "10:00 PM - 11:00 PM",
 ]
 
-const engineers = [
-  "Noel Cadastre",
-  "Young Guru",
-  "Manny Marroquin",
-  "Chris Lord-Alge",
-  "Tony Maserati",
 ]
 
 export default function BookingPage() {
@@ -37,7 +31,6 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
-  const [selectedEngineer, setSelectedEngineer] = useState<string | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
 
   const monthNames = [
@@ -83,7 +76,6 @@ export default function BookingPage() {
       selectedDate,
       selectedStudio,
       selectedTime,
-      selectedEngineer,
     })
   }
 
@@ -302,36 +294,6 @@ export default function BookingPage() {
                       `}
                     >
                       {time}
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Engineer Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Select Engineer
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-2">
-                  {engineers.map((engineer) => (
-                    <button
-                      key={engineer}
-                      type="button"
-                      onClick={() => setSelectedEngineer(engineer)}
-                      className={`
-                        p-3 rounded-lg border text-sm font-medium transition-colors text-left
-                        ${selectedEngineer === engineer
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border hover:border-primary/50"
-                        }
-                      `}
-                    >
-                      {engineer}
                     </button>
                   ))}
                 </div>
