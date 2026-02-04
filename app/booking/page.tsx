@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Phone } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
+
+import { useToast } from "@/hooks/use-toast"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -24,14 +27,14 @@ const timeSlots = [
   "10:00 PM - 11:00 PM",
 ]
 
-]
-
 export default function BookingPage() {
   const [clientName, setClientName] = useState("")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const router = useRouter()
+  const { toast } = useToast()
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -71,12 +74,22 @@ export default function BookingPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("Booking submitted:", {
-      clientName,
-      selectedDate,
-      selectedStudio,
-      selectedTime,
+    
+    toast({
+      title: "Booking Request Submitted!",
+      description: "A member of our team will reach out to you shortly.",
     })
+    
+    // Reset form
+    setClientName("")
+    setSelectedDate(null)
+    setSelectedStudio(null)
+    setSelectedTime(null)
+    
+    // Redirect to home after 3 seconds
+    setTimeout(() => {
+      router.push("/")
+    }, 3000)
   }
 
   return (
