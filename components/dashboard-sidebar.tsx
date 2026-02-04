@@ -164,7 +164,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   const NavLink = ({ item, isChild = false }: { item: NavItem; isChild?: boolean }) => {
     const active = isActive(item.href)
-    const [isHovered, setIsHovered] = useState(false)
 
     return (
       <motion.div
@@ -172,8 +171,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         initial="initial"
         animate="animate"
         whileTap="tap"
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
         className={isChild ? "relative" : "relative"}
       >
         <Link
