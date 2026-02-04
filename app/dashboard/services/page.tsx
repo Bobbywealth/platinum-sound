@@ -31,7 +31,7 @@ const services: Service[] = [
 
 export default function ServicesPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
