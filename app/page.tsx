@@ -207,13 +207,19 @@ export default function Home() {
             <h3 className="text-2xl font-bold mb-8 text-center">Founder/Owner</h3>
             <div className="max-w-3xl mx-auto">
               <div className="text-center p-8 rounded-2xl border bg-background">
-                <div className="w-24 h-24 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-6">
-                  <Music className="h-12 w-12 text-royal" />
+                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-royal/20">
+                  <Image
+                    src="/jerrywonda1.png"
+                    alt="Jerry 'Wonda' Duplessis - Founder/Owner"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
                 </div>
                 <h4 className="text-2xl font-bold mb-2">Jerry "Wonda" Duplessis</h4>
                 <p className="text-royal font-medium mb-4">Founder/Owner</p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Jerry "Wonda" Duplessis is a legendary figure in the music industry, known for his groundbreaking work as a producer, songwriter, and musician. Co-founding Platinum Sound Studios in 2000 alongside his cousin Wyclef Jean, Jerry Wonda has built the studio into a world-class recording destination in New York City. With a Grammy-winning portfolio that includes work with icons like Shakira, Whitney Houston, and U2, his influence spans genres and decades. Platinum Sound Studios stands as a testament to his dedication to creating high-quality, genre-defining music.
+                  Grammy Award-winning, multi-platinum super music producer Jerry 'Wonda' Duplessis is one of the most highly regarded and musically adept producers to emerge from the hip-hop era since the early 1990s. Today he is an entrepreneur and philanthropist whose stellar music career includes three Grammy Awards and over 16 nominations, a publishing catalog of 300+ titles, and 300+ million single and album copies sold. His 2006 hit "Hips Don't Lie" with Shakira and Wyclef Jean broke music records globally and is regarded as one of the best songs of all time. Jerry has also produced songs for feature films including the Golden Globe-nominated "Million Voices" for Hotel Rwanda and scored ten films and documentaries. His philanthropic work includes being a Goodwill Ambassador to Haiti, recognized for advocating, promoting, and supporting the country and its people globally on projects for humanitarian relief, education, health, sustainable business, and community development. He is also known for his extensive work surrounding education, affordable housing, Haiti relief, and mental health. Jerry's global vision continues to inspire. He is a stalwart in the New Jersey State and Newark community where he has worked on youth arts and entrepreneur initiatives, for which he was awarded the Impact Award by Rutgers University and honored at many other events. Jerry is also a member of the Board of Directors for the Newark Symphony Hall, Backline and the Vassar Haiti Project. He is currently working with the City of Newark and the Newark Board of Education to improve the music and video production programs for the youth. "The Other Side of Newark", his newest endeavor features inner city young artists joining forces to create a peaceful harmony amongst themselves through their music.
                 </p>
               </div>
             </div>

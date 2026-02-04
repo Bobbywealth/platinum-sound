@@ -23,34 +23,69 @@ interface SearchResult {
 
 interface Notification {
   id: string
+  type: string
   title: string
   message: string
   time: string
   read: boolean
+  href: string
 }
 
 // Mock notifications - in production, fetch from API
 const mockNotifications: Notification[] = [
   {
     id: "1",
+    type: "NEW_BOOKING",
     title: "New Booking",
     message: "John Doe booked Studio A for tomorrow at 2 PM",
     time: "5 min ago",
     read: false,
+    href: "/dashboard/bookings",
   },
   {
     id: "2",
+    type: "PAYMENT_RECEIVED",
     title: "Payment Received",
     message: "Invoice #1234 has been paid by Acme Corp",
     time: "1 hour ago",
     read: false,
+    href: "/dashboard/invoices",
   },
   {
     id: "3",
+    type: "CHECK_IN",
+    title: "Client Check-in",
+    message: "Sarah Smith has checked in for their session",
+    time: "2 hours ago",
+    read: false,
+    href: "/dashboard/check-in",
+  },
+  {
+    id: "4",
+    type: "SESSION_COMPLETE",
     title: "Session Complete",
     message: "Recording session in Studio B has completed",
     time: "3 hours ago",
     read: true,
+    href: "/dashboard/bookings",
+  },
+  {
+    id: "5",
+    type: "CLIENT_ADDED",
+    title: "New Client",
+    message: "Mike Johnson has been added to your client list",
+    time: "5 hours ago",
+    read: true,
+    href: "/dashboard/clients",
+  },
+  {
+    id: "6",
+    type: "INVOICE_CREATED",
+    title: "Invoice Created",
+    message: "Invoice #5678 has been created for TechStart Inc",
+    time: "Yesterday",
+    read: true,
+    href: "/dashboard/invoices",
   },
 ]
 
@@ -330,11 +365,14 @@ export default function DashboardHeader() {
                         variants={notificationItemVariants}
                         initial="hidden"
                         animate="visible"
-                        className={`px-4 py-3 hover:bg-gray-50 transition-colors ${
+                        className={`${
                           !notification.read ? "bg-gray-50" : ""
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <Link
+                          href={notification.href}
+                          className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
+                        >
                           <motion.div
                             animate={{ scale: !notification.read ? [1, 1.2, 1] : 1 }}
                             transition={{ duration: 0.3 }}
@@ -345,7 +383,7 @@ export default function DashboardHeader() {
                             <p className="text-xs text-gray-500 truncate">{notification.message}</p>
                             <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
                           </div>
-                        </div>
+                        </Link>
                       </motion.div>
                     ))
                   ) : (
