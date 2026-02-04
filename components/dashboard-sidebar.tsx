@@ -23,7 +23,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createElement, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { signOut } from "@/lib/auth"
+import { signOut } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 interface NavItem {
   href: string
@@ -137,6 +138,7 @@ const backdropVariants = {
 
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     FINANCE: true,
   })
@@ -333,7 +335,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             </motion.div>
           ))}
 
-          {/* Logout Button */}
+            {/* Logout Button */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -344,7 +346,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             </h3>
             <motion.button
               onClick={async () => {
-                await signOut({ redirectTo: "/" })
+                await signOut({ redirect: false })
+                router.push("/")
+                router.refresh()
               }}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
               whileHover={{ x: 4 }}
