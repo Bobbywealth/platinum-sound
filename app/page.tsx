@@ -1,8 +1,11 @@
+"use client"
+
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { motion } from "framer-motion"
 
 export default function Home() {
   return (

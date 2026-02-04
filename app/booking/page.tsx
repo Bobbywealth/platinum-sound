@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Calendar, ChevronLeft, ChevronRight, Clock, Mail, Phone } from "lucide-react"
+import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, User, Music } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -26,6 +26,7 @@ const timeSlots = [
   "9:00 PM - 10:00 PM",
   "10:00 PM - 11:00 PM",
 ]
+// #endregion
 
 export default function BookingPage() {
   const [clientName, setClientName] = useState("")
@@ -33,8 +34,27 @@ export default function BookingPage() {
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentStep, setCurrentStep] = useState(1)
   const router = useRouter()
   const { toast } = useToast()
+
+  const steps = [
+    { number: 1, label: "Your Name", icon: User },
+    { number: 2, label: "Date", icon: Calendar },
+    { number: 3, label: "Studio", icon: Music },
+    { number: 4, label: "Time", icon: Clock },
+    { number: 5, label: "Review", icon: Check },
+  ]
+
+  const canProceed = () => {
+    switch (currentStep) {
+      case 1: return clientName.trim().length > 0
+      case 2: return selectedDate !== null
+      case 3: return selectedStudio !== null
+      case 4: return selectedTime !== null
+      default: return true
+    }
+  }
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -135,191 +155,346 @@ export default function BookingPage() {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Client Name */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Client Name</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Input
-                  id="clientName"
-                  placeholder="Enter your name or artist name"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="max-w-md"
-                />
-              </CardContent>
-            </Card>
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+            {/* Progress Indicator */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between">
+                {steps.map((step, index) => {
+                  const Icon = step.icon
+                  const isActive = step.number === currentStep
+                  const isCompleted = step.number < currentStep
 
-            {/* Date Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Select Date
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {/* Calendar Navigation */}
-                <div className="flex items-center justify-between mb-4">
-                  <Button type="button" variant="outline" size="icon" onClick={prevMonth}>
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <h3 className="font-semibold text-lg">
-                    {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                  </h3>
-                  <Button type="button" variant="outline" size="icon" onClick={nextMonth}>
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Calendar Grid */}
-                <div className="grid grid-cols-7 gap-1 mb-2">
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-                      {day}
+                  return (
+                    <div key={step.number} className="flex items-center flex-1">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`
+                            w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
+                            ${isActive
+                              ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                              : isCompleted
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground"
+                            }
+                          `}
+                        >
+                          {isCompleted ? (
+                            <Check className="h-5 w-5" />
+                          ) : (
+                            <Icon className="h-5 w-5" />
+                          )}
+                        </div>
+                        <span
+                          className={`
+                            mt-2 text-xs font-medium hidden sm:block transition-colors duration-300
+                            ${isActive ? "text-primary" : isCompleted ? "text-primary" : "text-muted-foreground"}
+                          `}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div
+                          className={`flex-1 h-1 mx-2 transition-colors duration-300 ${
+                            step.number < currentStep ? "bg-primary" : "bg-muted"
+                          }`}
+                        />
+                      )}
                     </div>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1">
-                  {/* Empty cells */}
-                  {Array.from({ length: firstDay }).map((_, index) => (
-                    <div key={`empty-${index}`} className="h-10" />
-                  ))}
-                  {/* Days */}
-                  {days.map((day) => {
-                    const available = isDateAvailable(day)
-                    const isSelected = selectedDate?.getDate() === day &&
-                      selectedDate?.getMonth() === currentMonth.getMonth()
+                  )
+                })}
+              </div>
+            </div>
 
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        disabled={!available}
-                        onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
-                        className={`
-                          h-10 w-full rounded-lg text-sm font-medium transition-colors
-                          ${!available && "text-muted-foreground/50 cursor-not-allowed"}
-                          ${available && !isSelected && "hover:bg-muted"}
-                          ${isSelected && "bg-primary text-primary-foreground hover:bg-primary/90"}
-                        `}
-                      >
+            {/* Step 1: Client Name */}
+            {currentStep === 1 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Step 1: Your Name
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    id="clientName"
+                    placeholder="Enter your name or artist name"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    className="max-w-md"
+                    autoFocus
+                  />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    This is how we&apos;ll address you in all communications.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 2: Date Selection */}
+            {currentStep === 2 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Calendar className="h-5 w-5" />
+                    Step 2: Select Date
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Calendar Navigation */}
+                  <div className="flex items-center justify-between mb-4">
+                    <Button type="button" variant="outline" size="icon" onClick={prevMonth}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <h3 className="font-semibold text-lg">
+                      {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                    </h3>
+                    <Button type="button" variant="outline" size="icon" onClick={nextMonth}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1 mb-2">
+                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                      <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
                         {day}
-                      </button>
-                    )
-                  })}
-                </div>
-
-                {/* Legend */}
-                <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-primary" />
-                    <span>Selected</span>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-muted" />
-                    <span>Available</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded bg-muted/50" />
-                    <span>Unavailable</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="grid grid-cols-7 gap-1">
+                    {/* Empty cells */}
+                    {Array.from({ length: firstDay }).map((_, index) => (
+                      <div key={`empty-${index}`} className="h-10" />
+                    ))}
+                    {/* Days */}
+                    {days.map((day) => {
+                      const available = isDateAvailable(day)
+                      const isSelected = selectedDate?.getDate() === day &&
+                        selectedDate?.getMonth() === currentMonth.getMonth()
 
-            {/* Studio Selection */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Select Studio</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStudio("Studio A")}
-                    className={`
-                      p-6 rounded-lg border-2 transition-all text-left
-                      ${selectedStudio === "Studio A"
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                      }
-                    `}
-                  >
-                    <div className="font-semibold text-lg">Studio A</div>
-                    <div className="text-sm text-muted-foreground mt-1">Neve 88R Console</div>
-                    <div className="text-sm text-muted-foreground mt-2">
-                      Our flagship room featuring a legendary Neve 88R console, perfect for tracking, mixing, and immersive audio experiences.
-                    </div>
-                    <div className="flex items-center gap-2 mt-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm text-green-500">Available</span>
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStudio("Studio B")}
-                    className={`
-                      p-6 rounded-lg border-2 transition-all text-left
-                      ${selectedStudio === "Studio B"
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                      }
-                    `}
-                  >
-                    <div className="font-semibold text-lg">Studio B</div>
-                    <div className="text-sm text-muted-foreground mt-1">SSL 9000K Console</div>
-                    <div className="text-sm text-muted-foreground mt-2">
-                      A mixing powerhouse with the iconic SSL 9000K, delivering the punch and clarity that defined countless hit records.
-                    </div>
-                    <div className="flex items-center gap-2 mt-3">
-                      <div className="w-2 h-2 rounded-full bg-green-500" />
-                      <span className="text-sm text-green-500">Available</span>
-                    </div>
-                  </button>
-                </div>
-              </CardContent>
-            </Card>
+                      return (
+                        <button
+                          key={day}
+                          type="button"
+                          disabled={!available}
+                          onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
+                          className={`
+                            h-10 w-full rounded-lg text-sm font-medium transition-all duration-200
+                            ${!available && "text-muted-foreground/50 cursor-not-allowed"}
+                            ${available && !isSelected && "hover:bg-muted"}
+                            ${isSelected && "bg-primary text-primary-foreground hover:bg-primary/90 scale-105"}
+                          `}
+                        >
+                          {day}
+                        </button>
+                      )
+                    })}
+                  </div>
 
-            {/* Time Slots */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Select Time
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-2">
-                  {timeSlots.map((time) => (
+                  {/* Legend */}
+                  <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-primary" />
+                      <span>Selected</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-muted" />
+                      <span>Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded bg-muted/50" />
+                      <span>Unavailable</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 3: Studio Selection */}
+            {currentStep === 3 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Music className="h-5 w-5" />
+                    Step 3: Select Studio
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
-                      key={time}
                       type="button"
-                      onClick={() => setSelectedTime(time)}
+                      onClick={() => setSelectedStudio("Studio A")}
                       className={`
-                        p-3 rounded-lg border text-sm font-medium transition-colors
-                        ${selectedTime === time
-                          ? "bg-primary text-primary-foreground border-primary"
-                          : "border-border hover:border-primary/50"
+                        p-6 rounded-lg border-2 transition-all text-left
+                        ${selectedStudio === "Studio A"
+                          ? "border-primary bg-primary/5 shadow-md"
+                          : "border-border hover:border-primary/50 hover:shadow-sm"
                         }
                       `}
                     >
-                      {time}
+                      <div className="font-semibold text-lg">Studio A</div>
+                      <div className="text-sm text-muted-foreground mt-1">Neve 88R Console</div>
+                      <div className="text-sm text-muted-foreground mt-2">
+                        Our flagship room featuring a legendary Neve 88R console, perfect for tracking, mixing, and immersive audio experiences.
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span className="text-sm text-green-500">Available</span>
+                      </div>
                     </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedStudio("Studio B")}
+                      className={`
+                        p-6 rounded-lg border-2 transition-all text-left
+                        ${selectedStudio === "Studio B"
+                          ? "border-primary bg-primary/5 shadow-md"
+                          : "border-border hover:border-primary/50 hover:shadow-sm"
+                        }
+                      `}
+                    >
+                      <div className="font-semibold text-lg">Studio B</div>
+                      <div className="text-sm text-muted-foreground mt-1">SSL 9000K Console</div>
+                      <div className="text-sm text-muted-foreground mt-2">
+                        A mixing powerhouse with the iconic SSL 9000K, delivering the punch and clarity that defined countless hit records.
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span className="text-sm text-green-500">Available</span>
+                      </div>
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Submit Button */}
-            <Button type="submit" size="lg" className="w-full text-lg">
-              Submit Booking Request
-            </Button>
+            {/* Step 4: Time Selection */}
+            {currentStep === 4 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5" />
+                    Step 4: Select Time
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {timeSlots.map((time) => (
+                      <button
+                        key={time}
+                        type="button"
+                        onClick={() => setSelectedTime(time)}
+                        className={`
+                          p-3 rounded-lg border text-sm font-medium transition-all duration-200
+                          ${selectedTime === time
+                            ? "bg-primary text-primary-foreground border-primary shadow-md"
+                            : "border-border hover:border-primary/50"
+                          }
+                        `}
+                      >
+                        {time}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 5: Review & Submit */}
+            {currentStep === 5 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Check className="h-5 w-5" />
+                    Review Your Booking
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Client Name</p>
+                        <p className="font-medium">{clientName}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Date</p>
+                        <p className="font-medium">
+                          {selectedDate?.toLocaleDateString("en-US", {
+                            weekday: "long",
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Music className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Studio</p>
+                        <p className="font-medium">{selectedStudio}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Clock className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Time</p>
+                        <p className="font-medium">{selectedTime}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    By submitting, you agree that a member of our team will reach out to you shortly to confirm your booking.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center pt-4">
+              {currentStep > 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCurrentStep(currentStep - 1)}
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Back
+                </Button>
+              ) : (
+                <div />
+              )}
+
+              {currentStep < 5 ? (
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep(currentStep + 1)}
+                  disabled={!canProceed()}
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={handleSubmit}
+                  size="lg"
+                  className="text-lg px-8"
+                >
+                  Submit Booking Request
+                </Button>
+              )}
+            </div>
 
             {/* Contact Info */}
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-sm text-muted-foreground pt-4 border-t">
               <p>Need assistance? Contact us directly:</p>
               <div className="flex items-center justify-center gap-4 mt-2">
                 <a href="tel:212-265-6060" className="flex items-center gap-1 hover:text-primary transition-colors">
