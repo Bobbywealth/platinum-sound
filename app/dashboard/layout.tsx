@@ -15,7 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-[#FAFAF8] light" suppressHydrationWarning>
+    <div className="flex min-h-screen bg-[#FAFAF8]">
       <Suspense fallback={<SidebarSkeleton />}>
         <DashboardSidebar />
       </Suspense>
@@ -23,9 +23,7 @@ export default function DashboardLayout({
         <DashboardHeader />
         <main className="flex-1 overflow-auto bg-[#FAFAF8]">
           <Suspense fallback={<DashboardSkeleton />}>
-            <div className="light">
-              {children}
-            </div>
+            {children}
           </Suspense>
         </main>
       </div>
