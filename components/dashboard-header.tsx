@@ -1,12 +1,9 @@
 "use client"
 
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import {
     Bell,
-    ChevronDown,
     LogOut,
-    Menu,
     Search,
     Settings,
     User,
@@ -140,29 +137,28 @@ export default function DashboardHeader() {
   const unreadCount = mockNotifications.filter((n) => !n.read).length
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-      {/* Left side - Mobile menu button and Page title */}
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6">
+      {/* Left side - Page title */}
       <div className="flex items-center gap-4">
-        <h1 className="text-lg font-semibold">{getPageTitle()}</h1>
+        <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
       </div>
 
-      {/* Right side - Search, Notifications, Theme, Profile */}
-      <div className="flex items-center gap-2">
-        {/* Search */}
-        <div className="relative hidden md:block" ref={searchRef}>
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      {/* Center - Search */}
+      <div className="flex-1 flex justify-center max-w-xl" ref={searchRef}>
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search clients, bookings, invoices..."
+            placeholder="Search clients, bookings, in..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowResults(true)}
-            className="h-9 w-64 rounded-lg border bg-muted/50 pl-9 pr-8 text-sm outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            className="h-10 w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-[#C4A77D] focus:border-transparent"
           />
           {searchQuery && (
             <button
               onClick={clearSearch}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             >
               <X className="h-4 w-4" />
             </button>
@@ -170,9 +166,9 @@ export default function DashboardHeader() {
 
           {/* Search Results Dropdown */}
           {showResults && searchQuery.length >= 2 && (
-            <div className="absolute top-full mt-2 w-full bg-background border rounded-lg shadow-lg overflow-hidden">
+            <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg overflow-hidden">
               {isSearching ? (
-                <div className="p-4 text-center text-muted-foreground text-sm">
+                <div className="p-4 text-center text-gray-500 text-sm">
                   Searching...
                 </div>
               ) : results.length > 0 ? (
@@ -185,44 +181,45 @@ export default function DashboardHeader() {
                         setShowResults(false)
                         setSearchQuery("")
                       }}
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
                     >
                       <span className={`w-2 h-2 rounded-full ${getTypeColor(result.type)}`} />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{result.title}</p>
-                        <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>
+                        <p className="text-xs text-gray-500 truncate">{result.subtitle}</p>
                       </div>
                     </Link>
                   ))}
                 </div>
               ) : (
-                <div className="p-4 text-center text-muted-foreground text-sm">
+                <div className="p-4 text-center text-gray-500 text-sm">
                   No results found for "{searchQuery}"
                 </div>
               )}
             </div>
           )}
         </div>
+      </div>
 
+      {/* Right side - Notifications, Settings, Profile */}
+      <div className="flex items-center gap-3">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative"
+          <button
+            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
             onClick={() => setShowNotifications(!showNotifications)}
           >
-            <Bell className="h-5 w-5" />
+            <Bell className="h-5 w-5 text-gray-600" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
+              <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#C4A77D] text-[10px] text-white font-medium">
                 {unreadCount}
               </span>
             )}
-          </Button>
+          </button>
 
           {/* Notification Dropdown */}
           {showNotifications && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-background border rounded-lg shadow-lg overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-80 bg-white border rounded-lg shadow-lg overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b">
                 <h3 className="font-semibold">Notifications</h3>
                 <Button variant="ghost" size="sm" className="text-xs">
@@ -234,22 +231,22 @@ export default function DashboardHeader() {
                   mockNotifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`px-4 py-3 hover:bg-muted transition-colors ${
-                        !notification.read ? "bg-muted/50" : ""
+                      className={`px-4 py-3 hover:bg-gray-50 transition-colors ${
+                        !notification.read ? "bg-gray-50" : ""
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 ${notification.read ? "bg-transparent" : "bg-primary"}`} />
+                        <div className={`w-2 h-2 rounded-full mt-2 ${notification.read ? "bg-transparent" : "bg-[#C4A77D]"}`} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{notification.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">{notification.message}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{notification.time}</p>
+                          <p className="text-xs text-gray-500 truncate">{notification.message}</p>
+                          <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="p-4 text-center text-muted-foreground text-sm">
+                  <div className="p-4 text-center text-gray-500 text-sm">
                     No notifications
                   </div>
                 )}
@@ -257,7 +254,7 @@ export default function DashboardHeader() {
               <div className="px-4 py-3 border-t">
                 <Link
                   href="/dashboard/notifications"
-                  className="text-sm text-primary hover:underline"
+                  className="text-sm text-[#C4A77D] hover:underline"
                 >
                   View all notifications
                 </Link>
@@ -266,36 +263,49 @@ export default function DashboardHeader() {
           )}
         </div>
 
-        {/* Theme Toggle */}
-        <ThemeToggle />
+        {/* Settings */}
+        <Link
+          href="/dashboard/settings"
+          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+        >
+          <Settings className="h-5 w-5 text-gray-600" />
+        </Link>
 
         {/* User Menu */}
-        <div className="relative" ref={userMenuRef}>
+        <div className="relative flex items-center gap-3 border-l pl-4 ml-1" ref={userMenuRef}>
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 border-l pl-3 ml-1 hover:bg-muted/50 rounded-lg pr-2 py-1 transition-colors"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-medium">Studio Manager</span>
-              <span className="text-xs text-muted-foreground">manager@platinumsound.com</span>
+              <span className="text-sm font-medium text-gray-900">Studio Manager</span>
+              <span className="text-xs text-gray-500">manager@platinumsound.com</span>
             </div>
-            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full bg-primary/10">
-              <User className="h-5 w-5 text-primary" />
-            </Button>
-            <ChevronDown className="h-4 w-4 text-muted-foreground hidden sm:block" />
+            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+              <User className="h-5 w-5 text-gray-600" />
+            </div>
           </button>
+
+          {/* Logout Button */}
+          <Link
+            href="/api/auth/signout"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            title="Sign Out"
+          >
+            <LogOut className="h-5 w-5 text-gray-600" />
+          </Link>
 
           {/* User Dropdown Menu */}
           {showUserMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-background border rounded-lg shadow-lg overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden">
               <div className="px-4 py-3 border-b">
                 <p className="text-sm font-medium">Studio Manager</p>
-                <p className="text-xs text-muted-foreground">manager@platinumsound.com</p>
+                <p className="text-xs text-gray-500">manager@platinumsound.com</p>
               </div>
               <div className="py-1">
                 <Link
                   href="/dashboard/profile"
-                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <User className="h-4 w-4" />
@@ -303,7 +313,7 @@ export default function DashboardHeader() {
                 </Link>
                 <Link
                   href="/dashboard/settings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <Settings className="h-4 w-4" />
@@ -313,7 +323,7 @@ export default function DashboardHeader() {
               <div className="border-t py-1">
                 <Link
                   href="/api/auth/signout"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
                   onClick={() => setShowUserMenu(false)}
                 >
                   <LogOut className="h-4 w-4" />
