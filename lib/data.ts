@@ -392,3 +392,83 @@ export const todaySessions = [
     status: "booked" as const,
   },
 ]
+
+export interface Task {
+  id: string
+  title: string
+  description?: string
+  status: "todo" | "in_progress" | "completed"
+  priority: "low" | "medium" | "high" | "urgent"
+  assignee?: string
+  assigneeId?: string
+  dueDate?: string
+  isRecurring: boolean
+  recurrencePattern?: "daily" | "weekly" | "biweekly" | "monthly"
+  createdAt: string
+}
+
+export const tasks: Task[] = [
+  {
+    id: "T001",
+    title: "Studio A Equipment Check",
+    description: "Weekly check of all microphones and preamps",
+    status: "todo",
+    priority: "medium",
+    assignee: "Noel Cadastre",
+    isRecurring: true,
+    recurrencePattern: "weekly",
+    createdAt: "2024-01-10",
+  },
+  {
+    id: "T002",
+    title: "Update Website Homepage",
+    description: "Add new featured artists and recent projects",
+    status: "in_progress",
+    priority: "high",
+    assignee: "Maria Santos",
+    isRecurring: false,
+    createdAt: "2024-01-08",
+  },
+  {
+    id: "T003",
+    title: "Studio B Calibration",
+    description: "Monthly calibration of SSL console and monitors",
+    status: "todo",
+    priority: "high",
+    assignee: "Young Guru",
+    isRecurring: true,
+    recurrencePattern: "monthly",
+    createdAt: "2024-01-05",
+  },
+  {
+    id: "T004",
+    title: "Client Follow-up Call",
+    description: "Follow up with Drake's team about upcoming sessions",
+    status: "completed",
+    priority: "medium",
+    assignee: "Jerry 'Wonda' Duplessis",
+    isRecurring: false,
+    createdAt: "2024-01-03",
+  },
+  {
+    id: "T005",
+    title: "Inventory Restock",
+    description: "Order new XLR cables and microphone stands",
+    status: "todo",
+    priority: "low",
+    assignee: "James Chen",
+    isRecurring: false,
+    createdAt: "2024-01-12",
+  },
+  {
+    id: "T006",
+    title: "Backup All Sessions",
+    description: "Create backup of all January sessions to external drive",
+    status: "in_progress",
+    priority: "high",
+    assignee: "James Chen",
+    isRecurring: true,
+    recurrencePattern: "weekly",
+    createdAt: "2024-01-11",
+  },
+]

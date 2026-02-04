@@ -5,6 +5,7 @@ import {
     BarChart3,
     Building2,
     Calendar,
+    CheckSquare,
     ChevronDown,
     Clock,
     DollarSign,
@@ -47,6 +48,7 @@ const navSections: NavSection[] = [
     items: [
       { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
       { href: "/dashboard/schedule", label: "Schedule", icon: Clock },
+      { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
       { href: "/dashboard/studios", label: "Studios", icon: Building2 },
       { href: "/dashboard/services", label: "Services", icon: Music2 },
     ],
