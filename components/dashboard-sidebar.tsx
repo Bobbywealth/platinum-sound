@@ -88,7 +88,7 @@ const navSections: NavSection[] = [
 const navItemVariants = {
   initial: { opacity: 0, x: -10 },
   animate: { opacity: 1, x: 0 },
-  hover: { x: 4 },
+  hover: { scale: 1.02, backgroundColor: "rgba(0, 0, 0, 0.04)" },
   tap: { scale: 0.98 },
 }
 
