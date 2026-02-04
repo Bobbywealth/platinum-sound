@@ -71,7 +71,7 @@ export default function BookingsPage() {
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Bookings</h2>

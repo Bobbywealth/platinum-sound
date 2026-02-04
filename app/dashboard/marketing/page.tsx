@@ -6,7 +6,7 @@ import Link from "next/link"
 
 export default function MarketingPage() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Marketing</h2>
         <p className="text-muted-foreground">
