@@ -38,6 +38,9 @@ import { useState } from "react"
 type ViewMode = "kanban" | "list"
 type TaskStatus = "todo" | "in_progress" | "completed"
 
+type Priority = "low" | "medium" | "high" | "urgent"
+type RecurrencePattern = "daily" | "weekly" | "biweekly" | "monthly"
+
 const statusConfig = {
   todo: { label: "To Do", color: "bg-gray-100 border-gray-300", icon: Circle },
   in_progress: { label: "In Progress", color: "bg-blue-50 border-blue-300", icon: Clock },
@@ -55,13 +58,20 @@ export default function TasksPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("kanban")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [taskList, setTaskList] = useState<Task[]>(tasks)
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<{
+    title: string
+    description: string
+    priority: Priority
+    assignee: string
+    isRecurring: boolean
+    recurrencePattern: RecurrencePattern
+  }>({
     title: "",
     description: "",
-    priority: "medium" as const,
+    priority: "medium",
     assignee: "",
     isRecurring: false,
-    recurrencePattern: "weekly" as const,
+    recurrencePattern: "weekly",
   })
 
   const handleCreateTask = () => {
@@ -163,7 +173,7 @@ export default function TasksPage() {
                     <Label>Priority</Label>
                     <Select
                       value={newTask.priority}
-                      onValueChange={(value: "low" | "medium" | "high" | "urgent") =>
+                      onValueChange={(value: Priority) =>
                         setNewTask({ ...newTask, priority: value })
                       }
                     >
@@ -202,7 +212,7 @@ export default function TasksPage() {
                     <Label>Recurrence Pattern</Label>
                     <Select
                       value={newTask.recurrencePattern}
-                      onValueChange={(value: "daily" | "weekly" | "biweekly" | "monthly") =>
+                      onValueChange={(value: RecurrencePattern) =>
                         setNewTask({ ...newTask, recurrencePattern: value })
                       }
                     >
