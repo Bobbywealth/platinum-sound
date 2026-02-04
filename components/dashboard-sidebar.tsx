@@ -387,7 +387,7 @@ export default function DashboardSidebar() {
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.3, ease: "easeOut" as const }}
-        className="hidden lg:flex lg:flex-col lg:w-64 lg:h-full lg:border-r bg-white"
+        className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r bg-white sticky top-0"
       >
         <SidebarContent />
       </motion.aside>

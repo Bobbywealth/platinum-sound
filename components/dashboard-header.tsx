@@ -308,7 +308,7 @@ export default function DashboardHeader() {
                   </div>
                 ) : (
                   <div className="p-4 text-center text-gray-500 text-sm">
-                    No results found for "{searchQuery}"
+                    No results found for &quot;{searchQuery}&quot;
                   </div>
                 )}
               </motion.div>

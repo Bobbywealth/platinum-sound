@@ -182,7 +182,7 @@ export default function DashboardPage() {
       {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
-        <p className="text-gray-500 mt-1">Track your studio's performance at a glance</p>
+        <p className="text-gray-500 mt-1">Track your studio&apos;s performance at a glance</p>
       </div>
 
       {/* Stats Grid */}
@@ -216,7 +216,7 @@ export default function DashboardPage() {
       {/* Today's Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Today's Sessions</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Sessions</h2>
           <Link
             href="/dashboard/schedule"
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
