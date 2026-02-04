@@ -45,6 +45,8 @@ const navSections: NavSection[] = [
   },
   {
     label: "OPERATIONS",
+    expandable: true,
+    expandIcon: Calendar,
     items: [
       { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
       { href: "/dashboard/schedule", label: "Schedule", icon: Clock },
@@ -139,9 +141,7 @@ const backdropVariants = {
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    FINANCE: true,
-  })
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   const toggleSection = (label: string) => {
