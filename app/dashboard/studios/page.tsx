@@ -34,7 +34,7 @@ const studios = [
     name: "Studio A",
     console: "Neve 88R Console",
     type: "Flagship Recording",
-    status: "available",
+    status: "available" as const,
     features: [
       { icon: Mic2, text: "Large live room with isolation booths" },
       { icon: Headphones, text: "5.1 Surround monitoring" },
@@ -57,7 +57,7 @@ const studios = [
     name: "Studio B",
     console: "SSL 9000K Console",
     type: "Mixing Suite",
-    status: "in-session",
+    status: "in-session" as const,
     features: [
       { icon: Mic2, text: "Dedicated vocal booth" },
       { icon: Headphones, text: "Stereo & surround monitoring" },
@@ -86,13 +86,10 @@ export default function StudiosPage() {
 
   return (
     <div className="space-y-8 min-h-screen p-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Studios</h1>
-          <p className="text-muted-foreground">
-            Manage your world-class recording facilities
-          </p>
+          <p className="text-muted-foreground">Manage your world-class recording facilities</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
@@ -104,9 +101,7 @@ export default function StudiosPage() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Studio</DialogTitle>
-              <DialogDescription>
-                Add a new recording studio to your facility
-              </DialogDescription>
+              <DialogDescription>Add a new recording studio to your facility</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
@@ -127,177 +122,63 @@ export default function StudiosPage() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setIsDialogOpen(false)}>
-                Add Studio
-              </Button>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => setIsDialogOpen(false)}>Add Studio</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Studio Status Overview */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-foreground/80">Studio Status</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {studios.map((studio) => (
-          <Card key={studio.id} className="overflow-hidden">
-            <CardHeader className="pb-3 bg-muted/30">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Music className="h-5 w-5 text-muted-foreground" />
-                  {studio.name}
-                </CardTitle>
-                <Badge
-                  variant={
-                    studio.status === "available"
-                      ? "success"
-                      : studio.status === "in-session"
-                      ? "info"
-                      : "secondary"
-                  }
-                >
-                  {studio.status === "available" ? (
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                      Available
-                    </span>
-                  ) : studio.status === "in-session" ? (
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                      In Session
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                      Maintenance
-                    </span>
-                  )}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {studio.console} • {studio.type}
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Current Session */}
-              {studio.currentSession && (
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Current Session</span>
-                    <Badge variant="outline">{studio.currentSession.type}</Badge>
-                  </div>
-                  <p className="font-semibold">{studio.currentSession.artist}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Since {studio.currentSession.startTime}
-                  </p>
+            <Card key={studio.id} className="overflow-hidden">
+              <CardHeader className="pb-3 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Music className="h-5 w-5 text-muted-foreground" />
+                    {studio.name}
+                  </CardTitle>
+                  <Badge variant={studio.status === "available" ? "success" : studio.status === "in-session" ? "info" : "secondary"}>
+                    {studio.status === "available" ? "Available" : studio.status === "in-session" ? "In Session" : "Maintenance"}
+                  </Badge>
                 </div>
-              )}
-
-              {/* Next Booking */}
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Next Booking</span>
-                <span className="font-medium">{studio.nextBooking}</span>
-              </div>
-
-              {/* Engineer */}
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Engineer</span>
-                <span className="font-medium">{studio.engineer}</span>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Activity className="mr-2 h-4 w-4" />
-                  View Details
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Manage
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Detailed Studio Information */}
-      <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-foreground/80">Studio Details</h2>
-        <Tabs defaultValue="studio-a" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-          <TabsTrigger value="studio-a">Studio A</TabsTrigger>
-          <TabsTrigger value="studio-b">Studio B</TabsTrigger>
-        </TabsList>
-
-        {studios.map((studio) => (
-          <TabsContent key={studio.id} value={studio.id}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Music className="h-5 w-5 text-primary" />
-                  {studio.name}
-                </CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  {studio.console} • {studio.type}
-                </p>
+                <p className="text-sm text-muted-foreground">{studio.console} - {studio.type}</p>
               </CardHeader>
-              <CardContent className="grid gap-6 md:grid-cols-2">
-                {/* Features */}
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-muted-foreground" />
-                    Key Features
-                  </h4>
-                  <ul className="space-y-2">
-                    {studio.features.map((feature, index) => (
-                      <li
-                        key={index}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <feature.icon className="h-4 w-4 text-primary" />
-                        {feature.text}
-                      </li>
-                    ))}
-                  </ul>
+              <CardContent className="space-y-4">
+                {studio.currentSession && (
+                  <div className="p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Current Session</span>
+                      <Badge variant="outline">{studio.currentSession.type}</Badge>
+                    </div>
+                    <p className="font-semibold">{studio.currentSession.artist}</p>
+                    <p className="text-sm text-muted-foreground">Since {studio.currentSession.startTime}</p>
+                  </div>
+                )}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Next Booking</span>
+                  <span className="font-medium">{studio.nextBooking}</span>
                 </div>
-
-                {/* Equipment List */}
-                <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-muted-foreground" />
-                    Equipment
-                  </h4>
-                  <ul className="space-y-1">
-                    {studio.equipment.map((item, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-muted-foreground flex items-center gap-2"
-                      >
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Engineer</span>
+                  <span className="font-medium">{studio.engineer}</span>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+          ))}
+        </div>
+      </div>
 
-      {/* Quick Stats */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold text-foreground/80">Quick Stats</h2>
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                  <Activity className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <Activity className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">2</p>
@@ -309,8 +190,8 @@ export default function StudiosPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                  <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Clock className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">78%</p>
@@ -322,8 +203,8 @@ export default function StudiosPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                  <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Users className="h-5 w-5 text-purple-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">4</p>
@@ -335,8 +216,8 @@ export default function StudiosPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                  <Music className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <Music className="h-5 w-5 text-amber-600" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">12</p>
