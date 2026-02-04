@@ -191,9 +191,9 @@ export default function LoginPage() {
                   <Image
                     src="/Platinum Sound logo with 3D effect.png"
                     alt="Platinum Sound Logo"
-                    width={200}
-                    height={45}
-                    className="h-14 w-auto drop-shadow-lg"
+                    width={300}
+                    height={68}
+                    className="h-24 w-auto drop-shadow-lg"
                     priority
                   />
                 </Link>

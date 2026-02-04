@@ -1,7 +1,7 @@
 "use client"
 
-import { StatCard } from "@/components/stat-card"
 import { DashboardSkeleton } from "@/components/skeletons"
+import { StatCard } from "@/components/stat-card"
 import { formatCurrency } from "@/lib/utils"
 import {
     Calendar,
