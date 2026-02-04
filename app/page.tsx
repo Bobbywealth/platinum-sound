@@ -83,16 +83,32 @@ export default function Home() {
             A beacon of innovation where music, film, and media converge.
             Celebrating 20+ years of excellence in the heart of New York City.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/booking">
-              <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90">
-                Book Now
-              </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative group"
+              >
+                {/* Pulsing glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-royal via-yellow-400 to-royal rounded-lg blur opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse" />
+                <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90 relative z-10 shadow-lg">
+                  Book Now
+                </Button>
+              </motion.div>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 text-foreground border-foreground/50 hover:bg-accent">
-              <Phone className="mr-2 h-5 w-5" />
-              212-265-6060
-            </Button>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative group"
+            >
+              {/* Pulsing glow effect for secondary button */}
+              <div className="absolute -inset-1 bg-gradient-to-r from-platinum-gradient via-white to-platinum-gradient rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
+              <Button size="lg" variant="outline" className="text-lg px-8 py-6 text-foreground border-foreground/50 hover:bg-accent relative z-10">
+                <Phone className="mr-2 h-5 w-5" />
+                212-265-6060
+              </Button>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -207,12 +223,12 @@ export default function Home() {
             <h3 className="text-2xl font-bold mb-8 text-center">Founder/Owner</h3>
             <div className="max-w-3xl mx-auto">
               <div className="text-center p-8 rounded-2xl border bg-background">
-                <div className="relative w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-royal/20">
+                <div className="relative w-40 h-56 mx-auto mb-6 rounded-xl overflow-hidden border-4 border-royal/20">
                   <Image
                     src="/jerrywonda1.png"
                     alt="Jerry 'Wonda' Duplessis - Founder/Owner"
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                     priority
                   />
                 </div>
