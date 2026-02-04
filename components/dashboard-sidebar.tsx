@@ -105,14 +105,14 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Logo */}
-      <div className="p-6 pb-4">
+      <div className="p-6 pb-6">
         <Link href="/dashboard" className="flex items-center justify-center">
           <Image
             src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound Logo"
-            width={120}
-            height={40}
-            className="h-10 w-auto"
+            width={180}
+            height={60}
+            className="h-auto w-full max-w-[160px]"
             priority
           />
         </Link>
