@@ -59,6 +59,7 @@ export default function BookingPage() {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentStep, setCurrentStep] = useState(1)
+  const [visitedSteps, setVisitedSteps] = useState<number[]>([1])
   const router = useRouter()
   const { toast } = useToast()
 
@@ -70,6 +71,22 @@ export default function BookingPage() {
     { number: 5, label: "Review", icon: Check },
   ]
 
+  const goToNextStep = () => {
+    if (currentStep < 5) {
+      const nextStep = currentStep + 1
+      setCurrentStep(nextStep)
+      if (!visitedSteps.includes(nextStep)) {
+        setVisitedSteps([...visitedSteps, nextStep])
+      }
+    }
+  }
+
+  const goToPrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
   const canProceed = () => {
     switch (currentStep) {
       case 1: return clientName.trim().length > 0
@@ -80,29 +97,29 @@ export default function BookingPage() {
     }
   }
 
-  // Auto-advance from Step 1 (Name)
+  // Auto-advance from Step 1 (Name) - only on first visit
   useEffect(() => {
-    if (currentStep === 1 && clientName.trim().length > 0) {
-      const timer = setTimeout(() => setCurrentStep(2), 500)
+    if (currentStep === 1 && visitedSteps.includes(1) && clientName.trim().length > 0) {
+      const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
-  }, [clientName, currentStep])
+  }, [clientName, currentStep, visitedSteps])
 
-  // Auto-advance from Step 2 (Date)
+  // Auto-advance from Step 2 (Date) - only on first visit
   useEffect(() => {
-    if (currentStep === 2 && selectedDate !== null) {
-      const timer = setTimeout(() => setCurrentStep(3), 500)
+    if (currentStep === 2 && visitedSteps.includes(2) && selectedDate !== null) {
+      const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedDate, currentStep])
+  }, [selectedDate, currentStep, visitedSteps])
 
-  // Auto-advance from Step 3 (Studio)
+  // Auto-advance from Step 3 (Studio) - only on first visit
   useEffect(() => {
-    if (currentStep === 3 && selectedStudio !== null) {
-      const timer = setTimeout(() => setCurrentStep(4), 500)
+    if (currentStep === 3 && visitedSteps.includes(3) && selectedStudio !== null) {
+      const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedStudio, currentStep])
+  }, [selectedStudio, currentStep, visitedSteps])
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -578,11 +595,11 @@ export default function BookingPage() {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between items-center pt-4">
-              {currentStep > 1 && currentStep < 5 ? (
+              {currentStep > 1 ? (
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setCurrentStep(currentStep - 1)}
+                  onClick={goToPrevStep}
                   className="flex items-center gap-2"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -592,18 +609,27 @@ export default function BookingPage() {
                 <div />
               )}
 
-              {currentStep === 4 && canProceed() && (
+              {currentStep < 4 ? (
                 <Button
                   type="button"
-                  onClick={() => setCurrentStep(5)}
+                  onClick={goToNextStep}
+                  disabled={!canProceed()}
+                  className="flex items-center gap-2"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              ) : currentStep === 4 ? (
+                <Button
+                  type="button"
+                  onClick={goToNextStep}
+                  disabled={!canProceed()}
                   className="flex items-center gap-2"
                 >
                   Continue to Review
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-              )}
-
-              {currentStep === 5 && (
+              ) : (
                 <Button
                   type="button"
                   onClick={handleSubmit}
