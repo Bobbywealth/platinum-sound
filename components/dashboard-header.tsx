@@ -12,6 +12,7 @@ import {
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface SearchResult {
   type: string
@@ -52,6 +53,53 @@ const mockNotifications: Notification[] = [
     read: true,
   },
 ]
+
+// Animation variants
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -10, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.15,
+      ease: "easeOut",
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.95,
+    transition: {
+      duration: 0.1,
+      ease: "easeIn",
+    },
+  },
+}
+
+const notificationItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: (i: number) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      delay: i * 0.05,
+      duration: 0.2,
+    },
+  }),
+}
+
+const searchResultVariants = {
+  hidden: { opacity: 0, y: -5 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: i * 0.03,
+      duration: 0.15,
+    },
+  }),
+}
 
 export default function DashboardHeader() {
   const pathname = usePathname()
@@ -137,10 +185,23 @@ export default function DashboardHeader() {
   const unreadCount = mockNotifications.filter((n) => !n.read).length
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6">
+    <motion.header
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6"
+    >
       {/* Left side - Page title */}
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
+        <motion.h1
+          key={getPageTitle()}
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+          className="text-xl font-semibold text-gray-900"
+        >
+          {getPageTitle()}
+        </motion.h1>
       </div>
 
       {/* Center - Search */}
@@ -153,51 +214,71 @@ export default function DashboardHeader() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => results.length > 0 && setShowResults(true)}
-            className="h-10 w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-[#C4A77D] focus:border-transparent"
+            className="h-10 w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-10 text-sm outline-none focus:ring-2 focus:ring-[#C4A77D] focus:border-transparent transition-all"
           />
           {searchQuery && (
-            <button
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
               onClick={clearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               <X className="h-4 w-4" />
-            </button>
+            </motion.button>
           )}
 
           {/* Search Results Dropdown */}
-          {showResults && searchQuery.length >= 2 && (
-            <div className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg overflow-hidden">
-              {isSearching ? (
-                <div className="p-4 text-center text-gray-500 text-sm">
-                  Searching...
-                </div>
-              ) : results.length > 0 ? (
-                <div className="py-2">
-                  {results.map((result, index) => (
-                    <Link
-                      key={`${result.type}-${result.title}-${index}`}
-                      href={result.href}
-                      onClick={() => {
-                        setShowResults(false)
-                        setSearchQuery("")
-                      }}
-                      className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
-                    >
-                      <span className={`w-2 h-2 rounded-full ${getTypeColor(result.type)}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{result.title}</p>
-                        <p className="text-xs text-gray-500 truncate">{result.subtitle}</p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-4 text-center text-gray-500 text-sm">
-                  No results found for "{searchQuery}"
-                </div>
-              )}
-            </div>
-          )}
+          <AnimatePresence>
+            {showResults && searchQuery.length >= 2 && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute top-full mt-2 w-full bg-white border rounded-lg shadow-lg overflow-hidden"
+              >
+                {isSearching ? (
+                  <div className="p-4 text-center text-gray-500 text-sm">
+                    Searching...
+                  </div>
+                ) : results.length > 0 ? (
+                  <div className="py-2">
+                    {results.map((result, index) => (
+                      <motion.div
+                        key={`${result.type}-${result.title}-${index}`}
+                        custom={index}
+                        variants={searchResultVariants}
+                        initial="hidden"
+                        animate="visible"
+                      >
+                        <Link
+                          href={result.href}
+                          onClick={() => {
+                            setShowResults(false)
+                            setSearchQuery("")
+                          }}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
+                        >
+                          <span className={`w-2 h-2 rounded-full ${getTypeColor(result.type)}`} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{result.title}</p>
+                            <p className="text-xs text-gray-500 truncate">{result.subtitle}</p>
+                          </div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-gray-500 text-sm">
+                    No results found for "{searchQuery}"
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
@@ -205,77 +286,104 @@ export default function DashboardHeader() {
       <div className="flex items-center gap-3">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
-          <button
+          <motion.button
             className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
             onClick={() => setShowNotifications(!showNotifications)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ duration: 0.1 }}
           >
             <Bell className="h-5 w-5 text-gray-600" />
             {unreadCount > 0 && (
-              <span className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#C4A77D] text-[10px] text-white font-medium">
+              <motion.span
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#C4A77D] text-[10px] text-white font-medium"
+              >
                 {unreadCount}
-              </span>
+              </motion.span>
             )}
-          </button>
+          </motion.button>
 
           {/* Notification Dropdown */}
-          {showNotifications && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-white border rounded-lg shadow-lg overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b">
-                <h3 className="font-semibold">Notifications</h3>
-                <Button variant="ghost" size="sm" className="text-xs">
-                  Mark all as read
-                </Button>
-              </div>
-              <div className="max-h-80 overflow-y-auto">
-                {mockNotifications.length > 0 ? (
-                  mockNotifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`px-4 py-3 hover:bg-gray-50 transition-colors ${
-                        !notification.read ? "bg-gray-50" : ""
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 ${notification.read ? "bg-transparent" : "bg-[#C4A77D]"}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium">{notification.title}</p>
-                          <p className="text-xs text-gray-500 truncate">{notification.message}</p>
-                          <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute right-0 top-full mt-2 w-80 bg-white border rounded-lg shadow-lg overflow-hidden"
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b">
+                  <h3 className="font-semibold">Notifications</h3>
+                  <Button variant="ghost" size="sm" className="text-xs">
+                    Mark all as read
+                  </Button>
+                </div>
+                <div className="max-h-80 overflow-y-auto">
+                  {mockNotifications.length > 0 ? (
+                    mockNotifications.map((notification, index) => (
+                      <motion.div
+                        key={notification.id}
+                        custom={index}
+                        variants={notificationItemVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className={`px-4 py-3 hover:bg-gray-50 transition-colors ${
+                          !notification.read ? "bg-gray-50" : ""
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <motion.div
+                            animate={{ scale: !notification.read ? [1, 1.2, 1] : 1 }}
+                            transition={{ duration: 0.3 }}
+                            className={`w-2 h-2 rounded-full mt-2 ${notification.read ? "bg-transparent" : "bg-[#C4A77D]"}`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium">{notification.title}</p>
+                            <p className="text-xs text-gray-500 truncate">{notification.message}</p>
+                            <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
+                          </div>
                         </div>
-                      </div>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500 text-sm">
+                      No notifications
                     </div>
-                  ))
-                ) : (
-                  <div className="p-4 text-center text-gray-500 text-sm">
-                    No notifications
-                  </div>
-                )}
-              </div>
-              <div className="px-4 py-3 border-t">
-                <Link
-                  href="/dashboard/notifications"
-                  className="text-sm text-[#C4A77D] hover:underline"
-                >
-                  View all notifications
-                </Link>
-              </div>
-            </div>
-          )}
+                  )}
+                </div>
+                <div className="px-4 py-3 border-t">
+                  <Link
+                    href="/dashboard/notifications"
+                    className="text-sm text-[#C4A77D] hover:underline"
+                  >
+                    View all notifications
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Settings */}
-        <Link
-          href="/dashboard/settings"
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <Settings className="h-5 w-5 text-gray-600" />
-        </Link>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Link
+            href="/dashboard/settings"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors block"
+          >
+            <Settings className="h-5 w-5 text-gray-600" />
+          </Link>
+        </motion.div>
 
         {/* User Menu */}
         <div className="relative flex items-center gap-3 border-l pl-4 ml-1" ref={userMenuRef}>
-          <button
+          <motion.button
             onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm font-medium text-gray-900">Studio Manager</span>
@@ -284,56 +392,66 @@ export default function DashboardHeader() {
             <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
               <User className="h-5 w-5 text-gray-600" />
             </div>
-          </button>
+          </motion.button>
 
           {/* Logout Button */}
-          <Link
-            href="/api/auth/signout"
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-            title="Sign Out"
-          >
-            <LogOut className="h-5 w-5 text-gray-600" />
-          </Link>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/api/auth/signout"
+              className="p-2 rounded-full hover:bg-gray-100 transition-colors block"
+              title="Sign Out"
+            >
+              <LogOut className="h-5 w-5 text-gray-600" />
+            </Link>
+          </motion.div>
 
           {/* User Dropdown Menu */}
-          {showUserMenu && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden">
-              <div className="px-4 py-3 border-b">
-                <p className="text-sm font-medium">Studio Manager</p>
-                <p className="text-xs text-gray-500">manager@platinumsound.com</p>
-              </div>
-              <div className="py-1">
-                <Link
-                  href="/dashboard/profile"
-                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                  onClick={() => setShowUserMenu(false)}
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Link>
-                <Link
-                  href="/dashboard/settings"
-                  className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                  onClick={() => setShowUserMenu(false)}
-                >
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </Link>
-              </div>
-              <div className="border-t py-1">
-                <Link
-                  href="/api/auth/signout"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
-                  onClick={() => setShowUserMenu(false)}
-                >
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Link>
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden"
+              >
+                <div className="px-4 py-3 border-b">
+                  <p className="text-sm font-medium">Studio Manager</p>
+                  <p className="text-xs text-gray-500">manager@platinumsound.com</p>
+                </div>
+                <div className="py-1">
+                  <Link
+                    href="/dashboard/profile"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
+                  <Link
+                    href="/dashboard/settings"
+                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Settings className="h-4 w-4" />
+                    Settings
+                  </Link>
+                </div>
+                <div className="border-t py-1">
+                  <Link
+                    href="/api/auth/signout"
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </Link>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }

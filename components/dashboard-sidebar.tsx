@@ -21,6 +21,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createElement, useEffect, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 interface NavItem {
   href: string
@@ -78,11 +79,66 @@ const navSections: NavSection[] = [
   },
 ]
 
+// Animation variants
+const navItemVariants = {
+  initial: { opacity: 0, x: -10 },
+  animate: { opacity: 1, x: 0 },
+  hover: { x: 4 },
+  tap: { scale: 0.98 },
+}
+
+const sectionVariants = {
+  hidden: { opacity: 0, height: 0 },
+  visible: {
+    opacity: 1,
+    height: "auto",
+    transition: {
+      duration: 0.2,
+      ease: "easeOut",
+    },
+  },
+  exit: {
+    opacity: 0,
+    height: 0,
+    transition: {
+      duration: 0.15,
+      ease: "easeIn",
+    },
+  },
+}
+
+const mobileMenuVariants = {
+  closed: { x: "-100%", opacity: 0 },
+  open: {
+    x: 0,
+    opacity: 1,
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+  exit: {
+    x: "-100%",
+    opacity: 0,
+    transition: {
+      duration: 0.2,
+      ease: "easeIn",
+    },
+  },
+}
+
+const backdropVariants = {
+  closed: { opacity: 0 },
+  open: { opacity: 1 },
+  exit: { opacity: 0 },
+}
+
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     FINANCE: true,
   })
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   const toggleSection = (label: string) => {
     setExpandedSections((prev) => ({
@@ -102,19 +158,150 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     return section.items.some((item) => isActive(item.href))
   }
 
+  const NavLink = ({ item, isChild = false }: { item: NavItem; isChild?: boolean }) => {
+    const active = isActive(item.href)
+    const isHovered = hoveredItem === item.href
+
+    return (
+      <motion.div
+        variants={navItemVariants}
+        initial="initial"
+        animate="animate"
+        whileHover="hover"
+        whileTap="tap"
+        onHoverStart={() => setHoveredItem(item.href)}
+        onHoverEnd={() => setHoveredItem(null)}
+        className={isChild ? "relative" : "relative"}
+      >
+        <Link
+          href={item.href}
+          onClick={(e) => {
+            onClose?.()
+            // Add quick visual feedback before navigation
+            e.preventDefault()
+            const link = e.currentTarget
+            link.style.transform = "scale(0.95)"
+            setTimeout(() => {
+              link.style.transform = ""
+              window.location.href = item.href
+            }, 80)
+          }}
+          className={`
+            relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+            ${isChild ? "ml-4" : ""}
+            ${active
+              ? "bg-[#E8DCC8] text-gray-900"
+              : "text-gray-600"
+            }
+          `}
+          style={{ transformOrigin: "center" }}
+        >
+          {/* Active indicator bar */}
+          {active && (
+            <motion.div
+              layoutId="activeIndicator"
+              className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#C9A962] rounded-r-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.15 }}
+            />
+          )}
+
+          {/* Hover background */}
+          {!active && (
+            <motion.div
+              className="absolute inset-0 rounded-lg bg-gray-100"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.1 }}
+            />
+          )}
+
+          <item.icon
+            className={`h-5 w-5 flex-shrink-0 relative z-10 ${
+              active ? "text-gray-900" : "text-gray-500"
+            }`}
+          />
+          <span className="relative z-10">{item.label}</span>
+        </Link>
+      </motion.div>
+    )
+  }
+
+  const ExpandableSection = ({ section }: { section: NavSection }) => {
+    const isExpanded = expandedSections[section.label]
+    const active = isSectionActive(section)
+
+    return (
+      <div>
+        <motion.button
+          onClick={() => toggleSection(section.label)}
+          className={`
+            flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+            w-full relative overflow-hidden
+            ${isExpanded || active
+              ? "bg-[#E8DCC8] text-gray-900"
+              : "text-gray-600 hover:bg-gray-100"
+            }
+          `}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <div className="relative z-10 flex items-center gap-3 w-full">
+            {section.expandIcon && (
+              <section.expandIcon className="h-5 w-5 flex-shrink-0" />
+            )}
+            <span>{section.label.charAt(0) + section.label.slice(1).toLowerCase()}</span>
+            <motion.div
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ duration: 0.15 }}
+              className="ml-auto"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </motion.div>
+          </div>
+        </motion.button>
+
+        <AnimatePresence mode="wait">
+          {isExpanded && (
+            <motion.div
+              variants={sectionVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="overflow-hidden"
+            >
+              <div className="ml-4 space-y-1 mt-1 pt-1">
+                {section.items.map((item) => (
+                  <NavLink key={item.href} item={item} isChild />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Logo */}
       <div className="p-6 pb-6">
         <Link href="/dashboard" className="flex items-center justify-center">
-          <Image
-            src="/Platinum Sound logo with 3D effect.png"
-            alt="Platinum Sound Logo"
-            width={180}
-            height={60}
-            className="h-auto w-full max-w-[160px]"
-            priority
-          />
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+          >
+            <Image
+              src="/Platinum Sound logo with 3D effect.png"
+              alt="Platinum Sound Logo"
+              width={180}
+              height={60}
+              className="h-auto w-full max-w-[160px]"
+              priority
+            />
+          </motion.div>
         </Link>
       </div>
 
@@ -122,71 +309,26 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <nav className="flex-1 px-3 py-2 overflow-y-auto">
         <div className="space-y-6">
           {navSections.map((section) => (
-            <div key={section.label}>
+            <motion.div
+              key={section.label}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+            >
               <h3 className="px-3 mb-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                 {section.label}
               </h3>
               <div className="space-y-1">
                 {section.expandable ? (
-                  <>
-                    {/* Expandable Section Toggle Button */}
-                    <button
-                      onClick={() => toggleSection(section.label)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full ${
-                        expandedSections[section.label] || isSectionActive(section)
-                          ? "bg-[#E8DCC8] text-gray-900"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {section.expandIcon && createElement(section.expandIcon, { className: "h-5 w-5 flex-shrink-0" })}
-                      <span>{section.label.charAt(0) + section.label.slice(1).toLowerCase()}</span>
-                      {expandedSections[section.label] ? (
-                        <ChevronUp className="h-4 w-4 ml-auto" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4 ml-auto" />
-                      )}
-                    </button>
-                    {/* Expanded Items */}
-                    {expandedSections[section.label] && (
-                      <div className="ml-4 space-y-1 mt-1">
-                        {section.items.map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={onClose}
-                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              isActive(item.href)
-                                ? "bg-[#E8DCC8] text-gray-900"
-                                : "text-gray-600 hover:bg-gray-100"
-                            }`}
-                          >
-                            <item.icon className="h-5 w-5 flex-shrink-0" />
-                            <span>{item.label}</span>
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
+                  <ExpandableSection section={section} />
                 ) : (
                   // Non-expandable sections
                   section.items.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={onClose}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                        isActive(item.href)
-                          ? "bg-[#E8DCC8] text-gray-900"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      <span>{item.label}</span>
-                    </Link>
+                    <NavLink key={item.href} item={item} />
                   ))
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </nav>
@@ -213,41 +355,64 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r bg-white">
+      <motion.aside
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r bg-white"
+      >
         <SidebarContent />
-      </aside>
+      </motion.aside>
 
       {/* Mobile Menu Button */}
-      <button
+      <motion.button
         onClick={() => setMobileOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white border shadow-sm"
         aria-label="Open menu"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.1 }}
       >
         <Menu className="h-5 w-5" />
-      </button>
+      </motion.button>
 
       {/* Mobile Navigation Overlay */}
-      {mobileOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          {/* Mobile Sidebar */}
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white h-full flex flex-col shadow-xl">
-            {/* Close Button */}
-            <button
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              variants={backdropVariants}
+              initial="closed"
+              animate="open"
+              exit="exit"
+              className="lg:hidden fixed inset-0 z-50"
               onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-              aria-label="Close menu"
+            />
+            {/* Mobile Sidebar */}
+            <motion.aside
+              variants={mobileMenuVariants}
+              initial="closed"
+              animate="open"
+              exit="exit"
+              className="lg:hidden absolute left-0 top-0 bottom-0 w-72 bg-white h-full flex flex-col shadow-xl z-50"
             >
-              <X className="h-5 w-5" />
-            </button>
-            <SidebarContent onClose={() => setMobileOpen(false)} />
-          </aside>
-        </div>
-      )}
+              {/* Close Button */}
+              <motion.button
+                onClick={() => setMobileOpen(false)}
+                className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                aria-label="Close menu"
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ duration: 0.1 }}
+              >
+                <X className="h-5 w-5" />
+              </motion.button>
+              <SidebarContent onClose={() => setMobileOpen(false)} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }
