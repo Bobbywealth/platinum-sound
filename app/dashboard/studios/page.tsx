@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
     Activity,
     Clock,
@@ -22,9 +21,8 @@ import {
     Mic2,
     Music,
     Plus,
-    Settings,
     Sliders,
-    Users,
+    Users
 } from "lucide-react"
 import { useState } from "react"
 

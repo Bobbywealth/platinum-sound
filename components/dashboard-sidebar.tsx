@@ -1,11 +1,11 @@
 "use client"
 
+import { AnimatePresence, motion } from "framer-motion"
 import {
     BarChart3,
     Building2,
     Calendar,
     ChevronDown,
-    ChevronUp,
     Clock,
     DollarSign,
     FileText,
@@ -16,15 +16,13 @@ import {
     Music2,
     Settings,
     Users,
-    X,
+    X
 } from "lucide-react"
+import { signOut } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { createElement, useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 interface NavItem {
   href: string
