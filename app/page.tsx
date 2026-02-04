@@ -12,41 +12,72 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center">
             <Image
               src="/Platinum Sound logo with 3D effect.png"
               alt="Platinum Sound Logo"
               width={360}
               height={80}
-              className="h-16 w-auto"
+              className="h-20 w-auto"
               priority
             />
           </div>
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
+          <div className="hidden md:flex items-center gap-1">
+            <Link
+              href="/"
+              className="px-4 py-2 text-base font-semibold text-foreground/80 hover:text-royal hover:bg-royal/5 rounded-md transition-all"
+            >
               HOME
             </Link>
-            <Link href="#studios" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
+            <Link
+              href="#studios"
+              className="px-4 py-2 text-base font-semibold text-foreground/80 hover:text-royal hover:bg-royal/5 rounded-md transition-all"
+            >
               STUDIOS
             </Link>
-            <Link href="#team" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
+            <Link
+              href="#team"
+              className="px-4 py-2 text-base font-semibold text-foreground/80 hover:text-royal hover:bg-royal/5 rounded-md transition-all"
+            >
               TEAM
             </Link>
-            <Link href="#services" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
+            <Link
+              href="#services"
+              className="px-4 py-2 text-base font-semibold text-foreground/80 hover:text-royal hover:bg-royal/5 rounded-md transition-all"
+            >
               SERVICES
             </Link>
-            <Link href="#clients" className="text-sm font-medium text-muted-foreground hover:text-royal transition-colors">
+            <Link
+              href="#clients"
+              className="px-4 py-2 text-base font-semibold text-foreground/80 hover:text-royal hover:bg-royal/5 rounded-md transition-all"
+            >
               CLIENTS
             </Link>
-            <Link href="/dashboard/bookings" className="text-sm font-medium text-royal hover:text-royal/80 transition-colors">
+            <Link
+              href="/dashboard/bookings"
+              className="px-4 py-2 text-base font-semibold text-royal hover:text-royal/80 hover:bg-royal/5 rounded-md transition-all"
+            >
               BOOKING
             </Link>
           </div>
-          <div className="flex items-center gap-4">
-            <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <Link href="/booking">
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  size="lg"
+                  className="bg-yellow-300 text-black hover:bg-yellow-400 font-semibold px-6"
+                >
+                  Book a Session
+                </Button>
+              </motion.div>
+            </Link>
             <Link href="/login">
-              <Button>Log In</Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" size="lg">
+                  Log In
+                </Button>
+              </motion.div>
             </Link>
           </div>
         </div>

@@ -12,7 +12,12 @@ export async function POST(request: NextRequest) {
 
     const newBooking = {
       id: `B${String(bookings.length + 1).padStart(3, "0")}`,
-      ...body,
+      clientName: body.clientName,
+      date: body.date,
+      studio: body.studio,
+      startTime: body.startTime,
+      endTime: body.endTime,
+      duration: body.duration,
       status: "pending",
       createdAt: new Date().toISOString(),
     }

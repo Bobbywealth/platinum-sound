@@ -8,7 +8,7 @@ import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, 
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 import { useToast } from "@/hooks/use-toast"
 
@@ -26,13 +26,37 @@ const timeSlots = [
   "9:00 PM - 10:00 PM",
   "10:00 PM - 11:00 PM",
 ]
+
+// Helper function to check if selected slots are consecutive
+const areSlotsConsecutive = (slots: string[]): boolean => {
+  if (slots.length === 0 || slots.length === 1) return true
+  const indices = slots.map((slot) => timeSlots.indexOf(slot))
+  for (let i = 1; i < indices.length; i++) {
+    if (indices[i] !== indices[i - 1] + 1) return false
+  }
+  return true
+}
+
+// Helper function to get formatted time range from selected slots
+const getFormattedTimeRange = (slots: string[]): string => {
+  if (slots.length === 0) return ""
+  if (slots.length === 1) return slots[0]
+  const startTime = slots[0].split(" - ")[0]
+  const endTime = slots[slots.length - 1].split(" - ")[1]
+  return `${startTime} - ${endTime}`
+}
+
+// Helper function to get duration in hours
+const getDuration = (slots: string[]): number => {
+  return slots.length
+}
 // #endregion
 
 export default function BookingPage() {
   const [clientName, setClientName] = useState("")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
+  const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentStep, setCurrentStep] = useState(1)
   const router = useRouter()
@@ -51,7 +75,7 @@ export default function BookingPage() {
       case 1: return clientName.trim().length > 0
       case 2: return selectedDate !== null
       case 3: return selectedStudio !== null
-      case 4: return selectedTime !== null
+      case 4: return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
       default: return true
     }
   }
@@ -82,11 +106,11 @@ export default function BookingPage() {
 
   // Auto-advance from Step 4 (Time)
   useEffect(() => {
-    if (currentStep === 4 && selectedTime !== null) {
+    if (currentStep === 4 && selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)) {
       const timer = setTimeout(() => setCurrentStep(5), 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedTime, currentStep])
+  }, [selectedTimeSlots, currentStep])
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -124,20 +148,53 @@ export default function BookingPage() {
     return dayOfWeek !== 0 && dayOfWeek !== 6
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    toast({
-      title: "Booking Request Submitted!",
-      description: "A member of our team will reach out to you shortly.",
-    })
-    
+
+    const bookingData = {
+      clientName,
+      date: selectedDate?.toISOString(),
+      studio: selectedStudio,
+      startTime: selectedTimeSlots[0]?.split(" - ")[0],
+      endTime: selectedTimeSlots[selectedTimeSlots.length - 1]?.split(" - ")[1],
+      duration: selectedTimeSlots.length,
+    }
+
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Booking Request Submitted!",
+          description: "A member of our team will reach out to you shortly.",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to submit booking. Please try again.",
+          variant: "destructive",
+        })
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to submit booking. Please try again.",
+        variant: "destructive",
+      })
+    }
+
     // Reset form
     setClientName("")
     setSelectedDate(null)
     setSelectedStudio(null)
-    setSelectedTime(null)
-    
+    setSelectedTimeSlots([])
+
     // Redirect to home after 3 seconds
     setTimeout(() => {
       router.push("/")
@@ -411,24 +468,67 @@ export default function BookingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Select consecutive time slots for your session. Click multiple slots to book a longer session.
+                  </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {timeSlots.map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        onClick={() => setSelectedTime(time)}
-                        className={`
-                          p-3 rounded-lg border text-sm font-medium transition-all duration-200
-                          ${selectedTime === time
-                            ? "bg-primary text-primary-foreground border-primary shadow-md"
-                            : "border-border hover:border-primary/50"
-                          }
-                        `}
-                      >
-                        {time}
-                      </button>
-                    ))}
+                    {timeSlots.map((time) => {
+                      const isSelected = selectedTimeSlots.includes(time)
+                      return (
+                        <button
+                          key={time}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedTimeSlots(selectedTimeSlots.filter((slot) => slot !== time))
+                            } else {
+                              const newSlots = [...selectedTimeSlots, time]
+                              // Sort slots by their position in timeSlots
+                              newSlots.sort((a, b) => timeSlots.indexOf(a) - timeSlots.indexOf(b))
+                              setSelectedTimeSlots(newSlots)
+                            }
+                          }}
+                          className={`
+                            p-3 rounded-lg border text-sm font-medium transition-all duration-200
+                            ${isSelected
+                              ? "bg-primary text-primary-foreground border-primary shadow-md"
+                              : "border-border hover:border-primary/50"
+                            }
+                          `}
+                        >
+                          {time}
+                        </button>
+                      )
+                    })}
                   </div>
+                  {selectedTimeSlots.length > 0 && (
+                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium">Selected Time</p>
+                          <p className="text-lg font-bold">{getFormattedTimeRange(selectedTimeSlots)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            ({getDuration(selectedTimeSlots)} hour{getDuration(selectedTimeSlots) > 1 ? "s" : ""})
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedTimeSlots([])}
+                        >
+                          Clear
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  {!areSlotsConsecutive(selectedTimeSlots) && selectedTimeSlots.length > 1 && (
+                    <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg">
+                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                        <strong>Please select consecutive time slots.</strong> Your selected slots must be next to each other without gaps.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -476,7 +576,10 @@ export default function BookingPage() {
                       <Clock className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Time</p>
-                        <p className="font-medium">{selectedTime}</p>
+                        <p className="font-medium">{getFormattedTimeRange(selectedTimeSlots)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {getDuration(selectedTimeSlots)} hour{getDuration(selectedTimeSlots) > 1 ? "s" : ""}
+                        </p>
                       </div>
                     </div>
                   </div>
