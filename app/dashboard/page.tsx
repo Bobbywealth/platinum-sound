@@ -189,7 +189,7 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value={`${data.stats.activeBookings + 3} Sessions`}
+          value={formatCurrency(data.stats.totalRevenue)}
           change={data.stats.revenueChange}
           icon={DollarSign}
         />
