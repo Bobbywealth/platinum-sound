@@ -104,14 +104,6 @@ export default function BookingPage() {
     }
   }, [selectedStudio, currentStep])
 
-  // Auto-advance from Step 4 (Time)
-  useEffect(() => {
-    if (currentStep === 4 && selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)) {
-      const timer = setTimeout(() => setCurrentStep(5), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [selectedTimeSlots, currentStep])
-
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -604,6 +596,17 @@ export default function BookingPage() {
                 </Button>
               ) : (
                 <div />
+              )}
+
+              {currentStep === 4 && canProceed() && (
+                <Button
+                  type="button"
+                  onClick={() => setCurrentStep(5)}
+                  className="flex items-center gap-2"
+                >
+                  Continue to Review
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               )}
 
               {currentStep === 5 && (
