@@ -25,7 +25,7 @@ type ViewMode = "grid" | "list" | "calendar"
 export default function BookingsPage() {
   const [filter, setFilter] = useState<string>("all")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [viewMode, setViewMode] = useState<ViewMode>("grid")
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar")
   const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15)) // January 2024
 
   const filteredBookings = filter === "all"
