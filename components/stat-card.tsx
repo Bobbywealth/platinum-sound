@@ -25,25 +25,22 @@ export function StatCard({
   index = 0,
   onClick,
 }: StatCardProps) {
-  const CardComponent = onClick ? "button" : Card
-  const cardProps = onClick ? { onClick, className: "w-full text-left" } : {}
-
   return (
     <Card
       className={cn(
-        "relative overflow-hidden card-hover",
-        onClick && "cursor-pointer hover:shadow-md transition-shadow",
+        "relative overflow-hidden bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-shadow",
+        onClick && "cursor-pointer",
         className
       )}
-      {...cardProps}
+      onClick={onClick}
     >
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <p className="text-sm font-medium text-muted-foreground">
+            <p className="text-sm font-medium text-gray-500">
               {title}
             </p>
-            <p className="text-3xl font-bold tracking-tight">
+            <p className="text-3xl font-bold tracking-tight text-gray-900">
               {value}
             </p>
             {(change !== undefined || description) && (
@@ -52,20 +49,20 @@ export function StatCard({
                   <span
                     className={cn(
                       "text-sm font-medium",
-                      change >= 0 ? "text-green-600" : "text-red-600"
+                      change >= 0 ? "text-[#C4A77D]" : "text-red-500"
                     )}
                   >
                     {change >= 0 ? "+" : ""}{change}%
                   </span>
                 )}
                 {description && (
-                  <span className="text-sm text-muted-foreground">{description}</span>
+                  <span className="text-sm text-gray-500">{description}</span>
                 )}
               </div>
             )}
           </div>
-          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon className="h-6 w-6 text-primary" />
+          <div className="h-14 w-14 rounded-full bg-[#E8DCC8] flex items-center justify-center">
+            <Icon className="h-6 w-6 text-[#8B7355]" />
           </div>
         </div>
       </CardContent>

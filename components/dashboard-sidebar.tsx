@@ -6,7 +6,6 @@ import {
     Calendar,
     ChevronDown,
     ChevronUp,
-    ChevronRight,
     Clock,
     DollarSign,
     FileText,
@@ -32,6 +31,8 @@ interface NavItem {
 interface NavSection {
   label: string
   items: NavItem[]
+  expandable?: boolean
+  expandIcon?: React.ElementType
 }
 
 const navSections: NavSection[] = [
@@ -50,6 +51,8 @@ const navSections: NavSection[] = [
   },
   {
     label: "FINANCE",
+    expandable: true,
+    expandIcon: DollarSign,
     items: [
       { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
       { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
@@ -66,7 +69,7 @@ const navSections: NavSection[] = [
     label: "PEOPLE",
     items: [
       { href: "/dashboard/clients", label: "Clients", icon: Users },
-      { href: "/dashboard/staff", label: "Team", icon: Users },
+      { href: "/dashboard/teams", label: "Teams", icon: Users },
     ],
   },
   {
@@ -95,69 +98,70 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     return pathname.startsWith(href)
   }
 
+  const isSectionActive = (section: NavSection) => {
+    return section.items.some((item) => isActive(item.href))
+  }
+
   return (
-    <>
+    <div className="flex flex-col h-full bg-white">
       {/* Logo */}
       <div className="p-6 pb-4">
-        <Link href="/dashboard" className="flex flex-col items-center justify-center w-full">
+        <Link href="/dashboard" className="flex items-center justify-center">
           <Image
             src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound Logo"
-            width={200}
-            height={60}
-            className="h-14 w-auto"
+            width={120}
+            height={40}
+            className="h-10 w-auto"
             priority
           />
         </Link>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col justify-between px-3 py-2 bg-black">
-        <div className="space-y-1">
+      <nav className="flex-1 px-3 py-2 overflow-y-auto">
+        <div className="space-y-6">
           {navSections.map((section) => (
             <div key={section.label}>
-              <h3 className="px-3 mb-1 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+              <h3 className="px-3 mb-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
                 {section.label}
               </h3>
-              <div className="space-y-0.5">
-                {["FINANCE", "OPERATIONS", "PEOPLE"].includes(section.label) ? (
+              <div className="space-y-1">
+                {section.expandable ? (
                   <>
                     {/* Expandable Section Toggle Button */}
                     <button
                       onClick={() => toggleSection(section.label)}
-                      className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors w-full ${
-                        expandedSections[section.label]
-                          ? "bg-white text-black"
-                          : "text-gray-300 hover:text-white"
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full ${
+                        expandedSections[section.label] || isSectionActive(section)
+                          ? "bg-[#E8DCC8] text-gray-900"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
-                      {section.items[0]?.icon && createElement(section.items[0].icon, { className: "h-4 w-4 flex-shrink-0" })}
-                      <span>{section.label}</span>
+                      {section.expandIcon && createElement(section.expandIcon, { className: "h-5 w-5 flex-shrink-0" })}
+                      <span>{section.label.charAt(0) + section.label.slice(1).toLowerCase()}</span>
                       {expandedSections[section.label] ? (
-                        <ChevronUp className="h-3 w-3 ml-auto" />
+                        <ChevronUp className="h-4 w-4 ml-auto" />
                       ) : (
-                        <ChevronDown className="h-3 w-3 ml-auto" />
+                        <ChevronDown className="h-4 w-4 ml-auto" />
                       )}
                     </button>
                     {/* Expanded Items */}
                     {expandedSections[section.label] && (
-                      <div className="ml-4 space-y-0.5 mt-1">
+                      <div className="ml-4 space-y-1 mt-1">
                         {section.items.map((item) => (
                           <Link
                             key={item.href}
                             href={item.href}
                             onClick={onClose}
-                            className={`flex items-center justify-center gap-2 px-3 py-3 rounded-lg text-xs font-medium transition-colors ${
+                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                               isActive(item.href)
-                                ? "bg-white text-black"
-                                : "text-gray-300 hover:text-white"
+                                ? "bg-[#E8DCC8] text-gray-900"
+                                : "text-gray-600 hover:bg-gray-100"
                             }`}
                           >
-                            <item.icon className="h-4 w-4 flex-shrink-0" />
+                            <item.icon className="h-5 w-5 flex-shrink-0" />
                             <span>{item.label}</span>
-                            {isActive(item.href) && (
-                              <ChevronRight className="h-3 w-3 ml-auto" />
-                            )}
                           </Link>
                         ))}
                       </div>
@@ -170,17 +174,14 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                       key={item.href}
                       href={item.href}
                       onClick={onClose}
-                      className={`flex items-center justify-center gap-2 px-3 py-3.5 rounded-lg text-xs font-medium transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         isActive(item.href)
-                          ? "bg-white text-black"
-                          : "text-gray-300 hover:text-white"
+                          ? "bg-[#E8DCC8] text-gray-900"
+                          : "text-gray-600 hover:bg-gray-100"
                       }`}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span>{item.label}</span>
-                      {isActive(item.href) && section.label !== "SYSTEM" && (
-                        <ChevronRight className="h-3 w-3 ml-auto" />
-                      )}
                     </Link>
                   ))
                 )}
@@ -189,12 +190,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           ))}
         </div>
       </nav>
-    </>
+    </div>
   )
 }
 
 export default function DashboardSidebar() {
-  const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
 
   // Check if we're on mobile based on window width
@@ -213,14 +213,14 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r sidebar-dark">
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r bg-white">
         <SidebarContent />
       </aside>
 
       {/* Mobile Menu Button */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-background border shadow-sm"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-white border shadow-sm"
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
@@ -235,11 +235,11 @@ export default function DashboardSidebar() {
             onClick={() => setMobileOpen(false)}
           />
           {/* Mobile Sidebar */}
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-black h-full flex flex-col">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-white h-full flex flex-col shadow-xl">
             {/* Close Button */}
             <button
               onClick={() => setMobileOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/10"
+              className="absolute top-4 right-4 p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
