@@ -10,6 +10,7 @@ import {
     DollarSign,
     FileText,
     LayoutDashboard,
+    LogOut,
     Mail,
     Menu,
     Music2,
@@ -22,6 +23,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { createElement, useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { signOut } from "@/lib/auth"
 
 interface NavItem {
   href: string
@@ -94,7 +96,7 @@ const sectionVariants = {
     height: "auto",
     transition: {
       duration: 0.2,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   exit: {
@@ -102,7 +104,7 @@ const sectionVariants = {
     height: 0,
     transition: {
       duration: 0.15,
-      ease: "easeIn",
+      ease: "easeIn" as const,
     },
   },
 }
@@ -114,7 +116,7 @@ const mobileMenuVariants = {
     opacity: 1,
     transition: {
       duration: 0.3,
-      ease: "easeOut",
+      ease: "easeOut" as const,
     },
   },
   exit: {
@@ -122,7 +124,7 @@ const mobileMenuVariants = {
     opacity: 0,
     transition: {
       duration: 0.2,
-      ease: "easeIn",
+      ease: "easeIn" as const,
     },
   },
 }
@@ -330,6 +332,28 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               </div>
             </motion.div>
           ))}
+
+          {/* Logout Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, delay: 0.1 }}
+          >
+            <h3 className="px-3 mb-2 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+              ACCOUNT
+            </h3>
+            <motion.button
+              onClick={async () => {
+                await signOut({ redirectTo: "/" })
+              }}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium w-full text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+              whileHover={{ x: 4 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Logout</span>
+            </motion.button>
+          </motion.div>
         </div>
       </nav>
     </div>
@@ -358,7 +382,7 @@ export default function DashboardSidebar() {
       <motion.aside
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        transition={{ duration: 0.3, ease: "easeOut" as const }}
         className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:border-r bg-white"
       >
         <SidebarContent />
