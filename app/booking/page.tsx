@@ -56,6 +56,38 @@ export default function BookingPage() {
     }
   }
 
+  // Auto-advance from Step 1 (Name)
+  useEffect(() => {
+    if (currentStep === 1 && clientName.trim().length > 0) {
+      const timer = setTimeout(() => setCurrentStep(2), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [clientName, currentStep])
+
+  // Auto-advance from Step 2 (Date)
+  useEffect(() => {
+    if (currentStep === 2 && selectedDate !== null) {
+      const timer = setTimeout(() => setCurrentStep(3), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedDate, currentStep])
+
+  // Auto-advance from Step 3 (Studio)
+  useEffect(() => {
+    if (currentStep === 3 && selectedStudio !== null) {
+      const timer = setTimeout(() => setCurrentStep(4), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedStudio, currentStep])
+
+  // Auto-advance from Step 4 (Time)
+  useEffect(() => {
+    if (currentStep === 4 && selectedTime !== null) {
+      const timer = setTimeout(() => setCurrentStep(5), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedTime, currentStep])
+
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -457,7 +489,7 @@ export default function BookingPage() {
 
             {/* Navigation Buttons */}
             <div className="flex justify-between items-center pt-4">
-              {currentStep > 1 ? (
+              {currentStep > 1 && currentStep < 5 ? (
                 <Button
                   type="button"
                   variant="outline"
@@ -471,17 +503,7 @@ export default function BookingPage() {
                 <div />
               )}
 
-              {currentStep < 5 ? (
-                <Button
-                  type="button"
-                  onClick={() => setCurrentStep(currentStep + 1)}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              ) : (
+              {currentStep === 5 && (
                 <Button
                   type="button"
                   onClick={handleSubmit}
