@@ -15,6 +15,7 @@ import {
     Mail,
     Menu,
     Music2,
+    Package,
     Settings,
     Users,
     X
@@ -53,6 +54,7 @@ const navSections: NavSection[] = [
       { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
       { href: "/dashboard/studios", label: "Studios", icon: Building2 },
       { href: "/dashboard/services", label: "Services", icon: Music2 },
+      { href: "/dashboard/inventory", label: "Inventory", icon: Package },
     ],
   },
   {
