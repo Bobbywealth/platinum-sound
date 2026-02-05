@@ -4,13 +4,15 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User } from "lucide-react"
+import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 
 import { useToast } from "@/hooks/use-toast"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -25,6 +27,67 @@ const timeSlots = [
   "8:00 PM - 9:00 PM",
   "9:00 PM - 10:00 PM",
   "10:00 PM - 11:00 PM",
+]
+
+const sessionTypes = [
+  {
+    value: "Recording",
+    description: "Track vocals, instruments, or full band sessions.",
+  },
+  {
+    value: "Mixing",
+    description: "Finalize balances, effects, and polish your songs.",
+  },
+  {
+    value: "Mastering",
+    description: "Prepare final mixes for distribution and streaming.",
+  },
+  {
+    value: "Podcast",
+    description: "Capture and edit spoken word or interview sessions.",
+  },
+  {
+    value: "Voiceover",
+    description: "Record commercial, narration, or ADR voice work.",
+  },
+]
+
+const paymentOptions = [
+  {
+    value: "Full payment",
+    description: "Pay the full session total today.",
+  },
+  {
+    value: "50% deposit",
+    description: "Reserve the booking with a 50% deposit.",
+  },
+  {
+    value: "Pay in studio",
+    description: "Pay in person on the day of the session.",
+  },
+]
+
+const engineerOptions = [
+  "No preference",
+  "Alex Morgan",
+  "Jamie Lee",
+  "Taylor Rivera",
+  "Jordan Blake",
+]
+
+const additionalSpaces = [
+  {
+    value: "Rehearsal room",
+    description: "Add a rehearsal room block before your session.",
+  },
+  {
+    value: "Event space",
+    description: "Reserve our event space for showcases or listening parties.",
+  },
+  {
+    value: "Photography studio",
+    description: "Book the photo studio for promo or album artwork shoots.",
+  },
 ]
 
 // Helper function to check if selected slots are consecutive
@@ -55,6 +118,10 @@ const getDuration = (slots: string[]): number => {
 export default function BookingPage() {
   const [clientName, setClientName] = useState("")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [sessionType, setSessionType] = useState<string | null>(null)
+  const [engineer, setEngineer] = useState<string | null>(null)
+  const [paymentOption, setPaymentOption] = useState<string | null>(null)
+  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -66,13 +133,16 @@ export default function BookingPage() {
   const steps = [
     { number: 1, label: "Your Name", icon: User },
     { number: 2, label: "Date", icon: Calendar },
-    { number: 3, label: "Studio", icon: Music },
-    { number: 4, label: "Time", icon: Clock },
-    { number: 5, label: "Review", icon: Check },
+    { number: 3, label: "Session Details", icon: Wallet },
+    { number: 4, label: "Studio", icon: Music },
+    { number: 5, label: "Time", icon: Clock },
+    { number: 6, label: "Review", icon: Check },
   ]
 
+  const totalSteps = steps.length
+
   const goToNextStep = () => {
-    if (currentStep < 5) {
+    if (currentStep < totalSteps) {
       const nextStep = currentStep + 1
       setCurrentStep(nextStep)
       if (!visitedSteps.includes(nextStep)) {
@@ -91,8 +161,9 @@ export default function BookingPage() {
     switch (currentStep) {
       case 1: return clientName.trim().length > 0
       case 2: return selectedDate !== null
-      case 3: return selectedStudio !== null
-      case 4: return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
+      case 3: return sessionType !== null && paymentOption !== null
+      case 4: return selectedStudio !== null
+      case 5: return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
       default: return true
     }
   }
@@ -113,9 +184,9 @@ export default function BookingPage() {
     }
   }, [selectedDate, currentStep, visitedSteps])
 
-  // Auto-advance from Step 3 (Studio) - only on first visit
+  // Auto-advance from Step 4 (Studio) - only on first visit
   useEffect(() => {
-    if (currentStep === 3 && visitedSteps.includes(3) && selectedStudio !== null) {
+    if (currentStep === 4 && visitedSteps.includes(4) && selectedStudio !== null) {
       const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
@@ -163,6 +234,10 @@ export default function BookingPage() {
     const bookingData = {
       clientName,
       date: selectedDate?.toISOString(),
+      sessionType,
+      engineer,
+      paymentOption,
+      addOns: selectedAddOns,
       studio: selectedStudio,
       startTime: selectedTimeSlots[0]?.split(" - ")[0],
       endTime: selectedTimeSlots[selectedTimeSlots.length - 1]?.split(" - ")[1],
@@ -201,6 +276,10 @@ export default function BookingPage() {
     // Reset form
     setClientName("")
     setSelectedDate(null)
+    setSessionType(null)
+    setEngineer(null)
+    setPaymentOption(null)
+    setSelectedAddOns([])
     setSelectedStudio(null)
     setSelectedTimeSlots([])
 
@@ -403,13 +482,140 @@ export default function BookingPage() {
               </Card>
             )}
 
-            {/* Step 3: Studio Selection */}
+            {/* Step 3: Session Details */}
             {currentStep === 3 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
+                    <Wallet className="h-5 w-5" />
+                    Step 3: Session Details
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label>Session type</Label>
+                      <p className="text-sm text-muted-foreground">Let us know what kind of session you&apos;re planning.</p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {sessionTypes.map((type) => {
+                        const isSelected = sessionType === type.value
+                        return (
+                          <button
+                            key={type.value}
+                            type="button"
+                            onClick={() => setSessionType(type.value)}
+                            className={`
+                              p-4 rounded-lg border-2 transition-all text-left
+                              ${isSelected
+                                ? "border-primary bg-primary/5 shadow-md"
+                                : "border-border hover:border-primary/50 hover:shadow-sm"
+                              }
+                            `}
+                          >
+                            <div className="font-semibold">{type.value}</div>
+                            <div className="text-sm text-muted-foreground mt-1">{type.description}</div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="engineer">Preferred engineer</Label>
+                      <Select value={engineer ?? undefined} onValueChange={setEngineer}>
+                        <SelectTrigger id="engineer">
+                          <SelectValue placeholder="Select an engineer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {engineerOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-sm text-muted-foreground">We&apos;ll confirm availability after your request.</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="space-y-1">
+                        <Label>Deposit / payment</Label>
+                        <p className="text-sm text-muted-foreground">Choose how you want to secure the booking.</p>
+                      </div>
+                      <div className="space-y-2">
+                        {paymentOptions.map((option) => {
+                          const isSelected = paymentOption === option.value
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => setPaymentOption(option.value)}
+                              className={`
+                                w-full p-4 rounded-lg border-2 transition-all text-left
+                                ${isSelected
+                                  ? "border-primary bg-primary/5 shadow-md"
+                                  : "border-border hover:border-primary/50 hover:shadow-sm"
+                                }
+                              `}
+                            >
+                              <div className="font-semibold">{option.value}</div>
+                              <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label>Additional spaces</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Add extra rooms to your booking request (optional).
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {additionalSpaces.map((space) => {
+                        const isSelected = selectedAddOns.includes(space.value)
+                        return (
+                          <button
+                            key={space.value}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setSelectedAddOns(selectedAddOns.filter((value) => value !== space.value))
+                              } else {
+                                setSelectedAddOns([...selectedAddOns, space.value])
+                              }
+                            }}
+                            className={`
+                              p-4 rounded-lg border-2 transition-all text-left
+                              ${isSelected
+                                ? "border-primary bg-primary/5 shadow-md"
+                                : "border-border hover:border-primary/50 hover:shadow-sm"
+                              }
+                            `}
+                          >
+                            <div className="font-semibold">{space.value}</div>
+                            <div className="text-sm text-muted-foreground mt-1">{space.description}</div>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Step 4: Studio Selection */}
+            {currentStep === 4 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
                     <Music className="h-5 w-5" />
-                    Step 3: Select Studio
+                    Step 4: Select Studio
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -461,13 +667,13 @@ export default function BookingPage() {
               </Card>
             )}
 
-            {/* Step 4: Time Selection */}
-            {currentStep === 4 && (
+            {/* Step 5: Time Selection */}
+            {currentStep === 5 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Clock className="h-5 w-5" />
-                    Step 4: Select Time
+                    Step 5: Select Time
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -536,8 +742,8 @@ export default function BookingPage() {
               </Card>
             )}
 
-            {/* Step 5: Review & Submit */}
-            {currentStep === 5 && (
+            {/* Step 6: Review & Submit */}
+            {currentStep === 6 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -576,6 +782,22 @@ export default function BookingPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      <Wallet className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-muted-foreground">Session Details</p>
+                        <p className="font-medium">{sessionType}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Engineer: {engineer ?? "No preference"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Payment: {paymentOption}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Additional spaces: {selectedAddOns.length > 0 ? selectedAddOns.join(", ") : "None"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
                       <Clock className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Time</p>
@@ -609,7 +831,7 @@ export default function BookingPage() {
                 <div />
               )}
 
-              {currentStep < 4 ? (
+              {currentStep < 5 ? (
                 <Button
                   type="button"
                   onClick={goToNextStep}
@@ -619,7 +841,7 @@ export default function BookingPage() {
                   Next
                   <ChevronRight className="h-4 w-4" />
                 </Button>
-              ) : currentStep === 4 ? (
+              ) : currentStep === 5 ? (
                 <Button
                   type="button"
                   onClick={goToNextStep}
