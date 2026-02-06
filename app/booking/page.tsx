@@ -140,6 +140,16 @@ export default function BookingPage() {
   ]
 
   const totalSteps = steps.length
+  const progressPercent = Math.round((currentStep / totalSteps) * 100)
+  const formattedDate = selectedDate
+    ? selectedDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Not set"
+  const formattedTime = selectedTimeSlots.length > 0 ? getFormattedTimeRange(selectedTimeSlots) : "Not set"
 
   const goToNextStep = () => {
     if (currentStep < totalSteps) {
@@ -327,6 +337,46 @@ export default function BookingPage() {
           </div>
 
           <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+            <Card className="border-dashed">
+              <CardHeader className="space-y-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <CardTitle className="text-lg">Booking summary</CardTitle>
+                  <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+                </div>
+                <div className="h-2 w-full rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary transition-all duration-300"
+                    style={{ width: `${progressPercent}%` }}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Use the steps below to complete your request. Required fields are marked with *.
+                </p>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Client</p>
+                  <p className="font-medium">{clientName || "Not set"}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Date</p>
+                  <p className="font-medium">{formattedDate}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Session</p>
+                  <p className="font-medium">{sessionType || "Not set"}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {paymentOption ? `Payment: ${paymentOption}` : "Payment not selected"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase text-muted-foreground">Studio & time</p>
+                  <p className="font-medium">{selectedStudio || "Not set"}</p>
+                  <p className="text-sm text-muted-foreground">{formattedTime}</p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Progress Indicator */}
             <div className="mb-8">
               <div className="flex items-center justify-between">
@@ -387,14 +437,18 @@ export default function BookingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Input
-                    id="clientName"
-                    placeholder="Enter your name or artist name"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                    className="max-w-md"
-                    autoFocus
-                  />
+                  <div className="space-y-2">
+                    <Label htmlFor="clientName">Name or artist name *</Label>
+                    <Input
+                      id="clientName"
+                      placeholder="Enter your name or artist name"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className="max-w-md"
+                      autoFocus
+                      required
+                    />
+                  </div>
                   <p className="text-sm text-muted-foreground mt-2">
                     This is how we&apos;ll address you in all communications.
                   </p>
@@ -412,6 +466,13 @@ export default function BookingPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  <div className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground mb-4">
+                    {selectedDate ? (
+                      <span>Selected date: <strong className="text-foreground">{formattedDate}</strong></span>
+                    ) : (
+                      <span>Select a weekday to continue.</span>
+                    )}
+                  </div>
                   {/* Calendar Navigation */}
                   <div className="flex items-center justify-between mb-4">
                     <Button type="button" variant="outline" size="icon" onClick={prevMonth}>
@@ -764,14 +825,7 @@ export default function BookingPage() {
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="text-sm text-muted-foreground">Date</p>
-                        <p className="font-medium">
-                          {selectedDate?.toLocaleDateString("en-US", {
-                            weekday: "long",
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
+                        <p className="font-medium">{formattedDate}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
