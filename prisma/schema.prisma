@@ -7,36 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  role      Role     @default(MANAGER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tasks     Task[]
-}
+// ============================================
+// ENUMS
+// ============================================
 
 enum Role {
   ADMIN
   MANAGER
+  BOOKING_AGENT
   ENGINEER
-}
-
-model Client {
-  id        String    @id @default(cuid())
-  name      String
-  email     String    @unique
-  phone     String?
-  label     String?
-  project   String?
-  budget    Float?
-  status    ClientStatus @default(ACTIVE)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  bookings  Booking[]
-  invoices  Invoice[]
 }
 
 enum ClientStatus {
@@ -45,27 +24,10 @@ enum ClientStatus {
   COMPLETED
 }
 
-model Booking {
-  id          String        @id @default(cuid())
-  clientId    String
-  client      Client        @relation(fields: [clientId], references: [id])
-  studio      Studio
-  date        DateTime
-  startTime   String
-  endTime     String
-  engineer    String
-  sessionType SessionType
-  status      BookingStatus @default(PENDING)
-  notes       String?
-  isVip       Boolean       @default(false)
-  bookingCode String        @unique
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-}
-
 enum Studio {
   STUDIO_A
   STUDIO_B
+  STUDIO_C
 }
 
 enum SessionType {
@@ -73,6 +35,13 @@ enum SessionType {
   MIXING
   MASTERING
   PRODUCTION
+  PODCAST
+  VOICEOVER
+}
+
+enum SessionMode {
+  ONLINE
+  IN_PERSON
 }
 
 enum BookingStatus {
@@ -83,69 +52,16 @@ enum BookingStatus {
   CANCELLED
 }
 
-model Invoice {
-  id          String       @id @default(cuid())
-  clientId    String
-  client      Client       @relation(fields: [clientId], references: [id])
-  amount      Float
-  status      InvoiceStatus @default(PENDING)
-  dueDate     DateTime
-  issuedDate  DateTime     @default(now())
-  items       Json
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
 enum InvoiceStatus {
   PAID
   PENDING
   OVERDUE
 }
 
-model Staff {
-  id               String    @id @default(cuid())
-  name             String
-  email            String    @unique
-  phone            String?
-  role             String
-  specialty        String?
-  status           StaffStatus @default(AVAILABLE)
-  currentAssignment String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-}
-
 enum StaffStatus {
   AVAILABLE
   IN_SESSION
   OFF
-}
-
-model Settings {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Task {
-  id          String              @id @default(cuid())
-  title       String
-  description String?
-  status      TaskStatus          @default(TODO)
-  priority    Priority            @default(MEDIUM)
-  assigneeId  String?
-  assignee                          User?                @relation(fields: [assigneeId], references: [id])
-  dueDate     DateTime?
-
-  // Recurring task fields
-  isRecurring           Boolean             @default(false)
-  recurrencePattern     RecurrencePattern?
-  recurrenceEndDate     DateTime?
-
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
 }
 
 enum TaskStatus {
@@ -166,4 +82,540 @@ enum RecurrencePattern {
   WEEKLY
   BIWEEKLY
   MONTHLY
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BLOCKED
+  VACATION
+  SICK
+}
+
+enum RoomStatus {
+  AVAILABLE
+  MAINTENANCE
+  LOCKED
+}
+
+enum PaymentMethod {
+  CASH
+  CASH_APP
+  ZELLE
+  SQUARE
+  CREDIT_CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+enum ReferrerType {
+  MANAGER
+  ENGINEER
+  TEAM_MEMBER
+  EXTERNAL
+}
+
+enum InventoryCategory {
+  OFFICE_SUPPLIES
+  MICROPHONES
+  EQUIPMENT
+  ACCESSORIES
+  CABLES
+  INSTRUMENTS
+}
+
+enum EquipmentCondition {
+  NEW
+  EXCELLENT
+  GOOD
+  FAIR
+  NEEDS_REPAIR
+}
+
+enum InventoryStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+}
+
+enum WorkOrderStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ReportType {
+  END_OF_DAY
+  WEEKLY_SESSION_LOG
+  MONTHLY_SUMMARY
+  CUSTOM
+}
+
+enum ReportPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
+}
+
+enum EmailType {
+  BOOKING_CREATED
+  BOOKING_AUTHORIZATION
+  WORK_ORDER_CREATED
+  END_OF_DAY_REPORT
+  WEEKLY_REPORT
+  PAYMENT_RECEIVED
+  ROOM_LOCKOUT
+}
+
+enum SignatureType {
+  DIGITAL_SIGNATURE
+  CHECKBOX_ACKNOWLEDGMENT
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  password      String
+  phone         String?
+  role          Role     @default(MANAGER)
+  discountLimit Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  tasks              Task[]
+  profile            UserProfile?
+  availability       EngineerAvailability[]
+  assignedRooms      RoomAssignment[]
+  engineerRates      EngineerRate[]
+  workOrdersAssigned WorkOrder[]        @relation("AssignedEngineer")
+  workOrdersCreated  WorkOrder[]        @relation("CreatedBy")
+  paymentRecords     PaymentSplit[]
+  lockoutsCreated    RoomLockout[]
+}
+
+model UserProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio         String?
+  avatar      String?
+  preferences Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ============================================
+// CLIENTS & BOOKINGS
+// ============================================
+
+model Client {
+  id        String        @id @default(cuid())
+  name      String
+  email     String        @unique
+  phone     String?
+  label     String?
+  project   String?
+  budget    Float?
+  status    ClientStatus  @default(ACTIVE)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  
+  // Relations
+  bookings  Booking[]
+  invoices  Invoice[]
+  referrals Referral[]
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+  studio      Studio
+  date        DateTime
+  startTime   String
+  endTime     String
+  engineer    String
+  sessionType SessionType
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  isVip       Boolean       @default(false)
+  bookingCode String        @unique
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // New fields for enhanced booking
+  sessionMode       SessionMode?
+  originalRoomId    String?
+  originalEngineer  String?
+  roomSwappedAt     DateTime?
+  engineerSwappedAt DateTime?
+  
+  // Relations
+  authorization BookingAuthorization?
+  rooms         BookingRoom[]
+  payments      PaymentSplit[]
+  referral      Referral?
+  micAddOns     BookingMicAddOn[]
+  extensions    SessionExtension[]
+}
+
+model BookingAuthorization {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  booking         Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  signedAt        DateTime      @default(now())
+  signatureType   SignatureType
+  ipAddress       String?
+  userAgent       String?
+  acknowledged    Boolean       @default(false)
+  signatureData   String?       // Base64 encoded signature for digital signatures
+}
+
+model BookingRoom {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  roomId      String
+  room        Room     @relation(fields: [roomId], references: [id])
+  price       Float
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model SessionExtension {
+  id              String   @id @default(cuid())
+  bookingId       String
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  originalEndTime String
+  newEndTime      String
+  additionalCost  Float
+  createdAt       DateTime @default(now())
+}
+
+// ============================================
+// ROOMS & PRICING
+// ============================================
+
+model Room {
+  id                  String   @id @default(cuid())
+  name                String   @unique
+  description         String?
+  baseRate            Float
+  rateWithEngineer    Float
+  rateWithoutEngineer Float
+  status              RoomStatus @default(AVAILABLE)
+  amenities           Json?
+  images              Json?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  
+  // Relations
+  assignments   RoomAssignment[]
+  lockouts      RoomLockout[]
+  bookingRooms  BookingRoom[]
+  engineerRates EngineerRate[]
+  pricing       RoomPricing[]
+}
+
+model RoomAssignment {
+  id         String   @id @default(cuid())
+  roomId     String
+  room       Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  engineerId String
+  engineer   User     @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  isPrimary  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@unique([roomId, engineerId])
+}
+
+model RoomLockout {
+  id          String   @id @default(cuid())
+  roomId      String
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  reason      String?
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [createdBy], references: [id])
+}
+
+model RoomPricing {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  minPrice  Float?
+  maxPrice  Float?
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EngineerRate {
+  id          String   @id @default(cuid())
+  engineerId  String
+  engineer    User     @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  roomId      String?
+  room        Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  hourlyRate  Float
+  minRate     Float?
+  maxRate     Float?
+  isOverride  Boolean  @default(false)
+  overriddenBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ServicePricing {
+  id          String     @id @default(cuid())
+  serviceType String
+  sessionMode SessionMode
+  basePrice   Float
+  description String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// ============================================
+// PAYMENTS
+// ============================================
+
+model PaymentSplit {
+  id         String       @id @default(cuid())
+  bookingId  String
+  booking    Booking      @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  method     PaymentMethod
+  amount     Float
+  reference  String?      // Transaction ID, confirmation #, etc.
+  notes      String?
+  recordedBy String
+  recordedAt DateTime     @default(now())
+  
+  user       User         @relation(fields: [recordedBy], references: [id])
+}
+
+// ============================================
+// INVOICES
+// ============================================
+
+model Invoice {
+  id          String        @id @default(cuid())
+  clientId    String
+  client      Client        @relation(fields: [clientId], references: [id])
+  amount      Float
+  status      InvoiceStatus @default(PENDING)
+  dueDate     DateTime
+  issuedDate  DateTime      @default(now())
+  items       Json
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// ============================================
+// STAFF & AVAILABILITY
+// ============================================
+
+model Staff {
+  id                String      @id @default(cuid())
+  name              String
+  email             String      @unique
+  phone             String?
+  role              String
+  specialty         String?
+  status            StaffStatus @default(AVAILABLE)
+  currentAssignment String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model EngineerAvailability {
+  id           String             @id @default(cuid())
+  engineerId   String
+  engineer     User               @relation(fields: [engineerId], references: [id], onDelete: Cascade)
+  date         DateTime
+  status       AvailabilityStatus
+  blockedReason String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  
+  @@unique([engineerId, date])
+}
+
+// ============================================
+// REFERRALS
+// ============================================
+
+model Referral {
+  id           String       @id @default(cuid())
+  bookingId    String?
+  booking      Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  referrerType ReferrerType
+  referrerId   String
+  referrerName String
+  createdAt    DateTime     @default(now())
+}
+
+// ============================================
+// INVENTORY
+// ============================================
+
+model InventoryItem {
+  id            String            @id @default(cuid())
+  name          String
+  category      InventoryCategory
+  subCategory   String?
+  description   String?
+  serialNumber  String?
+  condition     EquipmentCondition?
+  location      String?
+  stock         Int               @default(1)
+  reorderPoint  Int?
+  status        InventoryStatus   @default(IN_STOCK)
+  purchasePrice Float?
+  purchaseDate  DateTime?
+  images        Json?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  
+  // Relations
+  signOffs      InventorySignOff[]
+}
+
+model InventorySignOff {
+  id         String            @id @default(cuid())
+  itemId     String
+  item       InventoryItem     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  internId   String
+  internName String
+  signedAt   DateTime          @default(now())
+  condition  EquipmentCondition
+  notes      String?
+}
+
+// ============================================
+// MIC OPTIONS
+// ============================================
+
+model MicOption {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  upcharge    Float
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  bookingAddOns BookingMicAddOn[]
+}
+
+model BookingMicAddOn {
+  id        String    @id @default(cuid())
+  bookingId String
+  booking   Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  micId     String
+  mic       MicOption @relation(fields: [micId], references: [id], onDelete: Cascade)
+  quantity  Int       @default(1)
+  price     Float
+  createdAt DateTime  @default(now())
+}
+
+// ============================================
+// WORK ORDERS
+// ============================================
+
+model WorkOrder {
+  id                  String           @id @default(cuid())
+  title               String
+  description         String
+  priority            Priority
+  status              WorkOrderStatus  @default(OPEN)
+  assignedEngineerId  String?
+  assignedEngineer    User?            @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id], onDelete: SetNull)
+  createdBy           String
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  completedAt         DateTime?
+  
+  // Relations
+  signatures          WorkOrderSignature[]
+}
+
+model WorkOrderSignature {
+  id           String     @id @default(cuid())
+  workOrderId  String
+  workOrder    WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  signerId     String
+  signerName   String
+  signerRole   String
+  signedAt     DateTime   @default(now())
+  signatureData String?   // Base64 encoded signature
+}
+
+// ============================================
+// TASKS
+// ============================================
+
+model Task {
+  id                  String              @id @default(cuid())
+  title               String
+  description         String?
+  status              TaskStatus          @default(TODO)
+  priority            Priority            @default(MEDIUM)
+  assigneeId          String?
+  assignee            User?               @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  dueDate             DateTime?
+  isRecurring         Boolean             @default(false)
+  recurrencePattern   RecurrencePattern?
+  recurrenceEndDate   DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+// ============================================
+// SETTINGS & REPORTS
+// ============================================
+
+model Settings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Report {
+  id          String      @id @default(cuid())
+  type        ReportType
+  period      ReportPeriod
+  startDate   DateTime
+  endDate     DateTime
+  data        Json
+  generatedAt DateTime    @default(now())
+  generatedBy String
+}
+
+model EmailNotificationSetting {
+  id        String    @id @default(cuid())
+  role      Role
+  emailType EmailType
+  enabled   Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@unique([role, emailType])
 }

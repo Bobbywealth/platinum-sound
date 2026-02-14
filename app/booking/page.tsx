@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet } from "lucide-react"
+import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, UserPlus, AlertCircle } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -13,6 +13,10 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { BookingAuthorization } from "@/components/booking-authorization"
+import { MicSelection } from "@/components/mic-selection"
+import { ReferralDropdown } from "@/components/referral-dropdown"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -29,42 +33,30 @@ const timeSlots = [
   "10:00 PM - 11:00 PM",
 ]
 
-const sessionTypes = [
-  {
-    value: "Recording",
-    description: "Track vocals, instruments, or full band sessions.",
-  },
-  {
-    value: "Mixing",
-    description: "Finalize balances, effects, and polish your songs.",
-  },
-  {
-    value: "Mastering",
-    description: "Prepare final mixes for distribution and streaming.",
-  },
-  {
-    value: "Podcast",
-    description: "Capture and edit spoken word or interview sessions.",
-  },
-  {
-    value: "Voiceover",
-    description: "Record commercial, narration, or ADR voice work.",
-  },
+const onlineServices = [
+  { value: "Online Mixing", description: "Professional mixing for international artists" },
+  { value: "Online Mastering", description: "Mastering services delivered remotely" },
+]
+
+const inPersonServices = [
+  { value: "Recording", description: "Track vocals, instruments, or full band sessions." },
+  { value: "Mixing", description: "In-studio mixing session." },
+  { value: "Mastering", description: "Prepare final mixes for distribution and streaming." },
+  { value: "Podcast", description: "Capture and edit spoken word or interview sessions." },
+  { value: "Voiceover", description: "Record commercial, narration, or ADR voice work." },
+  { value: "Production", description: "Beat making and production session." },
 ]
 
 const paymentOptions = [
-  {
-    value: "Full payment",
-    description: "Pay the full session total today.",
-  },
-  {
-    value: "50% deposit",
-    description: "Reserve the booking with a 50% deposit.",
-  },
-  {
-    value: "Pay in studio",
-    description: "Pay in person on the day of the session.",
-  },
+  { value: "Full payment", description: "Pay the full session total today." },
+  { value: "50% deposit", description: "Reserve the booking with a 50% deposit." },
+  { value: "Pay in studio", description: "Pay in person on the day of the session." },
+]
+
+const studioOptions = [
+  { value: "Studio A", description: "Main recording studio with SSL console", rate: 200 },
+  { value: "Studio B", description: "Production suite with writing room", rate: 150 },
+  { value: "Studio C", description: "Mixing and mastering suite", rate: 175 },
 ]
 
 const engineerOptions = [
@@ -73,21 +65,6 @@ const engineerOptions = [
   "Jamie Lee",
   "Taylor Rivera",
   "Jordan Blake",
-]
-
-const additionalSpaces = [
-  {
-    value: "Rehearsal room",
-    description: "Add a rehearsal room block before your session.",
-  },
-  {
-    value: "Event space",
-    description: "Reserve our event space for showcases or listening parties.",
-  },
-  {
-    value: "Photography studio",
-    description: "Book the photo studio for promo or album artwork shoots.",
-  },
 ]
 
 // Helper function to check if selected slots are consecutive
@@ -113,34 +90,67 @@ const getFormattedTimeRange = (slots: string[]): string => {
 const getDuration = (slots: string[]): number => {
   return slots.length
 }
-// #endregion
+
+// Convert time string to 24-hour format
+const to24Hour = (timeStr: string): string => {
+  const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i)
+  if (!match) return timeStr
+  let hours = parseInt(match[1])
+  const minutes = match[2]
+  const meridiem = match[3].toUpperCase()
+  
+  if (meridiem === "PM" && hours !== 12) hours += 12
+  if (meridiem === "AM" && hours === 12) hours = 0
+  
+  return `${hours.toString().padStart(2, "0")}:${minutes}`
+}
 
 export default function BookingPage() {
+  // Form state
   const [clientName, setClientName] = useState("")
+  const [clientEmail, setClientEmail] = useState("")
+  const [clientPhone, setClientPhone] = useState("")
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [sessionMode, setSessionMode] = useState<"Online" | "In-Person">("In-Person")
   const [sessionType, setSessionType] = useState<string | null>(null)
   const [engineer, setEngineer] = useState<string | null>(null)
   const [paymentOption, setPaymentOption] = useState<string | null>(null)
-  const [selectedAddOns, setSelectedAddOns] = useState<string[]>([])
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([])
+  const [selectedRooms, setSelectedRooms] = useState<string[]>([])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState<number[]>([1])
+  
+  // New state for enhanced features
+  const [authorization, setAuthorization] = useState<{
+    signatureType: 'DIGITAL_SIGNATURE' | 'CHECKBOX_ACKNOWLEDGMENT'
+    signatureData?: string | null
+    acknowledged: boolean
+  } | null>(null)
+  const [micSelection, setMicSelection] = useState<{ micId: string; quantity: number; price: number }[]>([])
+  const [referral, setReferral] = useState<{ referrerType: string; referrerId: string; referrerName: string } | null>(null)
+  const [phoneError, setPhoneError] = useState<string | null>(null)
+  
   const router = useRouter()
   const { toast } = useToast()
 
+  // Updated steps with new flow
   const steps = [
-    { number: 1, label: "Your Name", icon: User },
+    { number: 1, label: "Your Info", icon: User },
     { number: 2, label: "Date", icon: Calendar },
-    { number: 3, label: "Session Details", icon: Wallet },
-    { number: 4, label: "Studio", icon: Music },
-    { number: 5, label: "Time", icon: Clock },
-    { number: 6, label: "Review", icon: Check },
+    { number: 3, label: "Session Mode", icon: Globe },
+    { number: 4, label: "Session Type", icon: Music },
+    { number: 5, label: "Room(s)", icon: MapPin },
+    { number: 6, label: "Time", icon: Clock },
+    { number: 7, label: "Add-Ons", icon: Mic },
+    { number: 8, label: "Authorization", icon: Check },
+    { number: 9, label: "Review", icon: Wallet },
   ]
 
   const totalSteps = steps.length
   const progressPercent = Math.round((currentStep / totalSteps) * 100)
+  
   const formattedDate = selectedDate
     ? selectedDate.toLocaleDateString("en-US", {
         weekday: "long",
@@ -149,7 +159,16 @@ export default function BookingPage() {
         day: "numeric",
       })
     : "Not set"
+    
   const formattedTime = selectedTimeSlots.length > 0 ? getFormattedTimeRange(selectedTimeSlots) : "Not set"
+  
+  // Calculate pricing
+  const studioRate = selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
+  const duration = getDuration(selectedTimeSlots)
+  const basePrice = studioRate * duration
+  const micAddOnPrice = micSelection.reduce((sum, m) => sum + m.price, 0)
+  const totalPrice = basePrice + micAddOnPrice
+  const depositAmount = paymentOption === "50% deposit" ? totalPrice * 0.5 : paymentOption === "Full payment" ? totalPrice : 0
 
   const goToNextStep = () => {
     if (currentStep < totalSteps) {
@@ -169,24 +188,57 @@ export default function BookingPage() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 1: return clientName.trim().length > 0
-      case 2: return selectedDate !== null
-      case 3: return sessionType !== null && paymentOption !== null
-      case 4: return selectedStudio !== null
-      case 5: return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
-      default: return true
+      case 1: 
+        return clientName.trim().length > 0 && 
+               clientEmail.trim().length > 0 && 
+               clientPhone.trim().length > 0 &&
+               !phoneError
+      case 2: 
+        return selectedDate !== null
+      case 3:
+        return sessionMode !== null
+      case 4:
+        return sessionType !== null && paymentOption !== null
+      case 5:
+        return selectedStudio !== null || sessionMode === "Online"
+      case 6:
+        return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
+      case 7:
+        return true // Add-ons are optional
+      case 8:
+        return authorization !== null && authorization.acknowledged
+      default:
+        return true
     }
   }
 
-  // Auto-advance from Step 1 (Name) - only on first visit
+  // Validate phone against staff
   useEffect(() => {
-    if (currentStep === 1 && visitedSteps.includes(1) && clientName.trim().length > 0) {
+    if (clientPhone.trim().length > 0) {
+      // This would normally be an API call
+      const staffPhones = ["+1 (212) 265-6060", "+1 (212) 265-6061", "+1 (212) 265-6062"]
+      const normalizedPhone = clientPhone.replace(/\D/g, "")
+      const isStaffPhone = staffPhones.some(sp => sp.replace(/\D/g, "") === normalizedPhone)
+      
+      if (isStaffPhone) {
+        setPhoneError("This phone number matches a staff member. Please use a different number.")
+      } else {
+        setPhoneError(null)
+      }
+    } else {
+      setPhoneError(null)
+    }
+  }, [clientPhone])
+
+  // Auto-advance from Step 1
+  useEffect(() => {
+    if (currentStep === 1 && visitedSteps.includes(1) && canProceed()) {
       const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
-  }, [clientName, currentStep, visitedSteps])
+  }, [clientName, clientEmail, clientPhone, phoneError, currentStep, visitedSteps])
 
-  // Auto-advance from Step 2 (Date) - only on first visit
+  // Auto-advance from Step 2 (Date)
   useEffect(() => {
     if (currentStep === 2 && visitedSteps.includes(2) && selectedDate !== null) {
       const timer = setTimeout(() => goToNextStep(), 500)
@@ -194,13 +246,29 @@ export default function BookingPage() {
     }
   }, [selectedDate, currentStep, visitedSteps])
 
-  // Auto-advance from Step 4 (Studio) - only on first visit
+  // Auto-advance from Step 3 (Session Mode)
   useEffect(() => {
-    if (currentStep === 4 && visitedSteps.includes(4) && selectedStudio !== null) {
+    if (currentStep === 3 && visitedSteps.includes(3)) {
       const timer = setTimeout(() => goToNextStep(), 500)
       return () => clearTimeout(timer)
     }
-  }, [selectedStudio, currentStep, visitedSteps])
+  }, [sessionMode, currentStep, visitedSteps])
+
+  // Auto-advance from Step 5 (Studio)
+  useEffect(() => {
+    if (currentStep === 5 && visitedSteps.includes(5) && (selectedStudio !== null || sessionMode === "Online")) {
+      const timer = setTimeout(() => goToNextStep(), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedStudio, sessionMode, currentStep, visitedSteps])
+
+  // Auto-advance from Step 6 (Time)
+  useEffect(() => {
+    if (currentStep === 6 && visitedSteps.includes(6) && selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)) {
+      const timer = setTimeout(() => goToNextStep(), 500)
+      return () => clearTimeout(timer)
+    }
+  }, [selectedTimeSlots, currentStep, visitedSteps])
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -235,23 +303,51 @@ export default function BookingPage() {
   const isDateAvailable = (day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
     const dayOfWeek = date.getDay()
-    return dayOfWeek !== 0 && dayOfWeek !== 6
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    return dayOfWeek !== 0 && dayOfWeek !== 6 && date >= today
+  }
+
+  const handleAuthorizationComplete = (auth: typeof authorization) => {
+    setAuthorization(auth)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (!authorization) {
+      toast({
+        title: "Authorization Required",
+        description: "Please complete the authorization before submitting.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const timeRange = getFormattedTimeRange(selectedTimeSlots)
+    const [startTimeDisplay, endTimeDisplay] = timeRange.split(" - ")
+    
     const bookingData = {
       clientName,
+      clientEmail,
+      clientPhone,
       date: selectedDate?.toISOString(),
+      sessionMode,
       sessionType,
       engineer,
       paymentOption,
-      addOns: selectedAddOns,
       studio: selectedStudio,
-      startTime: selectedTimeSlots[0]?.split(" - ")[0],
-      endTime: selectedTimeSlots[selectedTimeSlots.length - 1]?.split(" - ")[1],
-      duration: selectedTimeSlots.length,
+      startTime: to24Hour(startTimeDisplay),
+      endTime: to24Hour(endTimeDisplay),
+      duration,
+      roomIds: selectedStudio ? [selectedStudio] : [],
+      referral,
+      micAddOns: micSelection,
+      authorization: {
+        signatureType: authorization.signatureType,
+        signatureData: authorization.signatureData,
+        acknowledged: authorization.acknowledged,
+      },
     }
 
     try {
@@ -268,10 +364,33 @@ export default function BookingPage() {
           title: "Booking Request Submitted!",
           description: "A member of our team will reach out to you shortly.",
         })
+        
+        // Reset form
+        setClientName("")
+        setClientEmail("")
+        setClientPhone("")
+        setSelectedDate(null)
+        setSessionMode("In-Person")
+        setSessionType(null)
+        setEngineer(null)
+        setPaymentOption(null)
+        setSelectedStudio(null)
+        setSelectedTimeSlots([])
+        setMicSelection([])
+        setReferral(null)
+        setAuthorization(null)
+        setCurrentStep(1)
+        setVisitedSteps([1])
+
+        // Redirect to home after 3 seconds
+        setTimeout(() => {
+          router.push("/")
+        }, 3000)
       } else {
+        const error = await response.json()
         toast({
           title: "Error",
-          description: "Failed to submit booking. Please try again.",
+          description: error.error || "Failed to submit booking. Please try again.",
           variant: "destructive",
         })
       }
@@ -282,664 +401,650 @@ export default function BookingPage() {
         variant: "destructive",
       })
     }
+  }
 
-    // Reset form
-    setClientName("")
-    setSelectedDate(null)
-    setSessionType(null)
-    setEngineer(null)
-    setPaymentOption(null)
-    setSelectedAddOns([])
-    setSelectedStudio(null)
-    setSelectedTimeSlots([])
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Let's get to know you</h2>
+              <p className="text-muted-foreground">Enter your contact information to get started</p>
+            </div>
+            
+            <div className="space-y-4 max-w-md mx-auto">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  placeholder="Your name"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="text-lg py-6"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address *</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    className="pl-10 py-6"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number *</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+1 (555) 123-4567"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    className={`pl-10 py-6 ${phoneError ? 'border-red-500' : ''}`}
+                  />
+                </div>
+                {phoneError && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {phoneError}
+                  </p>
+                )}
+              </div>
+              
+              <div className="pt-4">
+                <ReferralDropdown onSelectionChange={setReferral} />
+              </div>
+            </div>
+          </div>
+        )
 
-    // Redirect to home after 3 seconds
-    setTimeout(() => {
-      router.push("/")
-    }, 3000)
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Select a Date</h2>
+              <p className="text-muted-foreground">Choose your preferred session date</p>
+            </div>
+
+            <Card className="max-w-md mx-auto">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <Button variant="ghost" size="icon" onClick={prevMonth}>
+                    <ChevronLeft className="h-5 w-5" />
+                  </Button>
+                  <span className="font-medium">
+                    {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                  </span>
+                  <Button variant="ghost" size="icon" onClick={nextMonth}>
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
+                    <div key={i} className="text-xs text-muted-foreground py-2">
+                      {day}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: firstDay }).map((_, i) => (
+                    <div key={`empty-${i}`} className="aspect-square" />
+                  ))}
+                  {days.map((day) => {
+                    const isSelected =
+                      selectedDate &&
+                      selectedDate.getDate() === day &&
+                      selectedDate.getMonth() === currentMonth.getMonth() &&
+                      selectedDate.getFullYear() === currentMonth.getFullYear()
+                    const isAvailable = isDateAvailable(day)
+
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        disabled={!isAvailable}
+                        onClick={() => {
+                          if (isAvailable) {
+                            setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+                          }
+                        }}
+                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-colors
+                          ${isSelected ? "bg-primary text-primary-foreground" : ""}
+                          ${!isSelected && isAvailable ? "hover:bg-muted cursor-pointer" : ""}
+                          ${!isAvailable ? "text-muted-foreground/30 cursor-not-allowed" : ""}
+                        `}
+                      >
+                        {day}
+                      </button>
+                    )
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Session Mode</h2>
+              <p className="text-muted-foreground">Will this be an online or in-person session?</p>
+            </div>
+
+            <div className="grid gap-4 max-w-lg mx-auto">
+              <button
+                type="button"
+                onClick={() => setSessionMode("In-Person")}
+                className={`p-6 rounded-xl border-2 text-left transition-all ${
+                  sessionMode === "In-Person"
+                    ? "border-primary bg-primary/5"
+                    : "border-muted hover:border-muted-foreground/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full ${sessionMode === "In-Person" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                    <MapPin className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">In-Person Session</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Visit our studio for a hands-on recording experience
+                    </p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSessionMode("Online")}
+                className={`p-6 rounded-xl border-2 text-left transition-all ${
+                  sessionMode === "Online"
+                    ? "border-primary bg-primary/5"
+                    : "border-muted hover:border-muted-foreground/50"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full ${sessionMode === "Online" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                    <Globe className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Online Session</h3>
+                    <p className="text-muted-foreground text-sm">
+                      Remote mixing and mastering for international artists
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+        )
+
+      case 4:
+        const services = sessionMode === "Online" ? onlineServices : inPersonServices
+        
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Session Details</h2>
+              <p className="text-muted-foreground">Select your service type and payment preference</p>
+            </div>
+
+            <div className="space-y-8 max-w-lg mx-auto">
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Service Type</Label>
+                {services.map((service) => (
+                  <button
+                    key={service.value}
+                    type="button"
+                    onClick={() => setSessionType(service.value)}
+                    className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                      sessionType === service.value
+                        ? "border-primary bg-primary/5"
+                        : "border-muted hover:border-muted-foreground/50"
+                    }`}
+                  >
+                    <div className="font-medium">{service.value}</div>
+                    <div className="text-sm text-muted-foreground">{service.description}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Payment Option</Label>
+                {paymentOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setPaymentOption(option.value)}
+                    className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                      paymentOption === option.value
+                        ? "border-primary bg-primary/5"
+                        : "border-muted hover:border-muted-foreground/50"
+                    }`}
+                  >
+                    <div className="font-medium">{option.value}</div>
+                    <div className="text-sm text-muted-foreground">{option.description}</div>
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-base font-medium">Engineer Preference (Optional)</Label>
+                <Select value={engineer || ""} onValueChange={setEngineer}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an engineer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {engineerOptions.map((eng) => (
+                      <SelectItem key={eng} value={eng}>
+                        {eng}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )
+
+      case 5:
+        if (sessionMode === "Online") {
+          return (
+            <div className="space-y-6 text-center">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold mb-2">Online Session</h2>
+                <p className="text-muted-foreground">No studio selection needed for online sessions</p>
+              </div>
+              <Card className="max-w-md mx-auto">
+                <CardContent className="p-6">
+                  <Globe className="h-12 w-12 mx-auto mb-4 text-primary" />
+                  <p className="text-muted-foreground">
+                    Your session will be conducted remotely. We'll contact you with details after your booking is confirmed.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )
+        }
+
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Select Studio</h2>
+              <p className="text-muted-foreground">Choose your preferred recording space</p>
+            </div>
+
+            <div className="grid gap-4 max-w-2xl mx-auto">
+              {studioOptions.map((studio) => (
+                <button
+                  key={studio.value}
+                  type="button"
+                  onClick={() => setSelectedStudio(studio.value)}
+                  className={`p-6 rounded-xl border-2 text-left transition-all ${
+                    selectedStudio === studio.value
+                      ? "border-primary bg-primary/5"
+                      : "border-muted hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-lg">{studio.value}</h3>
+                      <p className="text-muted-foreground text-sm">{studio.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold">${studio.rate}/hr</div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            
+            <p className="text-center text-sm text-muted-foreground">
+              Rooms may be swapped at any time. Pricing will reflect assigned room.
+            </p>
+          </div>
+        )
+
+      case 6:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Select Time</h2>
+              <p className="text-muted-foreground">Choose your session time slot(s)</p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {timeSlots.map((slot) => {
+                  const isSelected = selectedTimeSlots.includes(slot)
+                  const selectedIndex = selectedTimeSlots.indexOf(slot)
+                  const slotIndex = timeSlots.indexOf(slot)
+                  
+                  // Check if selecting this slot would break consecutiveness
+                  let wouldBreakConsecutive = false
+                  if (selectedTimeSlots.length > 0 && !isSelected) {
+                    const newSlots = [...selectedTimeSlots, slot].sort(
+                      (a, b) => timeSlots.indexOf(a) - timeSlots.indexOf(b)
+                    )
+                    wouldBreakConsecutive = !areSlotsConsecutive(newSlots)
+                  }
+
+                  return (
+                    <button
+                      key={slot}
+                      type="button"
+                      disabled={wouldBreakConsecutive}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedTimeSlots(selectedTimeSlots.filter((s) => s !== slot))
+                        } else {
+                          const newSlots = [...selectedTimeSlots, slot].sort(
+                            (a, b) => timeSlots.indexOf(a) - timeSlots.indexOf(b)
+                          )
+                          setSelectedTimeSlots(newSlots)
+                        }
+                      }}
+                      className={`p-3 rounded-lg text-sm transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground"
+                          : wouldBreakConsecutive
+                          ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                          : "bg-muted hover:bg-muted/80"
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {selectedTimeSlots.length > 0 && (
+                <div className="mt-6 p-4 bg-muted rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Selected Time:</span>
+                    <span>{formattedTime}</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="font-medium">Duration:</span>
+                    <span>{duration} hour(s)</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )
+
+      case 7:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Add-Ons</h2>
+              <p className="text-muted-foreground">Enhance your session with premium options</p>
+            </div>
+
+            <div className="max-w-lg mx-auto">
+              <MicSelection
+                onSelectionChange={setMicSelection}
+                quantity={1}
+              />
+            </div>
+          </div>
+        )
+
+      case 8:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Authorization</h2>
+              <p className="text-muted-foreground">Please review and authorize your booking</p>
+            </div>
+
+            <div className="max-w-lg mx-auto">
+              <BookingAuthorization
+                bookingSummary={{
+                  totalAmount: totalPrice,
+                  depositAmount,
+                  rooms: selectedStudio ? [selectedStudio] : ["Online Session"],
+                  date: formattedDate,
+                  time: formattedTime,
+                }}
+                onAuthorizationComplete={handleAuthorizationComplete}
+              />
+            </div>
+          </div>
+        )
+
+      case 9:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Review Your Booking</h2>
+              <p className="text-muted-foreground">Please confirm all details before submitting</p>
+            </div>
+
+            <Card className="max-w-lg mx-auto">
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Name</span>
+                    <p className="font-medium">{clientName}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Email</span>
+                    <p className="font-medium">{clientEmail}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Phone</span>
+                    <p className="font-medium">{clientPhone}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Session Mode</span>
+                    <p className="font-medium">{sessionMode}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Date</span>
+                    <p className="font-medium">{formattedDate}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Time</span>
+                    <p className="font-medium">{formattedTime}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Session Type</span>
+                    <p className="font-medium">{sessionType}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm text-muted-foreground">Studio</span>
+                    <p className="font-medium">{selectedStudio || "Online"}</p>
+                  </div>
+                  {engineer && engineer !== "No preference" && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">Engineer</span>
+                      <p className="font-medium">{engineer}</p>
+                    </div>
+                  )}
+                  {referral && (
+                    <div>
+                      <span className="text-sm text-muted-foreground">Referred By</span>
+                      <p className="font-medium">{referral.referrerName}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-4 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Base Rate ({duration} hr × ${studioRate})</span>
+                    <span>${basePrice.toFixed(2)}</span>
+                  </div>
+                  {micAddOnPrice > 0 && (
+                    <div className="flex justify-between">
+                      <span>Mic Add-On</span>
+                      <span>${micAddOnPrice.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                    <span>Total</span>
+                    <span>${totalPrice.toFixed(2)}</span>
+                  </div>
+                  {depositAmount > 0 && (
+                    <div className="flex justify-between text-primary">
+                      <span>Due Now ({paymentOption})</span>
+                      <span className="font-bold">${depositAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg flex items-center gap-2">
+                  <Check className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-green-800 dark:text-green-200">
+                    Authorization completed
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )
+
+      default:
+        return null
+    }
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center">
-            <Link href="/">
-              <Image
-                src="/Platinum Sound logo with 3D effect.png"
-                alt="Platinum Sound Logo"
-                width={360}
-                height={80}
-                className="h-16 w-auto"
-                priority
-              />
-            </Link>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/platinum_sound_transparent.png"
+              alt="Platinum Sound"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+            />
+            <span className="font-bold text-xl hidden sm:inline">Platinum Sound</span>
+          </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />
           </div>
         </div>
-      </nav>
+      </header>
 
-      <main className="pt-24 pb-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <Link href="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4 transition-colors">
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Back to Home
-            </Link>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">Book a Session</h1>
-            <p className="text-muted-foreground text-lg">
-              Schedule your recording session at Platinum Sound Studios
-            </p>
+      {/* Progress Bar */}
+      <div className="border-b bg-background">
+        <div className="container py-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
+            <span className="text-sm font-medium">{progressPercent}% Complete</span>
           </div>
-
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-            <Card className="border-dashed">
-              <CardHeader className="space-y-3">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <CardTitle className="text-lg">Booking summary</CardTitle>
-                  <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
-                </div>
-                <div className="h-2 w-full rounded-full bg-muted">
-                  <div
-                    className="h-2 rounded-full bg-primary transition-all duration-300"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Use the steps below to complete your request. Required fields are marked with *.
-                </p>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Client</p>
-                  <p className="font-medium">{clientName || "Not set"}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Date</p>
-                  <p className="font-medium">{formattedDate}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Session</p>
-                  <p className="font-medium">{sessionType || "Not set"}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {paymentOption ? `Payment: ${paymentOption}` : "Payment not selected"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase text-muted-foreground">Studio & time</p>
-                  <p className="font-medium">{selectedStudio || "Not set"}</p>
-                  <p className="text-sm text-muted-foreground">{formattedTime}</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Progress Indicator */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
-                {steps.map((step, index) => {
-                  const Icon = step.icon
-                  const isActive = step.number === currentStep
-                  const isCompleted = step.number < currentStep
-
-                  return (
-                    <div key={step.number} className="flex items-center flex-1">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`
-                            w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300
-                            ${isActive
-                              ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                              : isCompleted
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-muted text-muted-foreground"
-                            }
-                          `}
-                        >
-                          {isCompleted ? (
-                            <Check className="h-5 w-5" />
-                          ) : (
-                            <Icon className="h-5 w-5" />
-                          )}
-                        </div>
-                        <span
-                          className={`
-                            mt-2 text-xs font-medium hidden sm:block transition-colors duration-300
-                            ${isActive ? "text-primary" : isCompleted ? "text-primary" : "text-muted-foreground"}
-                          `}
-                        >
-                          {step.label}
-                        </span>
-                      </div>
-                      {index < steps.length - 1 && (
-                        <div
-                          className={`flex-1 h-1 mx-2 transition-colors duration-300 ${
-                            step.number < currentStep ? "bg-primary" : "bg-muted"
-                          }`}
-                        />
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Step 1: Client Name */}
-            {currentStep === 1 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Step 1: Your Name
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Label htmlFor="clientName">Name or artist name *</Label>
-                    <Input
-                      id="clientName"
-                      placeholder="Enter your name or artist name"
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      className="max-w-md"
-                      autoFocus
-                      required
-                    />
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    This is how we&apos;ll address you in all communications.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Step 2: Date Selection */}
-            {currentStep === 2 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Step 2: Select Date
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="rounded-lg border border-dashed p-3 text-sm text-muted-foreground mb-4">
-                    {selectedDate ? (
-                      <span>Selected date: <strong className="text-foreground">{formattedDate}</strong></span>
-                    ) : (
-                      <span>Select a weekday to continue.</span>
-                    )}
-                  </div>
-                  {/* Calendar Navigation */}
-                  <div className="flex items-center justify-between mb-4">
-                    <Button type="button" variant="outline" size="icon" onClick={prevMonth}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <h3 className="font-semibold text-lg">
-                      {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                    </h3>
-                    <Button type="button" variant="outline" size="icon" onClick={nextMonth}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {/* Calendar Grid */}
-                  <div className="grid grid-cols-7 gap-1 mb-2">
-                    {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                      <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="grid grid-cols-7 gap-1">
-                    {/* Empty cells */}
-                    {Array.from({ length: firstDay }).map((_, index) => (
-                      <div key={`empty-${index}`} className="h-10" />
-                    ))}
-                    {/* Days */}
-                    {days.map((day) => {
-                      const available = isDateAvailable(day)
-                      const isSelected = selectedDate?.getDate() === day &&
-                        selectedDate?.getMonth() === currentMonth.getMonth()
-
-                      return (
-                        <button
-                          key={day}
-                          type="button"
-                          disabled={!available}
-                          onClick={() => setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
-                          className={`
-                            h-10 w-full rounded-lg text-sm font-medium transition-all duration-200
-                            ${!available && "text-muted-foreground/50 cursor-not-allowed"}
-                            ${available && !isSelected && "hover:bg-muted"}
-                            ${isSelected && "bg-primary text-primary-foreground hover:bg-primary/90 scale-105"}
-                          `}
-                        >
-                          {day}
-                        </button>
-                      )
-                    })}
-                  </div>
-
-                  {/* Legend */}
-                  <div className="flex items-center gap-4 mt-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-primary" />
-                      <span>Selected</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-muted" />
-                      <span>Available</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded bg-muted/50" />
-                      <span>Unavailable</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Step 3: Session Details */}
-            {currentStep === 3 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Wallet className="h-5 w-5" />
-                    Step 3: Session Details
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label>Session type</Label>
-                      <p className="text-sm text-muted-foreground">Let us know what kind of session you&apos;re planning.</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {sessionTypes.map((type) => {
-                        const isSelected = sessionType === type.value
-                        return (
-                          <button
-                            key={type.value}
-                            type="button"
-                            onClick={() => setSessionType(type.value)}
-                            className={`
-                              p-4 rounded-lg border-2 transition-all text-left
-                              ${isSelected
-                                ? "border-primary bg-primary/5 shadow-md"
-                                : "border-border hover:border-primary/50 hover:shadow-sm"
-                              }
-                            `}
-                          >
-                            <div className="font-semibold">{type.value}</div>
-                            <div className="text-sm text-muted-foreground mt-1">{type.description}</div>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="engineer">Preferred engineer</Label>
-                      <Select value={engineer ?? undefined} onValueChange={setEngineer}>
-                        <SelectTrigger id="engineer">
-                          <SelectValue placeholder="Select an engineer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {engineerOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-muted-foreground">We&apos;ll confirm availability after your request.</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="space-y-1">
-                        <Label>Deposit / payment</Label>
-                        <p className="text-sm text-muted-foreground">Choose how you want to secure the booking.</p>
-                      </div>
-                      <div className="space-y-2">
-                        {paymentOptions.map((option) => {
-                          const isSelected = paymentOption === option.value
-                          return (
-                            <button
-                              key={option.value}
-                              type="button"
-                              onClick={() => setPaymentOption(option.value)}
-                              className={`
-                                w-full p-4 rounded-lg border-2 transition-all text-left
-                                ${isSelected
-                                  ? "border-primary bg-primary/5 shadow-md"
-                                  : "border-border hover:border-primary/50 hover:shadow-sm"
-                                }
-                              `}
-                            >
-                              <div className="font-semibold">{option.value}</div>
-                              <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
-                            </button>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="space-y-1">
-                      <Label>Additional spaces</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Add extra rooms to your booking request (optional).
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {additionalSpaces.map((space) => {
-                        const isSelected = selectedAddOns.includes(space.value)
-                        return (
-                          <button
-                            key={space.value}
-                            type="button"
-                            onClick={() => {
-                              if (isSelected) {
-                                setSelectedAddOns(selectedAddOns.filter((value) => value !== space.value))
-                              } else {
-                                setSelectedAddOns([...selectedAddOns, space.value])
-                              }
-                            }}
-                            className={`
-                              p-4 rounded-lg border-2 transition-all text-left
-                              ${isSelected
-                                ? "border-primary bg-primary/5 shadow-md"
-                                : "border-border hover:border-primary/50 hover:shadow-sm"
-                              }
-                            `}
-                          >
-                            <div className="font-semibold">{space.value}</div>
-                            <div className="text-sm text-muted-foreground mt-1">{space.description}</div>
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Step 4: Studio Selection */}
-            {currentStep === 4 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Music className="h-5 w-5" />
-                    Step 4: Select Studio
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedStudio("Studio A")}
-                      className={`
-                        p-6 rounded-lg border-2 transition-all text-left
-                        ${selectedStudio === "Studio A"
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-border hover:border-primary/50 hover:shadow-sm"
-                        }
-                      `}
-                    >
-                      <div className="font-semibold text-lg">Studio A</div>
-                      <div className="text-sm text-muted-foreground mt-1">Neve 88R Console</div>
-                      <div className="text-sm text-muted-foreground mt-2">
-                        Our flagship room featuring a legendary Neve 88R console, perfect for tracking, mixing, and immersive audio experiences.
-                      </div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-sm text-green-500">Available</span>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedStudio("Studio B")}
-                      className={`
-                        p-6 rounded-lg border-2 transition-all text-left
-                        ${selectedStudio === "Studio B"
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-border hover:border-primary/50 hover:shadow-sm"
-                        }
-                      `}
-                    >
-                      <div className="font-semibold text-lg">Studio B</div>
-                      <div className="text-sm text-muted-foreground mt-1">SSL 9000K Console</div>
-                      <div className="text-sm text-muted-foreground mt-2">
-                        A mixing powerhouse with the iconic SSL 9000K, delivering the punch and clarity that defined countless hit records.
-                      </div>
-                      <div className="flex items-center gap-2 mt-3">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-sm text-green-500">Available</span>
-                      </div>
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Step 5: Time Selection */}
-            {currentStep === 5 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    Step 5: Select Time
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Select consecutive time slots for your session. Click multiple slots to book a longer session.
-                  </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {timeSlots.map((time) => {
-                      const isSelected = selectedTimeSlots.includes(time)
-                      return (
-                        <button
-                          key={time}
-                          type="button"
-                          onClick={() => {
-                            if (isSelected) {
-                              setSelectedTimeSlots(selectedTimeSlots.filter((slot) => slot !== time))
-                            } else {
-                              const newSlots = [...selectedTimeSlots, time]
-                              // Sort slots by their position in timeSlots
-                              newSlots.sort((a, b) => timeSlots.indexOf(a) - timeSlots.indexOf(b))
-                              setSelectedTimeSlots(newSlots)
-                            }
-                          }}
-                          className={`
-                            p-3 rounded-lg border text-sm font-medium transition-all duration-200
-                            ${isSelected
-                              ? "bg-primary text-primary-foreground border-primary shadow-md"
-                              : "border-border hover:border-primary/50"
-                            }
-                          `}
-                        >
-                          {time}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  {selectedTimeSlots.length > 0 && (
-                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium">Selected Time</p>
-                          <p className="text-lg font-bold">{getFormattedTimeRange(selectedTimeSlots)}</p>
-                          <p className="text-sm text-muted-foreground">
-                            ({getDuration(selectedTimeSlots)} hour{getDuration(selectedTimeSlots) > 1 ? "s" : ""})
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedTimeSlots([])}
-                        >
-                          Clear
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                  {!areSlotsConsecutive(selectedTimeSlots) && selectedTimeSlots.length > 1 && (
-                    <div className="mt-4 p-3 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-700 rounded-lg">
-                      <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                        <strong>Please select consecutive time slots.</strong> Your selected slots must be next to each other without gaps.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Step 6: Review & Submit */}
-            {currentStep === 6 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Check className="h-5 w-5" />
-                    Review Your Booking
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <User className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Client Name</p>
-                        <p className="font-medium">{clientName}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Date</p>
-                        <p className="font-medium">{formattedDate}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Music className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Studio</p>
-                        <p className="font-medium">{selectedStudio}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Wallet className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Session Details</p>
-                        <p className="font-medium">{sessionType}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Engineer: {engineer ?? "No preference"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Payment: {paymentOption}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Additional spaces: {selectedAddOns.length > 0 ? selectedAddOns.join(", ") : "None"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Time</p>
-                        <p className="font-medium">{getFormattedTimeRange(selectedTimeSlots)}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {getDuration(selectedTimeSlots)} hour{getDuration(selectedTimeSlots) > 1 ? "s" : ""}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    By submitting, you agree that a member of our team will reach out to you shortly to confirm your booking.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between items-center pt-4">
-              {currentStep > 1 ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={goToPrevStep}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Back
-                </Button>
-              ) : (
-                <div />
-              )}
-
-              {currentStep < 5 ? (
-                <Button
-                  type="button"
-                  onClick={goToNextStep}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              ) : currentStep === 5 ? (
-                <Button
-                  type="button"
-                  onClick={goToNextStep}
-                  disabled={!canProceed()}
-                  className="flex items-center gap-2"
-                >
-                  Continue to Review
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  size="lg"
-                  className="text-lg px-8"
-                >
-                  Submit Booking Request
-                </Button>
-              )}
-            </div>
-
-            {/* Contact Info */}
-            <div className="text-center text-sm text-muted-foreground pt-4 border-t">
-              <p>Need assistance? Contact us directly:</p>
-              <div className="flex items-center justify-center gap-4 mt-2">
-                <a href="tel:212-265-6060" className="flex items-center gap-1 hover:text-primary transition-colors">
-                  <Phone className="h-4 w-4" />
-                  212-265-6060
-                </a>
-                <a href="mailto:info@platinumsoundny.com" className="flex items-center gap-1 hover:text-primary transition-colors">
-                  <Mail className="h-4 w-4" />
-                  info@platinumsoundny.com
-                </a>
-              </div>
-            </div>
-          </form>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-500"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
+      </div>
+
+      {/* Step Indicators */}
+      <div className="border-b bg-background/95 backdrop-blur overflow-x-auto">
+        <div className="container py-4">
+          <div className="flex items-center gap-2 min-w-max">
+            {steps.map((step, index) => {
+              const Icon = step.icon
+              const isActive = currentStep === step.number
+              const isCompleted = visitedSteps.includes(step.number) && currentStep > step.number
+              const isVisited = visitedSteps.includes(step.number)
+
+              return (
+                <div key={step.number} className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => isVisited && setCurrentStep(step.number)}
+                    disabled={!isVisited}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-primary text-primary-foreground"
+                        : isCompleted
+                        ? "bg-primary/10 text-primary"
+                        : isVisited
+                        ? "bg-muted hover:bg-muted/80 cursor-pointer"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="text-sm font-medium hidden sm:inline">{step.label}</span>
+                  </button>
+                  {index < steps.length - 1 && (
+                    <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="container py-8">
+        <form onSubmit={handleSubmit}>
+          {renderStepContent()}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between mt-8 max-w-lg mx-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={goToPrevStep}
+              disabled={currentStep === 1}
+              className="gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Back
+            </Button>
+
+            {currentStep < totalSteps ? (
+              <Button
+                type="button"
+                onClick={goToNextStep}
+                disabled={!canProceed()}
+                className="gap-2"
+              >
+                Continue
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                disabled={!canProceed()}
+                className="gap-2"
+              >
+                <Check className="h-4 w-4" />
+                Submit Booking
+              </Button>
+            )}
+          </div>
+        </form>
       </main>
 
       {/* Footer */}
-      <footer className="border-t py-8 px-6">
-        <div className="max-w-4xl mx-auto text-center text-sm text-muted-foreground">
-          <p>Platinum Sound Studios | 122 W. 26th St., New York, NY 10001</p>
-          <p className="mt-1">Open 24/7 for Sessions</p>
+      <footer className="border-t bg-background mt-auto">
+        <div className="container py-6 text-center text-sm text-muted-foreground">
+          <p>© {new Date().getFullYear()} Platinum Sound Studios. All rights reserved.</p>
         </div>
       </footer>
     </div>
