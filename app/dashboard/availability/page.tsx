@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar } from '@/components/ui/calendar'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Block, CheckCircle, AlertCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Ban, CheckCircle, AlertCircle } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
 
@@ -26,7 +26,7 @@ interface Engineer {
 
 const statusConfig = {
   AVAILABLE: { label: 'Available', color: 'bg-green-100 text-green-800 border-green-200', icon: CheckCircle },
-  BLOCKED: { label: 'Blocked', color: 'bg-red-100 text-red-800 border-red-200', icon: Block },
+  BLOCKED: { label: 'Blocked', color: 'bg-red-100 text-red-800 border-red-200', icon: Ban },
   VACATION: { label: 'Vacation', color: 'bg-blue-100 text-blue-800 border-blue-200', icon: CalendarIcon },
   SICK: { label: 'Sick Leave', color: 'bg-purple-100 text-purple-800 border-purple-200', icon: AlertCircle },
 }
@@ -311,7 +311,7 @@ export default function AvailabilityPage() {
                   onClick={() => updateAvailability('BLOCKED', 'Personal')}
                   disabled={selectedDates.length === 0}
                 >
-                  <Block className="h-4 w-4 mr-2 text-red-600" />
+                  <Ban className="h-4 w-4 mr-2 text-red-600" />
                   Block Off
                 </Button>
                 
