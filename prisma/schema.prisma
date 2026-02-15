@@ -459,7 +459,9 @@ model EngineerAvailability {
 
 model Referral {
   id           String       @id @default(cuid())
-  bookingId    String?
+  clientId     String
+  client       Client       @relation(fields: [clientId], references: [id])
+  bookingId    String?      @unique
   booking      Booking?     @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   referrerType ReferrerType
   referrerId   String
@@ -547,6 +549,7 @@ model WorkOrder {
   assignedEngineerId  String?
   assignedEngineer    User?            @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id], onDelete: SetNull)
   createdBy           String
+  createdByUser       User             @relation("CreatedBy", fields: [createdBy], references: [id], onDelete: Cascade)
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
   completedAt         DateTime?
