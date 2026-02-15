@@ -206,6 +206,7 @@ export async function POST(request: NextRequest) {
     if (referral) {
       await prisma.referral.create({
         data: {
+          clientId: client.id,
           bookingId: booking.id,
           referrerType: referral.referrerType,
           referrerId: referral.referrerId,
