@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ResponsiveTableShell } from '@/components/ui/responsive-table-shell'
 import { ClipboardList, Plus, Search, AlertCircle, CheckCircle, Clock, User, PenLine } from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
@@ -187,9 +189,10 @@ export default function WorkOrdersPage() {
   })
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <ClipboardList className="h-8 w-8" />
@@ -290,6 +293,8 @@ export default function WorkOrdersPage() {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         <div className="relative w-full flex-1 sm:max-w-md">
+      <div className="flex flex-wrap gap-4">
+        <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search work orders..."
@@ -316,15 +321,22 @@ export default function WorkOrdersPage() {
       {/* Work Orders Table */}
       <Card>
         <CardContent className="p-0">
+          <ResponsiveTableShell tableMinWidthClassName="min-w-[860px]" stickyFirstColumn>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Assigned To</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Assignee</span>
+                  <span className="hidden sm:inline">Assigned To</span>
+                </TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead>Signatures</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Signs</span>
+                  <span className="hidden sm:inline">Signatures</span>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -404,6 +416,7 @@ export default function WorkOrdersPage() {
               )}
             </TableBody>
           </Table>
+          </ResponsiveTableShell>
         </CardContent>
       </Card>
 
@@ -446,6 +459,6 @@ export default function WorkOrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { ResponsiveChartShell } from '@/components/ui/responsive-chart-shell'
+import { ResponsiveTableShell } from '@/components/ui/responsive-table-shell'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
-import { FileText, Download, Calendar, DollarSign, Users, Clock, TrendingUp, ArrowRight } from 'lucide-react'
-import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { FileText, Download, Calendar, DollarSign, Clock, TrendingUp } from 'lucide-react'
+import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
 
 interface ReportData {
@@ -120,7 +122,7 @@ ${report.data.bookings.map(b =>
   }
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -252,15 +254,17 @@ ${report.data.bookings.map(b =>
                 <CardTitle>Room Utilization</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={report.data.roomUtilization}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="room" />
-                    <YAxis />
-                    <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
-                    <Bar dataKey="utilizationRate" fill="#8884d8" name="Utilization %" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ResponsiveChartShell>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={report.data.roomUtilization}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="room" />
+                      <YAxis />
+                      <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
+                      <Bar dataKey="utilizationRate" fill="#8884d8" name="Utilization %" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ResponsiveChartShell>
               </CardContent>
             </Card>
 
@@ -270,15 +274,17 @@ ${report.data.bookings.map(b =>
                 <CardTitle>Engineer Hours</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={report.data.engineerHours}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="hours" fill="#82ca9d" name="Hours" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <ResponsiveChartShell>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={report.data.engineerHours}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="hours" fill="#82ca9d" name="Hours" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ResponsiveChartShell>
               </CardContent>
             </Card>
           </div>
@@ -289,8 +295,21 @@ ${report.data.bookings.map(b =>
               <CardTitle>Booking Status Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-center">
-                <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveChartShell
+                chartClassName="h-64 sm:h-72"
+                legend={[
+                  'Completed',
+                  'Confirmed',
+                  'Pending',
+                  'Cancelled',
+                ].map((name, index) => (
+                  <span key={name} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-1">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[index] }} />
+                    {name}
+                  </span>
+                ))}
+              >
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={[
@@ -314,7 +333,7 @@ ${report.data.bookings.map(b =>
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
-              </div>
+              </ResponsiveChartShell>
             </CardContent>
           </Card>
 
@@ -324,6 +343,7 @@ ${report.data.bookings.map(b =>
               <CardTitle>Session Details</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
+              <ResponsiveTableShell tableMinWidthClassName="min-w-[760px]" stickyFirstColumn>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -331,7 +351,10 @@ ${report.data.bookings.map(b =>
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
                     <TableHead>Room</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>
+                      <span className="sm:hidden">Session</span>
+                      <span className="hidden sm:inline">Type</span>
+                    </TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Paid</TableHead>
                   </TableRow>
@@ -354,10 +377,11 @@ ${report.data.bookings.map(b =>
                   ))}
                 </TableBody>
               </Table>
+              </ResponsiveTableShell>
             </CardContent>
           </Card>
         </>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

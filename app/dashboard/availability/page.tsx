@@ -1,10 +1,12 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ResponsiveCalendarGrid } from '@/components/ui/responsive-calendar-grid'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Ban, CheckCircle, AlertCircle } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
@@ -164,7 +166,7 @@ export default function AvailabilityPage() {
   const selectedEngineer = engineers.find(e => e.id === selectedEngineerId)
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -223,16 +225,14 @@ export default function AvailabilityPage() {
               </p>
             </CardHeader>
             <CardContent>
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-1">
-                {/* Week Day Headers */}
-                {weekDays.map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                    {day}
+              <ResponsiveCalendarGrid
+                weekdayHeader={weekDays.map(day => (
+                  <div key={day} className="p-2 text-center text-xs sm:text-sm font-medium text-muted-foreground">
+                    <span className="sm:hidden">{day[0]}</span>
+                    <span className="hidden sm:inline">{day}</span>
                   </div>
                 ))}
-                
-                {/* Calendar Days */}
+              >
                 {calendarDays.map((day, index) => {
                   const isCurrentMonth = isSameMonth(day, currentDate)
                   const isTodayDate = isToday(day)
@@ -244,7 +244,7 @@ export default function AvailabilityPage() {
                       key={index}
                       onClick={() => isCurrentMonth && handleDateSelect(day)}
                       className={`
-                        min-h-[60px] p-1 border rounded cursor-pointer transition-colors
+                        min-h-[56px] sm:min-h-[60px] p-1 border rounded cursor-pointer transition-colors
                         ${!isCurrentMonth ? 'opacity-30' : ''}
                         ${isTodayDate ? 'border-primary border-2' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary' : ''}
@@ -260,7 +260,7 @@ export default function AvailabilityPage() {
                     </div>
                   )
                 })}
-              </div>
+              </ResponsiveCalendarGrid>
               
               {/* Legend */}
               <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t">
@@ -342,6 +342,6 @@ export default function AvailabilityPage() {
           </Card>
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -1,12 +1,13 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowRight, Mail, MessageSquare } from "lucide-react"
 import Link from "next/link"
 
 export default function MarketingPage() {
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Marketing</h2>
         <p className="text-muted-foreground">
@@ -63,6 +64,6 @@ export default function MarketingPage() {
           </Card>
         </Link>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

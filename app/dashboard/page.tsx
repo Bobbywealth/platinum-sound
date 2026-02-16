@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { DashboardSkeleton } from "@/components/skeletons"
 import { StatCard } from "@/components/stat-card"
 import { formatCurrency } from "@/lib/utils"
@@ -178,7 +179,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell className="space-y-8">
       {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
@@ -248,6 +249,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

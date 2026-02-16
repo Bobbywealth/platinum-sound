@@ -1,8 +1,10 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { ResponsiveTableShell } from "@/components/ui/responsive-table-shell"
 import {
   Table,
   TableBody,
@@ -98,8 +100,8 @@ export default function InventoryPage() {
   const onOrderCount = inventoryItems.filter((item) => item.onOrder).length
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <DashboardPageShell>
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">
@@ -163,7 +165,11 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border bg-white">
+          <ResponsiveTableShell
+            className="mt-6"
+            tableMinWidthClassName="min-w-[760px]"
+            stickyFirstColumn
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,7 +178,10 @@ export default function InventoryPage() {
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Next Restock</TableHead>
+                  <TableHead>
+                    <span className="sm:hidden">Restock</span>
+                    <span className="hidden sm:inline">Next Restock</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -200,9 +209,9 @@ export default function InventoryPage() {
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </ResponsiveTableShell>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   )
 }
