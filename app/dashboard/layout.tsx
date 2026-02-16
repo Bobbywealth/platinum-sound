@@ -19,7 +19,7 @@ export default function DashboardLayout({
       <Suspense fallback={<SidebarSkeleton />}>
         <DashboardSidebar />
       </Suspense>
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-72">
         <DashboardHeader />
         <main className="flex-1 overflow-auto bg-[#FAFAF8]">
           <Suspense fallback={<DashboardSkeleton />}>

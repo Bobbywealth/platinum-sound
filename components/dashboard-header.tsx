@@ -224,7 +224,7 @@ export default function DashboardHeader() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6"
+      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6 lg:px-6 pl-16 lg:pl-6"
     >
       {/* Left side - Page title */}
       <div className="flex items-center gap-4">
