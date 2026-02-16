@@ -96,11 +96,11 @@ export default function SchedulePage() {
       </div>
 
       {/* Date Navigation */}
-      <div className="flex items-center justify-center gap-4">
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
         <Button variant="outline" size="icon" onClick={() => navigateDay(-1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <h3 className="text-lg font-semibold min-w-[300px] text-center">
+        <h3 className="w-full text-center text-base font-semibold leading-tight sm:text-lg md:text-xl">
           {formatDate(currentDate)}
         </h3>
         <Button variant="outline" size="icon" onClick={() => navigateDay(1)}>
@@ -262,10 +262,10 @@ export default function SchedulePage() {
             {bookings.slice(0, 5).map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center gap-4">
-                  <div className="text-sm font-medium text-primary min-w-[100px]">{booking.date}</div>
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 sm:gap-4">
+                  <div className="text-sm font-medium text-primary">{booking.date}</div>
                   <div>
                     <div className="font-medium">{booking.clientName}</div>
                     <div className="text-sm text-muted-foreground">
@@ -273,7 +273,7 @@ export default function SchedulePage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
                   <span className="text-sm text-muted-foreground">{booking.engineer}</span>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
