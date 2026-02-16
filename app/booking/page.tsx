@@ -888,7 +888,7 @@ export default function BookingPage() {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/Platinum Sound logo with 3D effect.png"
@@ -907,7 +907,7 @@ export default function BookingPage() {
 
       {/* Progress Bar */}
       <div className="border-b bg-background">
-        <div className="container py-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
             <span className="text-sm font-medium">{progressPercent}% Complete</span>
@@ -923,7 +923,7 @@ export default function BookingPage() {
 
       {/* Step Indicators */}
       <div className="border-b bg-background/95 backdrop-blur overflow-x-auto">
-        <div className="container py-4">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-2 min-w-max">
             {steps.map((step, index) => {
               const Icon = step.icon
@@ -962,7 +962,7 @@ export default function BookingPage() {
       </div>
 
       {/* Main Content */}
-      <main className="container py-8">
+      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit}>
           {renderStepContent()}
 
@@ -1008,7 +1008,7 @@ export default function BookingPage() {
 
       {/* Footer */}
       <footer className="border-t bg-background mt-auto">
-        <div className="container py-6 text-center text-sm text-muted-foreground">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Platinum Sound Studios. All rights reserved.</p>
         </div>
       </footer>
