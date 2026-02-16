@@ -115,7 +115,7 @@ export default function TasksPage() {
           <h2 className="text-3xl font-bold tracking-tight">Tasks</h2>
           <p className="text-muted-foreground">Manage studio tasks and workflows</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
           {/* View Toggle */}
           <div className="flex items-center border rounded-lg p-1">
             <Button
@@ -137,12 +137,12 @@ export default function TasksPage() {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
                 New Task
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Create New Task</DialogTitle>
                 <DialogDescription>

@@ -325,7 +325,7 @@ export default function NotificationsPage() {
                     )}
                 </div>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectTrigger className="w-full sm:w-56 md:w-72">
                         <Filter className="mr-2 h-4 w-4" />
                         <SelectValue placeholder="Filter by type" />
                     </SelectTrigger>
@@ -344,7 +344,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 border-b pb-2">
+            <div className="flex flex-wrap gap-2 border-b pb-2">
                 {(["all", "unread", "read"] as const).map((f) => (
                     <Button
                         key={f}

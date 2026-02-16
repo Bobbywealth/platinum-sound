@@ -166,7 +166,7 @@ export default function AvailabilityPage() {
   return (
     <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <CalendarIcon className="h-8 w-8" />
@@ -185,7 +185,7 @@ export default function AvailabilityPage() {
         </CardHeader>
         <CardContent>
           <Select value={selectedEngineerId} onValueChange={setSelectedEngineerId}>
-            <SelectTrigger className="w-[300px]">
+            <SelectTrigger className="w-full sm:w-56 md:w-72">
               <SelectValue placeholder="Select an engineer" />
             </SelectTrigger>
             <SelectContent>
@@ -204,9 +204,9 @@ export default function AvailabilityPage() {
           {/* Calendar */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <CardTitle>{selectedEngineer.name}'s Calendar</CardTitle>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button variant="outline" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>

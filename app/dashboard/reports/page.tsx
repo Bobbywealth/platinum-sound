@@ -122,7 +122,7 @@ ${report.data.bookings.map(b =>
   return (
     <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <FileText className="h-8 w-8" />
@@ -141,10 +141,10 @@ ${report.data.bookings.map(b =>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <div className="space-y-2">
+            <div className="w-full space-y-2 sm:w-56">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -155,23 +155,23 @@ ${report.data.bookings.map(b =>
               </Select>
             </div>
             
-            <div className="space-y-2">
+            <div className="w-full space-y-2 sm:w-56 md:w-72">
               <label className="text-sm font-medium">Date</label>
               <input
                 type="date"
                 value={reportDate}
                 onChange={(e) => setReportDate(e.target.value)}
-                className="flex h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
             
-            <div className="flex items-end gap-2">
-              <Button onClick={generateReport} disabled={isLoading}>
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-end">
+              <Button className="w-full sm:w-auto" onClick={generateReport} disabled={isLoading}>
                 {isLoading ? 'Generating...' : 'Generate Report'}
               </Button>
               
               {report && (
-                <Button variant="outline" onClick={downloadReport}>
+                <Button className="w-full sm:w-auto" variant="outline" onClick={downloadReport}>
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>

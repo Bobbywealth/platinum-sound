@@ -189,7 +189,7 @@ export default function WorkOrdersPage() {
   return (
     <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <ClipboardList className="h-8 w-8" />
@@ -288,8 +288,8 @@ export default function WorkOrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative w-full flex-1 sm:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search work orders..."
@@ -300,7 +300,7 @@ export default function WorkOrdersPage() {
         </div>
         
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-full sm:w-56">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -348,7 +348,7 @@ export default function WorkOrdersPage() {
                       <div>
                         <p className="font-medium">{wo.title}</p>
                         {wo.description && (
-                          <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <p className="text-sm text-muted-foreground truncate max-w-xs">
                             {wo.description}
                           </p>
                         )}
