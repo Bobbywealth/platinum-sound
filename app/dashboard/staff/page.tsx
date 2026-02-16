@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 
@@ -11,5 +12,9 @@ export default function StaffPage() {
     router.replace("/dashboard/teams")
   }, [router])
 
-  return null
+  return (
+    <DashboardPageShell>
+      <p className="text-sm text-muted-foreground">Redirecting to teams...</p>
+    </DashboardPageShell>
+  )
 }
