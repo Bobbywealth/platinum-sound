@@ -230,45 +230,6 @@ export default function BookingPage() {
     }
   }, [clientPhone])
 
-  // Auto-advance from Step 1
-  useEffect(() => {
-    if (currentStep === 1 && visitedSteps.includes(1) && canProceed()) {
-      const timer = setTimeout(() => goToNextStep(), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [clientName, clientEmail, clientPhone, phoneError, currentStep, visitedSteps])
-
-  // Auto-advance from Step 2 (Date)
-  useEffect(() => {
-    if (currentStep === 2 && visitedSteps.includes(2) && selectedDate !== null) {
-      const timer = setTimeout(() => goToNextStep(), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [selectedDate, currentStep, visitedSteps])
-
-  // Auto-advance from Step 3 (Session Mode)
-  useEffect(() => {
-    if (currentStep === 3 && visitedSteps.includes(3)) {
-      const timer = setTimeout(() => goToNextStep(), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [sessionMode, currentStep, visitedSteps])
-
-  // Auto-advance from Step 5 (Studio)
-  useEffect(() => {
-    if (currentStep === 5 && visitedSteps.includes(5) && (selectedStudio !== null || sessionMode === "Online")) {
-      const timer = setTimeout(() => goToNextStep(), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [selectedStudio, sessionMode, currentStep, visitedSteps])
-
-  // Auto-advance from Step 6 (Time)
-  useEffect(() => {
-    if (currentStep === 6 && visitedSteps.includes(6) && selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)) {
-      const timer = setTimeout(() => goToNextStep(), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [selectedTimeSlots, currentStep, visitedSteps])
 
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
