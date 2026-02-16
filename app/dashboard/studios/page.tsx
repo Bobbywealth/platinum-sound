@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -83,8 +84,8 @@ export default function StudiosPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   return (
-    <div className="space-y-8 min-h-screen p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <DashboardPageShell className="space-y-8">
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Studios</h1>
           <p className="text-muted-foreground">Manage your world-class recording facilities</p>
@@ -226,6 +227,6 @@ export default function StudiosPage() {
           </Card>
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

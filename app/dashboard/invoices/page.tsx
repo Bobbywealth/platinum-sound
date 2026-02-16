@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { invoices } from "@/lib/data"
@@ -34,8 +35,8 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between">
+    <DashboardPageShell>
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Invoices</h2>
           <p className="text-muted-foreground">Manage billing and payments</p>
@@ -236,6 +237,6 @@ export default function InvoicesPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { DashboardSkeleton } from "@/components/skeletons"
 import { StatCard } from "@/components/stat-card"
 import { formatCurrency } from "@/lib/utils"
@@ -178,7 +179,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell className="space-y-8">
       {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
@@ -215,7 +216,7 @@ export default function DashboardPage() {
 
       {/* Today's Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
           <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Sessions</h2>
           <Link
             href="/dashboard/schedule"
@@ -248,6 +249,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

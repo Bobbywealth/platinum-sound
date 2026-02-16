@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mic2, Music2, Pencil, Plus } from "lucide-react"
@@ -31,9 +32,9 @@ const services: Service[] = [
 
 export default function ServicesPage() {
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Services</h1>
           <p className="text-muted-foreground">Manage your studio services</p>
@@ -68,6 +69,6 @@ export default function ServicesPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }
