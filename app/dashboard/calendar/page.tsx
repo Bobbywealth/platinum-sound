@@ -107,7 +107,7 @@ export default function MasterCalendarPage() {
   return (
     <DashboardPageShell>
       {/* Header */}
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <Calendar className="h-8 w-8" />
@@ -120,7 +120,7 @@ export default function MasterCalendarPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Rooms</CardTitle>
@@ -191,13 +191,17 @@ export default function MasterCalendarPage() {
           </CardContent>
         </Card>
       ) : (
-        <MasterCalendar
-          bookings={bookings}
-          rooms={rooms}
-          engineers={engineers}
-          onDateSelect={handleDateSelect}
-          onBookingSelect={handleBookingSelect}
-        />
+        <div className="overflow-x-auto rounded-lg border bg-card">
+          <div className="min-w-[760px]">
+            <MasterCalendar
+              bookings={bookings}
+              rooms={rooms}
+              engineers={engineers}
+              onDateSelect={handleDateSelect}
+              onBookingSelect={handleBookingSelect}
+            />
+          </div>
+        </div>
       )}
 
       {/* Booking Details Dialog */}
@@ -212,14 +216,14 @@ export default function MasterCalendarPage() {
           
           {selectedBooking && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <span className="font-medium text-lg">{selectedBooking.clientName}</span>
                 <Badge className={getStatusColor(selectedBooking.status)}>
                   {selectedBooking.status}
                 </Badge>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Date:</span>
                   <p className="font-medium">{format(new Date(selectedBooking.date), 'MMMM d, yyyy')}</p>

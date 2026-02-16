@@ -3,6 +3,7 @@
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ResponsiveCalendarGrid } from "@/components/ui/responsive-calendar-grid"
 import { Input } from "@/components/ui/input"
 import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, UserPlus, AlertCircle } from "lucide-react"
 import Image from "next/image"
@@ -138,14 +139,14 @@ export default function BookingPage() {
   // Updated steps with new flow
   const steps = [
     { number: 1, label: "Your Info", icon: User },
-    { number: 2, label: "Date", icon: Calendar },
-    { number: 3, label: "Session Mode", icon: Globe },
-    { number: 4, label: "Session Type", icon: Music },
-    { number: 5, label: "Room(s)", icon: MapPin },
-    { number: 6, label: "Time", icon: Clock },
-    { number: 7, label: "Add-Ons", icon: Mic },
-    { number: 8, label: "Authorization", icon: Check },
-    { number: 9, label: "Review", icon: Wallet },
+    { number: 2, label: "Date", shortLabel: "Date", icon: Calendar },
+    { number: 3, label: "Session Mode", shortLabel: "Mode", icon: Globe },
+    { number: 4, label: "Session Type", shortLabel: "Type", icon: Music },
+    { number: 5, label: "Room(s)", shortLabel: "Room", icon: MapPin },
+    { number: 6, label: "Time", shortLabel: "Time", icon: Clock },
+    { number: 7, label: "Add-Ons", shortLabel: "Add-ons", icon: Mic },
+    { number: 8, label: "Authorization", shortLabel: "Auth", icon: Check },
+    { number: 9, label: "Review", shortLabel: "Review", icon: Wallet },
   ]
 
   const totalSteps = steps.length
@@ -451,15 +452,14 @@ export default function BookingPage() {
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                  {["S", "M", "T", "W", "T", "F", "S"].map((day, i) => (
-                    <div key={i} className="text-xs text-muted-foreground py-2">
-                      {day}
+                <ResponsiveCalendarGrid
+                  weekdayHeader={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                    <div key={day} className="text-xs text-muted-foreground py-2 text-center">
+                      <span className="sm:hidden">{day[0]}</span>
+                      <span className="hidden sm:inline">{day}</span>
                     </div>
                   ))}
-                </div>
-
-                <div className="grid grid-cols-7 gap-1">
+                >
                   {Array.from({ length: firstDay }).map((_, i) => (
                     <div key={`empty-${i}`} className="aspect-square" />
                   ))}
@@ -491,7 +491,7 @@ export default function BookingPage() {
                       </button>
                     )
                   })}
-                </div>
+                </ResponsiveCalendarGrid>
               </CardContent>
             </Card>
           </div>
@@ -948,6 +948,7 @@ export default function BookingPage() {
                     }`}
                   >
                     <Icon className="h-4 w-4" />
+                    <span className="text-xs font-medium sm:hidden">{step.shortLabel ?? step.label}</span>
                     <span className="text-sm font-medium hidden sm:inline">{step.label}</span>
                   </button>
                   {index < steps.length - 1 && (
@@ -966,7 +967,7 @@ export default function BookingPage() {
           {renderStepContent()}
 
           {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 max-w-lg mx-auto">
+          <div className="flex justify-between mt-8 max-w-lg mx-auto gap-3">
             <Button
               type="button"
               variant="outline"
@@ -975,7 +976,8 @@ export default function BookingPage() {
               className="gap-2"
             >
               <ChevronLeft className="h-4 w-4" />
-              Back
+              <span className="hidden sm:inline">Back</span>
+              <span className="sm:hidden">Prev</span>
             </Button>
 
             {currentStep < totalSteps ? (
@@ -985,7 +987,8 @@ export default function BookingPage() {
                 disabled={!canProceed()}
                 className="gap-2"
               >
-                Continue
+                <span className="hidden sm:inline">Continue</span>
+                <span className="sm:hidden">Next</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             ) : (
@@ -995,7 +998,8 @@ export default function BookingPage() {
                 className="gap-2"
               >
                 <Check className="h-4 w-4" />
-                Submit Booking
+                <span className="hidden sm:inline">Submit Booking</span>
+                <span className="sm:hidden">Submit</span>
               </Button>
             )}
           </div>

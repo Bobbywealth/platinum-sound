@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ResponsiveCalendarGrid } from '@/components/ui/responsive-calendar-grid'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Ban, CheckCircle, AlertCircle } from 'lucide-react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths, startOfWeek, endOfWeek, isSameMonth } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
@@ -167,7 +168,7 @@ export default function AvailabilityPage() {
   return (
     <DashboardPageShell>
       {/* Header */}
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <CalendarIcon className="h-8 w-8" />
@@ -186,7 +187,7 @@ export default function AvailabilityPage() {
         </CardHeader>
         <CardContent>
           <Select value={selectedEngineerId} onValueChange={setSelectedEngineerId}>
-            <SelectTrigger className="w-[300px]">
+            <SelectTrigger className="w-full sm:w-[300px]">
               <SelectValue placeholder="Select an engineer" />
             </SelectTrigger>
             <SelectContent>
@@ -205,7 +206,7 @@ export default function AvailabilityPage() {
           {/* Calendar */}
           <Card className="lg:col-span-2">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <CardTitle>{selectedEngineer.name}'s Calendar</CardTitle>
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon" onClick={() => setCurrentDate(subMonths(currentDate, 1))}>
@@ -224,16 +225,14 @@ export default function AvailabilityPage() {
               </p>
             </CardHeader>
             <CardContent>
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-1">
-                {/* Week Day Headers */}
-                {weekDays.map(day => (
-                  <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
-                    {day}
+              <ResponsiveCalendarGrid
+                weekdayHeader={weekDays.map(day => (
+                  <div key={day} className="p-2 text-center text-xs sm:text-sm font-medium text-muted-foreground">
+                    <span className="sm:hidden">{day[0]}</span>
+                    <span className="hidden sm:inline">{day}</span>
                   </div>
                 ))}
-                
-                {/* Calendar Days */}
+              >
                 {calendarDays.map((day, index) => {
                   const isCurrentMonth = isSameMonth(day, currentDate)
                   const isTodayDate = isToday(day)
@@ -245,7 +244,7 @@ export default function AvailabilityPage() {
                       key={index}
                       onClick={() => isCurrentMonth && handleDateSelect(day)}
                       className={`
-                        min-h-[60px] p-1 border rounded cursor-pointer transition-colors
+                        min-h-[56px] sm:min-h-[60px] p-1 border rounded cursor-pointer transition-colors
                         ${!isCurrentMonth ? 'opacity-30' : ''}
                         ${isTodayDate ? 'border-primary border-2' : ''}
                         ${isSelected ? 'bg-primary/20 border-primary' : ''}
@@ -261,7 +260,7 @@ export default function AvailabilityPage() {
                     </div>
                   )
                 })}
-              </div>
+              </ResponsiveCalendarGrid>
               
               {/* Legend */}
               <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t">

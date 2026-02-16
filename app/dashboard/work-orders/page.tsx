@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ResponsiveTableShell } from '@/components/ui/responsive-table-shell'
 import { ClipboardList, Plus, Search, AlertCircle, CheckCircle, Clock, User, PenLine } from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
@@ -289,7 +290,7 @@ export default function WorkOrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4">
+      <div className="flex flex-wrap gap-4">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -317,15 +318,22 @@ export default function WorkOrdersPage() {
       {/* Work Orders Table */}
       <Card>
         <CardContent className="p-0">
+          <ResponsiveTableShell tableMinWidthClassName="min-w-[860px]" stickyFirstColumn>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Assigned To</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Assignee</span>
+                  <span className="hidden sm:inline">Assigned To</span>
+                </TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead>Signatures</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Signs</span>
+                  <span className="hidden sm:inline">Signatures</span>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -405,6 +413,7 @@ export default function WorkOrdersPage() {
               )}
             </TableBody>
           </Table>
+          </ResponsiveTableShell>
         </CardContent>
       </Card>
 
