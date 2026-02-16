@@ -891,9 +891,9 @@ export default function BookingPage() {
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/platinum_sound_transparent.png"
+              src="/Platinum Sound logo with 3D effect.png"
               alt="Platinum Sound"
-              width={40}
+              width={60}
               height={40}
               className="h-10 w-auto"
             />
