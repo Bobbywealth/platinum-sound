@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { ResponsiveTableShell } from "@/components/ui/responsive-table-shell"
 import {
   Table,
   TableBody,
@@ -163,7 +164,11 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border bg-white">
+          <ResponsiveTableShell
+            className="mt-6"
+            tableMinWidthClassName="min-w-[760px]"
+            stickyFirstColumn
+          >
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,7 +177,10 @@ export default function InventoryPage() {
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Next Restock</TableHead>
+                  <TableHead>
+                    <span className="sm:hidden">Restock</span>
+                    <span className="hidden sm:inline">Next Restock</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -200,7 +208,7 @@ export default function InventoryPage() {
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </ResponsiveTableShell>
         </CardContent>
       </Card>
     </div>
