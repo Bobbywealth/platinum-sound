@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Menu } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
 const NAV_LINKS = [
@@ -21,13 +21,12 @@ const sheetId = "public-mobile-nav-drawer"
 export function PublicMobileNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
-  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (open) {
       setOpen(false)
     }
-  }, [pathname, searchParams, open])
+  }, [pathname, open])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

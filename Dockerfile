@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -19,15 +19,15 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS runner
+FROM node:20-bookworm-slim AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
 # Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs
+RUN useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
