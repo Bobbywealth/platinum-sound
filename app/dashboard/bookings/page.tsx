@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -71,8 +72,8 @@ export default function BookingsPage() {
   ]
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <DashboardPageShell>
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Bookings</h2>
           <p className="text-muted-foreground">Manage studio session bookings</p>
@@ -392,6 +393,6 @@ export default function BookingsPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

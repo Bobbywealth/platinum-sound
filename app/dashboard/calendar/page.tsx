@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect, useState } from 'react'
 import { MasterCalendar } from '@/components/master-calendar'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -104,7 +105,7 @@ export default function MasterCalendarPage() {
   }
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -258,6 +259,6 @@ export default function MasterCalendarPage() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   )
 }

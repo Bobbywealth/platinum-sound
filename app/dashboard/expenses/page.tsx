@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/utils"
@@ -69,9 +70,9 @@ export default function ExpensesPage() {
   const [expenses] = useState<Expense[]>(mockExpenses)
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Expenses</h2>
           <p className="text-muted-foreground">
@@ -258,6 +259,6 @@ export default function ExpensesPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

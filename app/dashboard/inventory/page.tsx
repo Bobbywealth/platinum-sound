@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -99,8 +100,8 @@ export default function InventoryPage() {
   const onOrderCount = inventoryItems.filter((item) => item.onOrder).length
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <DashboardPageShell>
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
           <p className="text-muted-foreground">
@@ -211,6 +212,6 @@ export default function InventoryPage() {
           </ResponsiveTableShell>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   )
 }

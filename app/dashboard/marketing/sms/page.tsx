@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -96,8 +97,8 @@ export default function SmsCampaignsPage() {
   )
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between">
+    <DashboardPageShell>
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">SMS Campaigns</h2>
           <p className="text-muted-foreground">Manage SMS marketing and notifications</p>
@@ -299,6 +300,6 @@ export default function SmsCampaignsPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+    </DashboardPageShell>
   )
 }

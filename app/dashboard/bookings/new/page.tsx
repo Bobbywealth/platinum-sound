@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -88,7 +89,7 @@ export default function NewBookingPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/dashboard/bookings">
@@ -316,6 +317,6 @@ export default function NewBookingPage() {
           </Button>
         </div>
       </form>
-    </div>
+    </DashboardPageShell>
   )
 }

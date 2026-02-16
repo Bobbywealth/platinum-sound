@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -165,7 +166,7 @@ export default function AvailabilityPage() {
   const selectedEngineer = engineers.find(e => e.id === selectedEngineerId)
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <DashboardPageShell>
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
@@ -341,6 +342,6 @@ export default function AvailabilityPage() {
           </Card>
         </div>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }
