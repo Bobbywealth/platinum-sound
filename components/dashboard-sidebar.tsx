@@ -181,9 +181,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       <div className="p-6 border-b">
         <Link href="/dashboard" className="flex items-center gap-3" onClick={onClose}>
           <Image
-            src="/platinum_sound_transparent.png"
+            src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound"
-            width={40}
+            width={60}
             height={40}
             className="h-10 w-auto"
           />
