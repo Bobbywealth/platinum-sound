@@ -72,11 +72,11 @@ export default function BookingsPage() {
   ]
 
   return (
-    <DashboardPageShell>
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Bookings</h2>
-          <p className="text-muted-foreground">Manage studio session bookings</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Bookings</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage studio session bookings</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           {/* View Toggle */}
@@ -106,8 +106,8 @@ export default function BookingsPage() {
               <CalendarDays className="h-4 w-4" />
             </Button>
           </div>
-          <Link href="/dashboard/bookings/new">
-            <Button>
+          <Link href="/dashboard/bookings/new" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               <span className="sm:hidden">New</span>
               <span className="hidden sm:inline">New Booking</span>
@@ -252,23 +252,25 @@ export default function BookingsPage() {
               {filteredBookings.map((booking) => (
                 <div
                   key={booking.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold flex-shrink-0">
                       {booking.clientName.charAt(0)}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-medium">{booking.clientName}</p>
                         {booking.isVip && <Badge variant="warning" className="text-xs">VIP</Badge>}
                       </div>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground truncate">
                         {booking.studio} • {booking.sessionType}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 sm:gap-6 flex-wrap justify-end">
+
+                  {/* Desktop: Horizontal layout */}
+                  <div className="hidden sm:flex items-center gap-6">
                     <div className="text-center">
                       <p className="text-sm font-medium">{booking.date}</p>
                       <p className="text-xs text-muted-foreground">{booking.startTime} - {booking.endTime}</p>
@@ -293,6 +295,39 @@ export default function BookingsPage() {
                     <Button variant="ghost" size="sm">
                       View
                     </Button>
+                  </div>
+
+                  {/* Mobile: Stacked layout */}
+                  <div className="sm:hidden space-y-3">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <p className="text-muted-foreground text-xs">Date & Time</p>
+                        <p className="font-medium">{booking.date}</p>
+                        <p className="text-xs text-muted-foreground">{booking.startTime} - {booking.endTime}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-xs">Engineer</p>
+                        <p className="font-medium">{booking.engineer}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t">
+                      <Badge
+                        variant={
+                          booking.status === "confirmed"
+                            ? "info"
+                            : booking.status === "in-progress"
+                            ? "success"
+                            : booking.status === "pending"
+                            ? "warning"
+                            : "secondary"
+                        }
+                      >
+                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace("-", " ")}
+                      </Badge>
+                      <Button variant="ghost" size="sm">
+                        View Details
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}

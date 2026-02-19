@@ -688,7 +688,7 @@ export default function BookingPage() {
             </div>
 
             <div className="max-w-2xl mx-auto">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 {timeSlots.map((slot) => {
                   const isSelected = selectedTimeSlots.includes(slot)
                   const selectedIndex = selectedTimeSlots.indexOf(slot)
@@ -797,8 +797,8 @@ export default function BookingPage() {
             </div>
 
             <Card className="max-w-lg mx-auto">
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+              <CardContent className="p-4 sm:p-6 space-y-4">
+                <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2">
                   <div>
                     <span className="text-sm text-muted-foreground">Name</span>
                     <p className="font-medium">{clientName}</p>
@@ -922,8 +922,8 @@ export default function BookingPage() {
       </div>
 
       {/* Step Indicators */}
-      <div className="border-b bg-background/95 backdrop-blur overflow-x-auto">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+      <div className="border-b bg-background/95 backdrop-blur overflow-x-auto snap-x snap-mandatory">
+        <div className="container py-4">
           <div className="flex items-center gap-2 min-w-max">
             {steps.map((step, index) => {
               const Icon = step.icon
@@ -962,7 +962,7 @@ export default function BookingPage() {
       </div>
 
       {/* Main Content */}
-      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+      <main className="container px-4 sm:px-6 py-4 sm:py-8">
         <form onSubmit={handleSubmit}>
           {renderStepContent()}
 

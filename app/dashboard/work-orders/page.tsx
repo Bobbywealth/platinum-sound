@@ -189,22 +189,22 @@ export default function WorkOrdersPage() {
   })
 
   return (
-    <DashboardPageShell>
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <ClipboardList className="h-8 w-8" />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+            <ClipboardList className="h-6 w-6 sm:h-8 sm:w-8" />
             Work Orders
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Create and manage work orders for equipment and maintenance
           </p>
         </div>
-        
+
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               New Work Order
             </Button>
@@ -290,8 +290,8 @@ export default function WorkOrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4">
-        <div className="relative flex-1 max-w-sm">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="relative flex-1 sm:max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search work orders..."
@@ -300,9 +300,9 @@ export default function WorkOrdersPage() {
             className="pl-9"
           />
         </div>
-        
+
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-56">
+          <SelectTrigger className="w-full sm:w-[150px]">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -315,8 +315,8 @@ export default function WorkOrdersPage() {
         </Select>
       </div>
 
-      {/* Work Orders Table */}
-      <Card>
+      {/* Work Orders Table (Desktop) */}
+      <Card className="hidden md:block">
         <CardContent className="p-0">
           <ResponsiveTableShell tableMinWidthClassName="min-w-[860px]" stickyFirstColumn>
           <Table>
@@ -416,6 +416,91 @@ export default function WorkOrdersPage() {
           </ResponsiveTableShell>
         </CardContent>
       </Card>
+
+      {/* Work Orders List (Mobile) */}
+      <div className="md:hidden space-y-3">
+        {isLoading ? (
+          <Card>
+            <CardContent className="p-8 text-center text-muted-foreground">
+              Loading...
+            </CardContent>
+          </Card>
+        ) : filteredWorkOrders.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center text-muted-foreground">
+              No work orders found
+            </CardContent>
+          </Card>
+        ) : (
+          filteredWorkOrders.map(wo => (
+            <Card key={wo.id}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{wo.title}</p>
+                    {wo.description && (
+                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        {wo.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-1 ml-2 flex-shrink-0">
+                    <Badge className={priorityConfig[wo.priority as keyof typeof priorityConfig]?.color}>
+                      {priorityConfig[wo.priority as keyof typeof priorityConfig]?.label || wo.priority}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Status:</span>
+                    <Badge className={statusConfig[wo.status as keyof typeof statusConfig]?.color}>
+                      {statusConfig[wo.status as keyof typeof statusConfig]?.label || wo.status}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Assigned to:</span>
+                    <span className="font-medium">
+                      {wo.assignedEngineer ? wo.assignedEngineer.name : 'Unassigned'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Created:</span>
+                    <span className="font-medium">{format(wo.createdAt, 'MMM d, yyyy')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Signatures:</span>
+                    <span className="font-medium">
+                      {wo.signatures.length > 0 ? (
+                        <div className="flex items-center gap-1">
+                          <PenLine className="h-3 w-3 text-green-600" />
+                          <span>{wo.signatures.length}</span>
+                        </div>
+                      ) : (
+                        '-'
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {wo.status !== 'COMPLETED' && wo.status !== 'CANCELLED' && (
+                  <div className="pt-3 border-t">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSigningWorkOrder(wo)}
+                      className="w-full"
+                    >
+                      <PenLine className="h-4 w-4 mr-2" />
+                      Sign Work Order
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
 
       {/* Sign Work Order Dialog */}
       <Dialog open={!!signingWorkOrder} onOpenChange={() => setSigningWorkOrder(null)}>

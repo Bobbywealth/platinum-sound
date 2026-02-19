@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { MobileSearchSheet } from "@/components/mobile-search-sheet"
 import { AnimatePresence, motion } from "framer-motion"
 import {
     Bell,
@@ -145,6 +146,7 @@ export default function DashboardHeader() {
   const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const mobileSearchRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
@@ -336,239 +338,20 @@ export default function DashboardHeader() {
         </div>
       </div>
 
-      {/* Mobile controls */}
-      <div className="flex items-center gap-2 md:hidden">
-        <div className="relative" ref={mobileSearchRef}>
-          <motion.button
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-            onClick={() => {
-              setShowMobileSearch((prev) => !prev)
-              setShowResults(true)
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.1 }}
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5 text-gray-600" />
-          </motion.button>
-
-          <AnimatePresence>
-            {showMobileSearch && (
-              <motion.div
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="fixed left-2 right-2 top-[4.5rem] z-50 rounded-lg border bg-white shadow-lg"
-              >
-                <div className="relative p-3 border-b">
-                  <Search className="absolute left-6 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search clients, bookings, in..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => results.length > 0 && setShowResults(true)}
-                    className="h-10 w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-10 text-sm outline-none focus:ring-2 focus:ring-[#C4A77D] focus:border-transparent transition-all"
-                  />
-                  <button
-                    onClick={closeMobileSearch}
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                    aria-label="Close search"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                {showResults && searchQuery.length >= 2 && (
-                  <div className="max-h-80 overflow-y-auto">
-                    {isSearching ? (
-                      <div className="p-4 text-center text-gray-500 text-sm">Searching...</div>
-                    ) : results.length > 0 ? (
-                      <div className="py-2">
-                        {results.map((result, index) => (
-                          <motion.div
-                            key={`${result.type}-${result.title}-${index}`}
-                            custom={index}
-                            variants={searchResultVariants}
-                            initial="hidden"
-                            animate="visible"
-                          >
-                            <Link
-                              href={result.href}
-                              onClick={() => {
-                                setShowResults(false)
-                                setSearchQuery("")
-                                setShowMobileSearch(false)
-                              }}
-                              className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 transition-colors"
-                            >
-                              <span className={`w-2 h-2 rounded-full ${getTypeColor(result.type)}`} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{result.title}</p>
-                                <p className="text-xs text-gray-500 truncate">{result.subtitle}</p>
-                              </div>
-                            </Link>
-                          </motion.div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-4 text-center text-gray-500 text-sm">
-                        No results found for &quot;{searchQuery}&quot;
-                      </div>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Notifications */}
-        <div className="relative" ref={mobileNotificationRef}>
-          <motion.button
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
-            onClick={() => setShowNotifications(!showNotifications)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ duration: 0.1 }}
-          >
-            <Bell className="h-5 w-5 text-gray-600" />
-            {unreadCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-[#C4A77D] text-[10px] text-white font-medium"
-              >
-                {unreadCount}
-              </motion.span>
-            )}
-          </motion.button>
-
-          {/* Notification Dropdown */}
-          <AnimatePresence>
-            {showNotifications && (
-              <motion.div
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="fixed left-2 right-2 top-[4.5rem] z-50 bg-white border rounded-lg shadow-lg overflow-hidden md:absolute md:right-0 md:top-full md:left-auto md:mt-2 md:w-80"
-              >
-                <div className="flex items-center justify-between px-4 py-3 border-b">
-                  <h3 className="font-semibold">Notifications</h3>
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    Mark all as read
-                  </Button>
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {mockNotifications.length > 0 ? (
-                    mockNotifications.map((notification, index) => (
-                      <motion.div
-                        key={notification.id}
-                        custom={index}
-                        variants={notificationItemVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className={`${
-                          !notification.read ? "bg-gray-50" : ""
-                        }`}
-                      >
-                        <Link
-                          href={notification.href}
-                          className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                        >
-                          <motion.div
-                            animate={{ scale: !notification.read ? [1, 1.2, 1] : 1 }}
-                            transition={{ duration: 0.3 }}
-                            className={`w-2 h-2 rounded-full mt-2 ${notification.read ? "bg-transparent" : "bg-[#C4A77D]"}`}
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium">{notification.title}</p>
-                            <p className="text-xs text-gray-500 truncate">{notification.message}</p>
-                            <p className="text-xs text-gray-400 mt-1">{notification.time}</p>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-gray-500 text-sm">
-                      No notifications
-                    </div>
-                  )}
-                </div>
-                <div className="px-4 py-3 border-t">
-                  <Link
-                    href="/dashboard/notifications"
-                    className="text-sm text-[#C4A77D] hover:underline"
-                  >
-                    View all notifications
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <div className="relative" ref={mobileUserMenuRef}>
-          <motion.button
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <User className="h-5 w-5 text-gray-600" />
-          </motion.button>
-
-          <AnimatePresence>
-            {showUserMenu && (
-              <motion.div
-                variants={dropdownVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                className="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden"
-              >
-                <div className="px-4 py-3 border-b">
-                  <p className="text-sm font-medium">Studio Manager</p>
-                  <p className="text-xs text-gray-500">manager@platinumsound.com</p>
-                </div>
-                <div className="py-1">
-                  <Link
-                    href="/dashboard/profile"
-                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <User className="h-4 w-4" />
-                    Profile
-                  </Link>
-                  <Link
-                    href="/dashboard/settings"
-                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
-                  </Link>
-                </div>
-                <div className="border-t py-1">
-                  <Link
-                    href="/api/auth/signout"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </Link>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+      {/* Mobile Search Button */}
+      <div className="lg:hidden flex-1 flex justify-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setMobileSearchOpen(true)}
+          className="h-9 w-9"
+        >
+          <Search className="h-5 w-5 text-gray-600" />
+        </Button>
       </div>
 
-      {/* Right side - Desktop controls */}
-      <div className="hidden md:flex items-center gap-3">
+      {/* Right side - Notifications, Settings, Profile */}
+      <div className="flex items-center gap-3">
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <motion.button
@@ -740,6 +523,12 @@ export default function DashboardHeader() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Mobile Search Sheet */}
+      <MobileSearchSheet
+        open={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+      />
     </motion.header>
   )
 }

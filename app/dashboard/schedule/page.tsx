@@ -41,15 +41,15 @@ export default function SchedulePage() {
   }
 
   return (
-    <DashboardPageShell>
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Studio Schedule</h2>
-          <p className="text-muted-foreground">Manage studio bookings and sessions</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Studio Schedule</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage studio bookings and sessions</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               New Booking
             </Button>
@@ -96,11 +96,11 @@ export default function SchedulePage() {
       </div>
 
       {/* Date Navigation */}
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+      <div className="flex items-center justify-between sm:justify-center gap-2 sm:gap-4">
         <Button variant="outline" size="icon" onClick={() => navigateDay(-1)}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <h3 className="w-full text-center text-base font-semibold leading-tight sm:text-lg md:text-xl">
+        <h3 className="text-sm sm:text-lg font-semibold text-center flex-1 sm:flex-none sm:min-w-[300px]">
           {formatDate(currentDate)}
         </h3>
         <Button variant="outline" size="icon" onClick={() => navigateDay(1)}>
@@ -126,9 +126,9 @@ export default function SchedulePage() {
                     booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-blue-500"
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                     <div>
-                      <span className={`font-semibold text-lg ${booking.isVip ? "text-primary" : ""}`}>
+                      <span className={`font-semibold text-base sm:text-lg ${booking.isVip ? "text-primary" : ""}`}>
                         {booking.clientName}
                       </span>
                       {booking.isVip && (
@@ -137,7 +137,7 @@ export default function SchedulePage() {
                         </span>
                       )}
                     </div>
-                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full self-start">
                       {booking.startTime} - {booking.endTime}
                     </span>
                   </div>
@@ -199,9 +199,9 @@ export default function SchedulePage() {
                     booking.isVip ? "border-l-4 border-l-primary" : "border-l-4 border-l-royal"
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                     <div>
-                      <span className={`font-semibold text-lg ${booking.isVip ? "text-primary" : ""}`}>
+                      <span className={`font-semibold text-base sm:text-lg ${booking.isVip ? "text-primary" : ""}`}>
                         {booking.clientName}
                       </span>
                       {booking.isVip && (
@@ -210,7 +210,7 @@ export default function SchedulePage() {
                         </span>
                       )}
                     </div>
-                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full">
+                    <span className="text-sm font-medium bg-muted px-3 py-1 rounded-full self-start">
                       {booking.startTime} - {booking.endTime}
                     </span>
                   </div>

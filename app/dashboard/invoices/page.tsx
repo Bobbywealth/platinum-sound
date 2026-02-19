@@ -35,15 +35,15 @@ export default function InvoicesPage() {
   }
 
   return (
-    <DashboardPageShell>
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Invoices</h2>
-          <p className="text-muted-foreground">Manage billing and payments</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Invoices</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage billing and payments</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Create Invoice
             </Button>
@@ -126,21 +126,22 @@ export default function InvoicesPage() {
       </div>
 
       {/* Filter Pills */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {["all", "paid", "pending", "overdue"].map((status) => (
           <Button
             key={status}
             variant={filter === status ? "default" : "outline"}
             size="sm"
             onClick={() => setFilter(status)}
+            className="flex-1 sm:flex-none min-w-[80px]"
           >
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </Button>
         ))}
       </div>
 
-      {/* Invoice List */}
-      <Card>
+      {/* Invoice List (Desktop) */}
+      <Card className="hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -205,6 +206,69 @@ export default function InvoicesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Invoice List (Mobile) */}
+      <div className="md:hidden space-y-3">
+        {filteredInvoices.map((invoice) => (
+          <Card key={invoice.id}>
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="font-mono text-sm text-muted-foreground">{invoice.id}</p>
+                  <p className="font-semibold mt-1">{invoice.clientName}</p>
+                </div>
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
+                    invoice.status === "paid"
+                      ? "bg-green-500/10 text-green-500"
+                      : invoice.status === "pending"
+                      ? "bg-yellow-500/10 text-yellow-500"
+                      : "bg-red-500/10 text-red-500"
+                  }`}
+                >
+                  {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm mb-4">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Amount:</span>
+                  <span className="font-bold text-primary">{formatCurrency(invoice.amount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Issued:</span>
+                  <span className="font-medium">{formatDate(invoice.issuedDate)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Due Date:</span>
+                  <span className="font-medium">{formatDate(invoice.dueDate)}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-3 border-t">
+                <Button size="sm" variant="outline" className="flex-1">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
+                {invoice.status !== "paid" && (
+                  <Button size="sm" variant="outline" className="flex-1">
+                    <Send className="h-4 w-4 mr-2" />
+                    Remind
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {filteredInvoices.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center text-muted-foreground">
+              No invoices found.
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Invoice Detail Preview */}
       {filteredInvoices.length > 0 && (

@@ -70,16 +70,16 @@ export default function ExpensesPage() {
   const [expenses] = useState<Expense[]>(mockExpenses)
 
   return (
-    <DashboardPageShell>
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Expenses</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Expenses</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track and manage studio expenses
           </p>
         </div>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Expense
         </Button>
@@ -163,24 +163,24 @@ export default function ExpensesPage() {
               return (
                 <div
                   key={expense.id}
-                  className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${colorClass}`}>
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${colorClass}`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="font-medium">{expense.description}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{expense.description}</p>
+                      <p className="text-sm text-muted-foreground truncate">
                         {expense.vendor} - {expense.date}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 pl-12 sm:pl-0">
+                    <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded flex-shrink-0">
                       {expense.category}
                     </span>
-                    <span className="font-semibold">{formatCurrency(expense.amount)}</span>
+                    <span className="font-semibold flex-shrink-0">{formatCurrency(expense.amount)}</span>
                   </div>
                 </div>
               )

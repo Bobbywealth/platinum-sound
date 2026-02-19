@@ -83,6 +83,9 @@ export default function Home() {
           </div>
           <PublicMobileNav />
         </div>
+
+        {/* Mobile Navigation */}
+        <MobileNav />
       </nav>
 
       {/* Hero Section with Background Video */}
@@ -102,16 +105,16 @@ export default function Home() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-          <p className="text-royal font-bold tracking-[4px] uppercase text-sm mb-4">
+        <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto">
+          <p className="text-royal font-bold tracking-[4px] uppercase text-xs sm:text-sm mb-4">
             Est. NYC
           </p>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
             <span className="text-platinum-gradient">PLATINUM SOUNDS</span>
             <br />
             <span className="text-royal">RECORDING STUDIOS</span>
           </h1>
-          <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+          <p className="text-muted-foreground text-sm sm:text-base md:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Founded by Jerry &apos;Wonda&apos; Duplessis and Wyclef Jean.
             A beacon of innovation where music, film, and media converge.
             Celebrating 20+ years of excellence in the heart of New York City.
@@ -125,7 +128,7 @@ export default function Home() {
               >
                 {/* Pulsing glow effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-royal via-yellow-400 to-royal rounded-lg blur opacity-40 group-hover:opacity-75 transition duration-500 animate-pulse" />
-                <Button size="lg" className="text-lg px-8 py-6 bg-white text-black hover:bg-white/90 relative z-10 shadow-lg">
+                <Button size="lg" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 bg-white text-black hover:bg-white/90 relative z-10 shadow-lg">
                   Book Now
                 </Button>
               </motion.div>
@@ -137,7 +140,7 @@ export default function Home() {
             >
               {/* Pulsing glow effect for secondary button */}
               <div className="absolute -inset-1 bg-gradient-to-r from-platinum-gradient via-white to-platinum-gradient rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-500 animate-pulse" style={{ animationDelay: '0.5s' }} />
-              <Button size="lg" variant="outline" className="text-lg px-8 py-6 text-foreground border-foreground/50 hover:bg-accent relative z-10">
+              <Button size="lg" variant="outline" className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 text-foreground border-foreground/50 hover:bg-accent relative z-10">
                 <Phone className="mr-2 h-5 w-5" />
                 212-265-6060
               </Button>

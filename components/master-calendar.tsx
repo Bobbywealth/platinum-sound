@@ -136,9 +136,9 @@ export function MasterCalendar({
         </div>
         
         {/* Filters */}
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 mt-4">
           <Select value={filterRoom} onValueChange={setFilterRoom}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <DoorOpen className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Room" />
             </SelectTrigger>
@@ -151,9 +151,9 @@ export function MasterCalendar({
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={filterEngineer} onValueChange={setFilterEngineer}>
-            <SelectTrigger className="w-[160px]">
+            <SelectTrigger className="w-full sm:w-[160px]">
               <Users className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Engineer" />
             </SelectTrigger>
@@ -166,9 +166,9 @@ export function MasterCalendar({
               ))}
             </SelectContent>
           </Select>
-          
+
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -203,8 +203,8 @@ export function MasterCalendar({
           </h3>
         </div>
         
-        {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
+        {/* Calendar Grid (Desktop/Tablet) */}
+        <div className="hidden md:grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
           {/* Week Day Headers */}
           {weekDays.map(day => (
             <div
@@ -224,7 +224,7 @@ export function MasterCalendar({
             return (
               <div
                 key={index}
-                className={`min-h-[100px] p-1 bg-background cursor-pointer hover:bg-muted/50 transition-colors ${
+                className={`min-h-[80px] md:min-h-[100px] p-1 bg-background cursor-pointer hover:bg-muted/50 transition-colors ${
                   !isCurrentMonth ? 'opacity-40' : ''
                 }`}
                 onClick={() => onDateSelect?.(day)}
@@ -260,7 +260,76 @@ export function MasterCalendar({
             )
           })}
         </div>
-        
+
+        {/* Mobile List View */}
+        <div className="md:hidden space-y-4">
+          {calendarDays
+            .filter(day => isSameMonth(day, currentDate))
+            .map((day) => {
+              const dayBookings = getBookingsForDay(day)
+              if (dayBookings.length === 0) return null
+
+              const isTodayDate = isToday(day)
+
+              return (
+                <div key={day.toISOString()} className="space-y-2">
+                  <div className={`flex items-center gap-2 pb-2 border-b ${isTodayDate ? 'border-primary' : 'border-border'}`}>
+                    <div className={`text-sm font-semibold px-2 py-1 rounded ${isTodayDate ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                      {format(day, 'EEE, MMM d')}
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {dayBookings.length} {dayBookings.length === 1 ? 'session' : 'sessions'}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    {dayBookings.map(booking => (
+                      <div
+                        key={booking.id}
+                        className={`p-3 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${getStatusColor(booking.status)}`}
+                        onClick={() => onBookingSelect?.(booking)}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold truncate">{booking.clientName}</p>
+                            <p className="text-sm opacity-80">{booking.studio}</p>
+                          </div>
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            {booking.status}
+                          </Badge>
+                        </div>
+
+                        <div className="flex items-center gap-3 text-sm opacity-80">
+                          <div className="flex items-center gap-1">
+                            <Music className="h-3 w-3" />
+                            <span>{booking.startTime} - {booking.endTime}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-3 w-3" />
+                            <span>{booking.engineer}</span>
+                          </div>
+                        </div>
+
+                        {booking.sessionType && (
+                          <div className="mt-2 text-xs opacity-60">
+                            {booking.sessionType}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+
+          {filteredBookings.filter(b => isSameMonth(new Date(b.date), currentDate)).length === 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p>No bookings this month</p>
+            </div>
+          )}
+        </div>
+
         {/* Legend */}
         <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t">
           <span className="text-sm text-muted-foreground">Status:</span>

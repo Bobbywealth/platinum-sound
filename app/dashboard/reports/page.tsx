@@ -123,18 +123,16 @@ ${report.data.bookings.map(b =>
   }
 
   return (
-    <DashboardPageShell>
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="h-8 w-8" />
-            Reports
-          </h1>
-          <p className="text-muted-foreground">
-            Generate end-of-day and weekly session reports
-          </p>
-        </div>
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <FileText className="h-6 w-6 sm:h-8 sm:w-8" />
+          Reports
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Generate end-of-day and weekly session reports
+        </p>
       </div>
 
       {/* Report Generation */}
@@ -143,11 +141,11 @@ ${report.data.bookings.map(b =>
           <CardTitle>Generate Report</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-wrap gap-4">
-            <div className="w-full space-y-2 sm:w-56">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+            <div className="space-y-2 flex-1 sm:flex-none">
               <label className="text-sm font-medium">Report Type</label>
               <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full sm:w-[200px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,24 +155,24 @@ ${report.data.bookings.map(b =>
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="w-full space-y-2 sm:w-56 md:w-72">
+
+            <div className="space-y-2 flex-1 sm:flex-none">
               <label className="text-sm font-medium">Date</label>
               <input
                 type="date"
                 value={reportDate}
                 onChange={(e) => setReportDate(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="flex h-10 w-full sm:w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm"
               />
             </div>
-            
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-end">
-              <Button className="w-full sm:w-auto" onClick={generateReport} disabled={isLoading}>
+
+            <div className="flex items-end gap-2">
+              <Button onClick={generateReport} disabled={isLoading} className="flex-1 sm:flex-none">
                 {isLoading ? 'Generating...' : 'Generate Report'}
               </Button>
-              
+
               {report && (
-                <Button className="w-full sm:w-auto" variant="outline" onClick={downloadReport}>
+                <Button variant="outline" onClick={downloadReport} className="flex-1 sm:flex-none">
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>

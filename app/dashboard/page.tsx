@@ -129,7 +129,7 @@ function SessionCard({ session }: { session: Session }) {
       <div className={`w-2.5 h-2.5 rounded-full ${session.status === "active" ? "bg-green-500" : "bg-gray-300"}`} />
 
       {/* Artist & Studio info */}
-      <div className="w-full sm:w-auto sm:min-w-0">
+      <div className="min-w-[120px] sm:min-w-[140px]">
         <p className="font-semibold text-gray-900">{session.artist}</p>
         <p className="text-sm text-gray-500">{session.studio} ({session.studioType})</p>
       </div>
@@ -138,7 +138,7 @@ function SessionCard({ session }: { session: Session }) {
       <Waveform />
 
       {/* Time & Engineer */}
-      <div className="w-full text-left sm:w-auto sm:text-right">
+      <div className="text-right min-w-[100px] sm:min-w-[120px]">
         <p className="font-semibold text-gray-900">{session.time}</p>
         <p className="text-sm text-gray-500">{session.engineer}</p>
       </div>
@@ -179,7 +179,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <DashboardPageShell className="space-y-8">
+    <div className="space-y-4 sm:space-y-8 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>

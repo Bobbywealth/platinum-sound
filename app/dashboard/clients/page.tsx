@@ -34,15 +34,15 @@ export default function ClientsPage() {
   const totalBudget = clients.reduce((acc, c) => acc + c.budget, 0)
 
   return (
-    <DashboardPageShell>
-      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Client Roster</h2>
-          <p className="text-muted-foreground">Manage your studio clients and projects</p>
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Client Roster</h2>
+          <p className="text-sm sm:text-base text-muted-foreground">Manage your studio clients and projects</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Add Client
             </Button>
@@ -132,8 +132,8 @@ export default function ClientsPage() {
         />
       </div>
 
-      {/* Client List */}
-      <Card>
+      {/* Client List (Desktop) */}
+      <Card className="hidden md:block">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -208,6 +208,86 @@ export default function ClientsPage() {
           </div>
         </CardContent>
       </Card>
-    </DashboardPageShell>
+
+      {/* Client List (Mobile) */}
+      <div className="md:hidden space-y-3">
+        {filteredClients.map((client) => (
+          <Card key={client.id}>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
+                    {getInitials(client.name)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold truncate">{client.name}</div>
+                    <div className="text-sm text-muted-foreground truncate">{client.email}</div>
+                  </div>
+                </div>
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0 ${
+                    client.status === "active"
+                      ? "bg-green-500/10 text-green-500"
+                      : client.status === "pending"
+                      ? "bg-yellow-500/10 text-yellow-500"
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <span
+                    className={`status-dot mr-1 ${
+                      client.status === "active"
+                        ? "status-active"
+                        : client.status === "pending"
+                        ? "status-pending"
+                        : ""
+                    }`}
+                  />
+                  {client.status.charAt(0).toUpperCase() + client.status.slice(1)}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Label / Company:</span>
+                  <span className="font-medium">{client.label}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Project:</span>
+                  <span className="font-medium">{client.project}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Budget:</span>
+                  <span className="font-medium text-primary">
+                    {client.budget > 0 ? formatCurrency(client.budget) : "-"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-3 pt-3 border-t">
+                <Button size="sm" variant="ghost" className="flex-1">
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email
+                </Button>
+                <Button size="sm" variant="ghost" className="flex-1">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Call
+                </Button>
+                <Button size="sm" variant="ghost">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {filteredClients.length === 0 && (
+          <Card>
+            <CardContent className="p-8 text-center text-muted-foreground">
+              No clients found matching your search.
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
   )
 }
