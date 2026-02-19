@@ -104,18 +104,18 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track studio performance and insights
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="flex-1 sm:flex-none sm:w-32">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -125,7 +125,7 @@ export default function AnalyticsPage() {
               <SelectItem value="12m">Last 12 months</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" className="flex-1 sm:flex-none">
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>

@@ -28,29 +28,31 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Settings</h2>
-        <p className="text-muted-foreground">Manage your account and studio preferences</p>
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">Manage your account and studio preferences</p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Sidebar */}
-        <div className="w-full md:w-64 space-y-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <tab.icon className="h-4 w-4" />
-              {tab.label}
-            </button>
-          ))}
+      <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
+        {/* Sidebar (horizontal scroll on mobile, vertical on desktop) */}
+        <div className="w-full md:w-64">
+          <div className="flex md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0 md:w-full ${
+                  activeTab === tab.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                <span className="whitespace-nowrap">{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
