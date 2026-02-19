@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -326,6 +327,6 @@ export default function SettingsPage() {
           )}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

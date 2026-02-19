@@ -1,8 +1,10 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ResponsiveCalendarGrid } from "@/components/ui/responsive-calendar-grid"
 import { bookings } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import {
@@ -24,7 +26,6 @@ type ViewMode = "grid" | "list" | "calendar"
 
 export default function BookingsPage() {
   const [filter, setFilter] = useState<string>("all")
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>("calendar")
   const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15)) // January 2024
 
@@ -108,7 +109,8 @@ export default function BookingsPage() {
           <Link href="/dashboard/bookings/new" className="w-full sm:w-auto">
             <Button className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
-              New Booking
+              <span className="sm:hidden">New</span>
+              <span className="hidden sm:inline">New Booking</span>
             </Button>
           </Link>
         </div>
@@ -246,7 +248,7 @@ export default function BookingsPage() {
             <CardTitle>All Bookings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-2 overflow-x-auto">
               {filteredBookings.map((booking) => (
                 <div
                   key={booking.id}
@@ -354,21 +356,17 @@ export default function BookingsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {/* Day headers */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2">
-                  {day}
+            <ResponsiveCalendarGrid
+              weekdayHeader={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                <div key={day} className="text-center text-xs sm:text-sm font-medium text-muted-foreground py-2">
+                  <span className="sm:hidden">{day[0]}</span>
+                  <span className="hidden sm:inline">{day}</span>
                 </div>
               ))}
-            </div>
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
-              {/* Empty cells for days before the start of month */}
+            >
               {Array.from({ length: startingDay }).map((_, index) => (
-                <div key={`empty-${index}`} className="h-24 p-1" />
+                <div key={`empty-${index}`} className="h-20 sm:h-24 p-1" />
               ))}
-              {/* Days of the month */}
               {Array.from({ length: daysInMonth }).map((_, index) => {
                 const day = index + 1
                 const dayBookings = getBookingsForDate(day)
@@ -377,7 +375,7 @@ export default function BookingsPage() {
                   <div
                     key={day}
                     className={cn(
-                      "h-24 p-1 border rounded-lg transition-colors",
+                      "h-20 sm:h-24 p-1 border rounded-lg transition-colors",
                       isToday && "border-primary bg-primary/5",
                       dayBookings.length > 0 && "hover:bg-muted/50"
                     )}
@@ -399,7 +397,7 @@ export default function BookingsPage() {
                             booking.status === "pending" && "bg-yellow-500/10 text-yellow-600"
                           )}
                         >
-                          {booking.startTime} {booking.clientName}
+                          <span className="font-medium">{booking.startTime}</span> {booking.clientName}
                         </div>
                       ))}
                       {dayBookings.length > 2 && (
@@ -411,9 +409,9 @@ export default function BookingsPage() {
                   </div>
                 )
               })}
-            </div>
+            </ResponsiveCalendarGrid>
             {/* Legend */}
-            <div className="flex items-center gap-4 mt-4 pt-4 border-t">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-4 pt-4 border-t">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded bg-royal/20" />
                 <span className="text-xs text-muted-foreground">Confirmed</span>
@@ -430,6 +428,6 @@ export default function BookingsPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

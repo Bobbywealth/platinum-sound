@@ -1,8 +1,10 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { ResponsiveTableShell } from "@/components/ui/responsive-table-shell"
 import {
   Table,
   TableBody,
@@ -173,7 +175,10 @@ export default function InventoryPage() {
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
-                  <TableHead>Next Restock</TableHead>
+                  <TableHead>
+                    <span className="sm:hidden">Restock</span>
+                    <span className="hidden sm:inline">Next Restock</span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -249,6 +254,6 @@ export default function InventoryPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   )
 }

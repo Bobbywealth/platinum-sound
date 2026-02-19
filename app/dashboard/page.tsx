@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { DashboardSkeleton } from "@/components/skeletons"
 import { StatCard } from "@/components/stat-card"
 import { formatCurrency } from "@/lib/utils"
@@ -112,7 +113,7 @@ function Waveform() {
         return (
           <div
             key={i}
-            className="w-[2px] bg-[#C4A77D]/40 rounded-full"
+            className="w-px bg-[#C4A77D]/40 rounded-full"
             style={{ height: `${Math.max(15, height)}%` }}
           />
         )
@@ -123,7 +124,7 @@ function Waveform() {
 
 function SessionCard({ session }: { session: Session }) {
   return (
-    <div className="flex items-center gap-4 p-4 bg-[#FAFAF8] rounded-xl hover:bg-[#F5F3EF] transition-colors">
+    <div className="flex flex-wrap items-center gap-4 p-4 bg-[#FAFAF8] rounded-xl hover:bg-[#F5F3EF] transition-colors sm:flex-nowrap">
       {/* Status indicator */}
       <div className={`w-2.5 h-2.5 rounded-full ${session.status === "active" ? "bg-green-500" : "bg-gray-300"}`} />
 
@@ -215,7 +216,7 @@ export default function DashboardPage() {
 
       {/* Today's Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Sessions</h2>
           <Link
             href="/dashboard/schedule"
@@ -233,7 +234,7 @@ export default function DashboardPage() {
 
       {/* Upcoming Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Upcoming Sessions</h2>
           <Link
             href="/dashboard/bookings"
@@ -248,6 +249,6 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-    </div>
+    </DashboardPageShell>
   )
 }

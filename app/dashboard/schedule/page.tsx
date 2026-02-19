@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { bookings } from "@/lib/data"
@@ -261,10 +262,10 @@ export default function SchedulePage() {
             {bookings.slice(0, 5).map((booking) => (
               <div
                 key={booking.id}
-                className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center gap-4">
-                  <div className="text-sm font-medium text-primary min-w-[100px]">{booking.date}</div>
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 sm:gap-4">
+                  <div className="text-sm font-medium text-primary">{booking.date}</div>
                   <div>
                     <div className="font-medium">{booking.clientName}</div>
                     <div className="text-sm text-muted-foreground">
@@ -272,7 +273,7 @@ export default function SchedulePage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
                   <span className="text-sm text-muted-foreground">{booking.engineer}</span>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -291,6 +292,6 @@ export default function SchedulePage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </DashboardPageShell>
   )
 }

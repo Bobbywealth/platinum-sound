@@ -143,12 +143,16 @@ export default function DashboardHeader() {
   const [results, setResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
+  const mobileSearchRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
+  const mobileNotificationRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+  const mobileUserMenuRef = useRef<HTMLDivElement>(null)
 
   // Get page title from pathname
   const getPageTitle = () => {
@@ -191,10 +195,19 @@ export default function DashboardHeader() {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowResults(false)
       }
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target as Node)) {
+        setShowMobileSearch(false)
+      }
       if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
         setShowNotifications(false)
       }
+      if (mobileNotificationRef.current && !mobileNotificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false)
+      }
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false)
+      }
+      if (mobileUserMenuRef.current && !mobileUserMenuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false)
       }
     }
@@ -207,6 +220,11 @@ export default function DashboardHeader() {
     setSearchQuery("")
     setResults([])
     setShowResults(false)
+  }
+
+  const closeMobileSearch = () => {
+    setShowMobileSearch(false)
+    clearSearch()
   }
 
   const getTypeColor = (type: string) => {
@@ -226,23 +244,24 @@ export default function DashboardHeader() {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-white px-6 lg:px-6 pl-16 lg:pl-6"
+      className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b bg-white px-4 md:px-6"
     >
       {/* Left side - Page title */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="h-9 w-9 shrink-0 lg:hidden" aria-hidden="true" />
         <motion.h1
           key={getPageTitle()}
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.2 }}
-          className="text-xl font-semibold text-gray-900"
+          className="truncate text-lg font-semibold text-gray-900 md:text-xl"
         >
           {getPageTitle()}
         </motion.h1>
       </div>
 
       {/* Center - Search (Desktop) */}
-      <div className="hidden lg:flex flex-1 justify-center max-w-xl" ref={searchRef}>
+      <div className="hidden md:flex flex-1 justify-center max-w-xl" ref={searchRef}>
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input

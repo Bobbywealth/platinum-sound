@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { invoices } from "@/lib/data"
@@ -300,6 +301,6 @@ export default function InvoicesPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </DashboardPageShell>
   )
 }

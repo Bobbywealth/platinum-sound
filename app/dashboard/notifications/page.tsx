@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -249,9 +250,9 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
+        <DashboardPageShell>
             {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                     <h2 className="text-3xl font-bold tracking-tight">Notifications</h2>
                     <p className="text-muted-foreground">
@@ -325,7 +326,7 @@ export default function NotificationsPage() {
                     )}
                 </div>
                 <Select value={typeFilter} onValueChange={setTypeFilter}>
-                    <SelectTrigger className="w-full sm:w-[200px]">
+                    <SelectTrigger className="w-full sm:w-56 md:w-72">
                         <Filter className="mr-2 h-4 w-4" />
                         <SelectValue placeholder="Filter by type" />
                     </SelectTrigger>
@@ -344,7 +345,7 @@ export default function NotificationsPage() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 border-b pb-2">
+            <div className="flex flex-wrap gap-2 border-b pb-2">
                 {(["all", "unread", "read"] as const).map((f) => (
                     <Button
                         key={f}
@@ -464,6 +465,6 @@ export default function NotificationsPage() {
                     )}
                 </AnimatePresence>
             </div>
-        </div>
+        </DashboardPageShell>
     )
 }

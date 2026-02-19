@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -316,6 +317,6 @@ export default function NewBookingPage() {
           </Button>
         </div>
       </form>
-    </div>
+    </DashboardPageShell>
   )
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { ResponsiveTableShell } from '@/components/ui/responsive-table-shell'
 import { ClipboardList, Plus, Search, AlertCircle, CheckCircle, Clock, User, PenLine } from 'lucide-react'
 import { format } from 'date-fns'
 import { useToast } from '@/hooks/use-toast'
@@ -316,15 +318,22 @@ export default function WorkOrdersPage() {
       {/* Work Orders Table (Desktop) */}
       <Card className="hidden md:block">
         <CardContent className="p-0">
+          <ResponsiveTableShell tableMinWidthClassName="min-w-[860px]" stickyFirstColumn>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Priority</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Assigned To</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Assignee</span>
+                  <span className="hidden sm:inline">Assigned To</span>
+                </TableHead>
                 <TableHead>Created</TableHead>
-                <TableHead>Signatures</TableHead>
+                <TableHead>
+                  <span className="sm:hidden">Signs</span>
+                  <span className="hidden sm:inline">Signatures</span>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -348,7 +357,7 @@ export default function WorkOrdersPage() {
                       <div>
                         <p className="font-medium">{wo.title}</p>
                         {wo.description && (
-                          <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                          <p className="text-sm text-muted-foreground truncate max-w-xs">
                             {wo.description}
                           </p>
                         )}
@@ -404,6 +413,7 @@ export default function WorkOrdersPage() {
               )}
             </TableBody>
           </Table>
+          </ResponsiveTableShell>
         </CardContent>
       </Card>
 
@@ -531,6 +541,6 @@ export default function WorkOrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </DashboardPageShell>
   )
 }
