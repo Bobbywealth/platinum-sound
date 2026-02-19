@@ -98,15 +98,15 @@ export default function InventoryPage() {
   const onOrderCount = inventoryItems.filter((item) => item.onOrder).length
 
   return (
-    <div className="space-y-6 bg-[#FAFAF8] min-h-screen p-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
+    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Inventory</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Inventory</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             Track studio gear, supplies, and reorder needs.
           </p>
         </div>
-        <Button>
+        <Button className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Item
         </Button>
@@ -163,7 +163,8 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-lg border bg-white">
+          {/* Desktop Table */}
+          <div className="mt-6 overflow-hidden rounded-lg border bg-white hidden md:block">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -200,6 +201,51 @@ export default function InventoryPage() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="mt-6 md:hidden space-y-3">
+            {inventoryItems.map((item) => (
+              <div key={item.id} className="p-4 rounded-lg border bg-white">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-xs text-muted-foreground">{item.id}</p>
+                  </div>
+                  <Badge className={statusStyles[item.status]}>
+                    {item.status.replace("-", " ")}
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Category</p>
+                    <p className="font-medium">{item.category}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Location</p>
+                    <p className="font-medium">{item.location}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Stock</p>
+                    <p className="font-medium">
+                      {item.stock} <span className="text-xs text-muted-foreground">(reorder at {item.reorderPoint})</span>
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Next Restock</p>
+                    <p className="font-medium">{item.nextRestock}</p>
+                  </div>
+                </div>
+
+                {item.onOrder && (
+                  <div className="mt-3 pt-3 border-t flex items-center gap-2 text-sm text-blue-600">
+                    <Truck className="h-4 w-4" />
+                    <span>On Order</span>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>
