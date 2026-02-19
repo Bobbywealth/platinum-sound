@@ -78,17 +78,17 @@ export default function CheckInPage() {
         {/* Check-In Form */}
         <Card className="mb-12">
           <CardContent className="pt-6">
-            <form onSubmit={handleCheckIn} className="flex gap-4">
+            <form onSubmit={handleCheckIn} className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <Input
                   id="bookingCode"
                   placeholder="e.g., B001"
                   value={bookingCode}
                   onChange={(e) => setBookingCode(e.target.value)}
-                  className="text-lg py-6"
+                  className="text-lg py-6 w-full"
                 />
               </div>
-              <Button type="submit" size="lg" className="px-8" disabled={loading}>
+              <Button type="submit" size="lg" className="px-8 w-full sm:w-auto" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />

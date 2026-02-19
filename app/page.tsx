@@ -1,6 +1,7 @@
 "use client"
 
 import { ThemeToggle } from "@/components/theme-toggle"
+import { MobileNav } from "@/components/mobile-nav"
 import { Button } from "@/components/ui/button"
 import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users } from "lucide-react"
 import Image from "next/image"
@@ -61,7 +62,7 @@ export default function Home() {
               BOOKING
             </Link>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Link href="/booking">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
@@ -81,6 +82,9 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Mobile Navigation */}
+        <MobileNav />
       </nav>
 
       {/* Hero Section with Background Video */}

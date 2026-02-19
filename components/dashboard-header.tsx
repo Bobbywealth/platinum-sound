@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { MobileSearchSheet } from "@/components/mobile-search-sheet"
 import { AnimatePresence, motion } from "framer-motion"
 import {
     Bell,
@@ -144,6 +145,7 @@ export default function DashboardHeader() {
   const [showResults, setShowResults] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const notificationRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -239,8 +241,8 @@ export default function DashboardHeader() {
         </motion.h1>
       </div>
 
-      {/* Center - Search */}
-      <div className="flex-1 flex justify-center max-w-xl" ref={searchRef}>
+      {/* Center - Search (Desktop) */}
+      <div className="hidden lg:flex flex-1 justify-center max-w-xl" ref={searchRef}>
         <div className="relative w-full max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
@@ -315,6 +317,18 @@ export default function DashboardHeader() {
             )}
           </AnimatePresence>
         </div>
+      </div>
+
+      {/* Mobile Search Button */}
+      <div className="lg:hidden flex-1 flex justify-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setMobileSearchOpen(true)}
+          className="h-9 w-9"
+        >
+          <Search className="h-5 w-5 text-gray-600" />
+        </Button>
       </div>
 
       {/* Right side - Notifications, Settings, Profile */}
@@ -490,6 +504,12 @@ export default function DashboardHeader() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Mobile Search Sheet */}
+      <MobileSearchSheet
+        open={mobileSearchOpen}
+        onClose={() => setMobileSearchOpen(false)}
+      />
     </motion.header>
   )
 }
