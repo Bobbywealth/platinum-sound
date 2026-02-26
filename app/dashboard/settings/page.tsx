@@ -1,332 +1,213 @@
 "use client"
 
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Bell,
-    Building,
-    CreditCard,
-    Palette,
-    Save,
-    Shield,
-    User
-} from "lucide-react"
-import { useState } from "react"
+import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Settings, Bell, Shield, CreditCard, Users, Building2 } from "lucide-react"
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile")
+  const [notifications, setNotifications] = useState({
+    newBookings: true,
+    cancellations: true,
+    reminders: false,
+    reports: true,
+  })
 
-  const tabs = [
-    { id: "profile", label: "Profile", icon: User },
-    { id: "studio", label: "Studio Info", icon: Building },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "appearance", label: "Appearance", icon: Palette },
-    { id: "billing", label: "Billing", icon: CreditCard },
-    { id: "security", label: "Security", icon: Shield },
-  ]
+  const [studioName, setStudioName] = useState("Platinum Sound Studios")
+  const [email, setEmail] = useState("admin@platinumsound.com")
+  const [phone, setPhone] = useState("+1 (555) 234-5678")
 
   return (
-    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+    <DashboardPageShell className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+      {/* Header */}
       <div>
-        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
-        <p className="text-sm sm:text-base text-muted-foreground">Manage your account and studio preferences</p>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
+          <Settings className="h-6 w-6 sm:h-8 sm:w-8" />
+          Settings
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground">
+          Manage your studio preferences and account settings
+        </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
-        {/* Sidebar (horizontal scroll on mobile, vertical on desktop) */}
-        <div className="w-full md:w-64">
-          <div className="flex md:flex-col gap-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors flex-shrink-0 md:w-full ${
-                  activeTab === tab.id
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-              >
-                <tab.icon className="h-4 w-4" />
-                <span className="whitespace-nowrap">{tab.label}</span>
-              </button>
-            ))}
+      {/* Studio Profile */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Studio Profile
+          </CardTitle>
+          <CardDescription>Update your studio's basic information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="studioName">Studio Name</Label>
+              <Input
+                id="studioName"
+                value={studioName}
+                onChange={(e) => setStudioName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
+          <Button>Save Changes</Button>
+        </CardContent>
+      </Card>
 
-        {/* Content */}
-        <div className="flex-1">
-          {activeTab === "profile" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Settings</CardTitle>
-                <CardDescription>Update your personal information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold">
-                    SM
-                  </div>
-                  <div>
-                    <Button variant="outline" size="sm">Change Photo</Button>
-                  </div>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      defaultValue="Studio Manager"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      defaultValue="manager@platinumsound.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      defaultValue="212-265-6060"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
-                    <Input
-                      id="role"
-                      type="text"
-                      defaultValue="Studio Manager"
-                      disabled
-                    />
-                  </div>
-                </div>
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+      {/* Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5" />
+            Notifications
+          </CardTitle>
+          <CardDescription>Configure how you receive alerts and updates</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">New Bookings</p>
+              <p className="text-xs text-muted-foreground">Get notified when a new booking is made</p>
+            </div>
+            <Switch
+              checked={notifications.newBookings}
+              onCheckedChange={(checked) => setNotifications({ ...notifications, newBookings: checked })}
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Cancellations</p>
+              <p className="text-xs text-muted-foreground">Alert when a booking is cancelled</p>
+            </div>
+            <Switch
+              checked={notifications.cancellations}
+              onCheckedChange={(checked) => setNotifications({ ...notifications, cancellations: checked })}
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Reminders</p>
+              <p className="text-xs text-muted-foreground">Send reminders 24h before sessions</p>
+            </div>
+            <Switch
+              checked={notifications.reminders}
+              onCheckedChange={(checked) => setNotifications({ ...notifications, reminders: checked })}
+            />
+          </div>
+          <Separator />
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Weekly Reports</p>
+              <p className="text-xs text-muted-foreground">Receive weekly performance summaries</p>
+            </div>
+            <Switch
+              checked={notifications.reports}
+              onCheckedChange={(checked) => setNotifications({ ...notifications, reports: checked })}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-          {activeTab === "studio" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Studio Information</CardTitle>
-                <CardDescription>Manage your studio details</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="studioName">Studio Name</Label>
-                    <Input
-                      id="studioName"
-                      type="text"
-                      defaultValue="Platinum Sound Studios"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      type="text"
-                      defaultValue="122 W. 26th St., New York, NY 10001"
-                    />
-                  </div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="studioPhone">Phone</Label>
-                      <Input
-                        id="studioPhone"
-                        type="tel"
-                        defaultValue="212-265-6060"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="studioEmail">Email</Label>
-                      <Input
-                        id="studioEmail"
-                        type="email"
-                        defaultValue="info@platinumsoundny.com"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hours">Operating Hours</Label>
-                    <Input
-                      id="hours"
-                      type="text"
-                      defaultValue="24/7 - Open for Sessions"
-                    />
-                  </div>
-                </div>
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+      {/* Team */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Team Members
+          </CardTitle>
+          <CardDescription>Manage access and permissions</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[
+            { name: "Alex Johnson", role: "Admin", email: "alex@platinumsound.com" },
+            { name: "Maria Garcia", role: "Engineer", email: "maria@platinumsound.com" },
+            { name: "James Wilson", role: "Engineer", email: "james@platinumsound.com" },
+          ].map((member) => (
+            <div key={member.email} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
+              <div>
+                <p className="text-sm font-medium">{member.name}</p>
+                <p className="text-xs text-muted-foreground">{member.email}</p>
+              </div>
+              <Badge variant="outline">{member.role}</Badge>
+            </div>
+          ))}
+          <Button variant="outline" className="w-full mt-2">
+            <Users className="h-4 w-4 mr-2" />
+            Invite Team Member
+          </Button>
+        </CardContent>
+      </Card>
 
-          {activeTab === "notifications" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Choose how you want to be notified</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {[
-                  { title: "New Bookings", desc: "Get notified when a new booking is made" },
-                  { title: "Booking Changes", desc: "Get notified when a booking is modified or cancelled" },
-                  { title: "Payment Received", desc: "Get notified when a payment is received" },
-                  { title: "Invoice Overdue", desc: "Get notified when an invoice becomes overdue" },
-                  { title: "Session Reminders", desc: "Get reminded before upcoming sessions" },
-                ].map((item, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{item.title}</div>
-                      <div className="text-sm text-muted-foreground">{item.desc}</div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" defaultChecked className="sr-only peer" />
-                      <div className="w-11 h-6 bg-muted rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                    </label>
-                  </div>
-                ))}
-                <Button>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Preferences
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+      {/* Security */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Security
+          </CardTitle>
+          <CardDescription>Manage your account security settings</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Button variant="outline" className="w-full sm:w-auto">Change Password</Button>
+          <Separator />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium">Two-Factor Authentication</p>
+              <p className="text-xs text-muted-foreground">Add an extra layer of security</p>
+            </div>
+            <Badge variant="outline" className="text-yellow-600 border-yellow-300 w-fit">Not Enabled</Badge>
+          </div>
+        </CardContent>
+      </Card>
 
-          {activeTab === "appearance" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>Customize how the dashboard looks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Theme</label>
-                  <div className="flex gap-4">
-                    {["light", "dark", "system"].map((theme) => (
-                      <button
-                        key={theme}
-                        className="px-4 py-2 rounded-lg border hover:border-primary focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors capitalize"
-                      >
-                        {theme}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-3 block">Accent Color</label>
-                  <div className="flex gap-3">
-                    {["#d4af37", "#3b82f6", "#10b981", "#8b5cf6", "#ef4444"].map((color) => (
-                      <button
-                        key={color}
-                        className="w-8 h-8 rounded-full border-2 border-transparent hover:border-foreground transition-colors"
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "billing" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Billing Settings</CardTitle>
-                <CardDescription>Manage payment methods and billing info</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="p-4 rounded-lg border bg-muted/50">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="h-8 w-8 text-primary" />
-                      <div>
-                        <div className="font-medium">Visa ending in 4242</div>
-                        <div className="text-sm text-muted-foreground">Expires 12/25</div>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </div>
-                </div>
-                <Button variant="outline">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Add Payment Method
-                </Button>
-                <div className="border-t pt-6">
-                  <h4 className="font-medium mb-4">Billing Address</h4>
-                  <div className="text-sm text-muted-foreground">
-                    <p>Platinum Sound Studios</p>
-                    <p>122 W. 26th St.</p>
-                    <p>New York, NY 10001</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {activeTab === "security" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Keep your account secure</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h4 className="font-medium mb-2">Change Password</h4>
-                  <div className="space-y-3">
-                    <Input
-                      type="password"
-                      placeholder="Current password"
-                    />
-                    <Input
-                      type="password"
-                      placeholder="New password"
-                    />
-                    <Input
-                      type="password"
-                      placeholder="Confirm new password"
-                    />
-                  </div>
-                  <Button className="mt-4">Update Password</Button>
-                </div>
-                <div className="border-t pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Two-Factor Authentication</h4>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security</p>
-                    </div>
-                    <Button variant="outline">Enable</Button>
-                  </div>
-                </div>
-                <div className="border-t pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">Active Sessions</h4>
-                      <p className="text-sm text-muted-foreground">Manage devices logged into your account</p>
-                    </div>
-                    <Button variant="outline">View Sessions</Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      </div>
+      {/* Billing */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5" />
+            Billing
+          </CardTitle>
+          <CardDescription>Manage your subscription and payment methods</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
+            <div>
+              <p className="text-sm font-medium">Professional Plan</p>
+              <p className="text-xs text-muted-foreground">$99/month · Renews Jan 1, 2025</p>
+            </div>
+            <Badge className="bg-green-100 text-green-700 w-fit">Active</Badge>
+          </div>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button variant="outline" className="flex-1">Manage Plan</Button>
+            <Button variant="outline" className="flex-1">Update Payment</Button>
+          </div>
+        </CardContent>
+      </Card>
     </DashboardPageShell>
   )
 }

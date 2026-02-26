@@ -100,7 +100,7 @@ export default function InventoryPage() {
   const onOrderCount = inventoryItems.filter((item) => item.onOrder).length
 
   return (
-    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+    <DashboardPageShell className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Inventory</h1>
@@ -153,107 +153,38 @@ export default function InventoryPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-start gap-3 rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-900">
-            <AlertTriangle className="mt-0.5 h-4 w-4" />
-            <div>
-              <p className="font-medium">Reorder reminders</p>
-              <p className="text-yellow-800">
-                Review low or out-of-stock items weekly to avoid session disruptions.
-              </p>
-            </div>
-          </div>
-
-          {/* Desktop Table */}
-          <div className="mt-6 overflow-hidden rounded-lg border bg-white hidden md:block">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Item</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Location</TableHead>
-                  <TableHead>
-                    <span className="sm:hidden">Restock</span>
-                    <span className="hidden sm:inline">Next Restock</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventoryItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <div className="font-medium">{item.name}</div>
-                      <p className="text-xs text-muted-foreground">{item.id}</p>
-                    </TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>
-                      <div className="font-medium">{item.stock}</div>
-                      <p className="text-xs text-muted-foreground">
-                        Reorder at {item.reorderPoint}
-                      </p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusStyles[item.status]}>
-                        {item.status.replace("-", " ")}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{item.location}</TableCell>
-                    <TableCell>{item.nextRestock}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Mobile Card View */}
-          <div className="mt-6 md:hidden space-y-3">
+      <ResponsiveTableShell>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Item</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Next Restock</TableHead>
+              <TableHead>On Order</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {inventoryItems.map((item) => (
-              <div key={item.id} className="p-4 rounded-lg border bg-white">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{item.id}</p>
-                  </div>
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell>{item.category}</TableCell>
+                <TableCell>{item.stock}</TableCell>
+                <TableCell>
                   <Badge className={statusStyles[item.status]}>
-                    {item.status.replace("-", " ")}
+                    {item.status}
                   </Badge>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground text-xs">Category</p>
-                    <p className="font-medium">{item.category}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Location</p>
-                    <p className="font-medium">{item.location}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Stock</p>
-                    <p className="font-medium">
-                      {item.stock} <span className="text-xs text-muted-foreground">(reorder at {item.reorderPoint})</span>
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground text-xs">Next Restock</p>
-                    <p className="font-medium">{item.nextRestock}</p>
-                  </div>
-                </div>
-
-                {item.onOrder && (
-                  <div className="mt-3 pt-3 border-t flex items-center gap-2 text-sm text-blue-600">
-                    <Truck className="h-4 w-4" />
-                    <span>On Order</span>
-                  </div>
-                )}
-              </div>
+                </TableCell>
+                <TableCell>{item.location}</TableCell>
+                <TableCell>{item.nextRestock}</TableCell>
+                <TableCell>{item.onOrder ? "Yes" : "No"}</TableCell>
+              </TableRow>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </TableBody>
+        </Table>
+      </ResponsiveTableShell>
     </DashboardPageShell>
   )
 }

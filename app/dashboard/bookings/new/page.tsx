@@ -89,7 +89,7 @@ export default function NewBookingPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+    <DashboardPageShell className="max-w-4xl mx-auto space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-center gap-3 sm:gap-4">
         <Link href="/dashboard/bookings">
