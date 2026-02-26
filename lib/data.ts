@@ -26,6 +26,7 @@ export interface Booking {
   status: "confirmed" | "pending" | "in-progress" | "completed" | "cancelled"
   notes?: string
   isVip?: boolean
+  totalCost: number
 }
 
 export interface Invoice {
@@ -38,6 +39,25 @@ export interface Invoice {
   issuedDate: string
   items: { description: string; amount: number }[]
 }
+
+export interface Expense {
+  id: string
+  category: string
+  description: string
+  amount: number
+  date: string
+}
+
+export const expenses: Expense[] = [
+  { id: "E001", category: "Equipment", description: "Microphone maintenance", amount: 3200, date: "2024-01-05" },
+  { id: "E002", category: "Utilities", description: "Electricity & HVAC", amount: 5800, date: "2024-01-08" },
+  { id: "E003", category: "Staff", description: "Engineer payroll", amount: 22000, date: "2024-01-15" },
+  { id: "E004", category: "Software", description: "Pro Tools & plugins licenses", amount: 1800, date: "2024-01-10" },
+  { id: "E005", category: "Facilities", description: "Studio lease", amount: 18000, date: "2024-01-01" },
+  { id: "E006", category: "Equipment", description: "SSL console servicing", amount: 4500, date: "2024-01-12" },
+  { id: "E007", category: "Marketing", description: "Website & social media", amount: 2200, date: "2024-01-14" },
+  { id: "E008", category: "Utilities", description: "Internet & phone", amount: 900, date: "2024-01-08" },
+]
 
 export interface StaffMember {
   id: string
@@ -157,6 +177,7 @@ export const bookings: Booking[] = [
     status: "in-progress",
     isVip: true,
     notes: "Full day lockout - No interruptions",
+    totalCost: 30000,
   },
   {
     id: "B002",
@@ -169,6 +190,7 @@ export const bookings: Booking[] = [
     engineer: "Young Guru",
     sessionType: "Recording",
     status: "confirmed",
+    totalCost: 18000,
   },
   {
     id: "B003",
@@ -182,6 +204,7 @@ export const bookings: Booking[] = [
     sessionType: "Production",
     status: "confirmed",
     isVip: true,
+    totalCost: 25000,
   },
   {
     id: "B004",
@@ -194,6 +217,7 @@ export const bookings: Booking[] = [
     engineer: "Hector Delgado",
     sessionType: "Mixing",
     status: "pending",
+    totalCost: 9000,
   },
   {
     id: "B005",
@@ -206,6 +230,7 @@ export const bookings: Booking[] = [
     engineer: "Tainy",
     sessionType: "Recording",
     status: "confirmed",
+    totalCost: 12000,
   },
   {
     id: "B006",
@@ -219,6 +244,7 @@ export const bookings: Booking[] = [
     sessionType: "Mixing",
     status: "confirmed",
     isVip: true,
+    totalCost: 15000,
   },
 ]
 
