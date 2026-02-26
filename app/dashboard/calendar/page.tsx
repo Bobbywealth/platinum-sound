@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { format } from 'date-fns'
 import { Calendar, Users, DoorOpen, Music, Clock, ArrowRight } from 'lucide-react'
+import { bookings as mockBookings } from '@/lib/data'
 
 interface Booking {
   id: string
@@ -34,6 +35,35 @@ interface Engineer {
   isAvailable?: boolean
 }
 
+// Derive distinct studios and engineers from the mock bookings data
+const MOCK_ROOMS: Room[] = Array.from(
+  new Set(mockBookings.map((b) => b.studio))
+).map((studio, i) => ({
+  id: `R00${i + 1}`,
+  name: studio,
+  status: 'AVAILABLE',
+}))
+
+const MOCK_ENGINEERS: Engineer[] = Array.from(
+  new Set(mockBookings.map((b) => b.engineer))
+).map((name, i) => ({
+  id: `E00${i + 1}`,
+  name,
+  isAvailable: true,
+}))
+
+const MOCK_BOOKINGS: Booking[] = mockBookings.map((b) => ({
+  id: b.id,
+  clientName: b.clientName,
+  date: new Date(b.date),
+  startTime: b.startTime,
+  endTime: b.endTime,
+  studio: b.studio,
+  sessionType: b.sessionType,
+  status: b.status,
+  engineer: b.engineer,
+}))
+
 export default function MasterCalendarPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
@@ -42,35 +72,63 @@ export default function MasterCalendarPage() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch data
+    // Attempt to fetch from API; fall back to mock data derived from lib/data
     const fetchData = async () => {
       try {
+        let roomsLoaded = false
+        let engineersLoaded = false
+        let bookingsLoaded = false
+
         // Fetch rooms
-        const roomsRes = await fetch('/api/rooms')
-        if (roomsRes.ok) {
-          const roomsData = await roomsRes.json()
-          setRooms(roomsData)
-        }
+        try {
+          const roomsRes = await fetch('/api/rooms')
+          if (roomsRes.ok) {
+            const roomsData = await roomsRes.json()
+            if (Array.isArray(roomsData) && roomsData.length > 0) {
+              setRooms(roomsData)
+              roomsLoaded = true
+            }
+          }
+        } catch { /* fall through to mock */ }
 
         // Fetch engineers
-        const engineersRes = await fetch('/api/engineers')
-        if (engineersRes.ok) {
-          const engineersData = await engineersRes.json()
-          setEngineers(engineersData)
-        }
+        try {
+          const engineersRes = await fetch('/api/engineers')
+          if (engineersRes.ok) {
+            const engineersData = await engineersRes.json()
+            if (Array.isArray(engineersData) && engineersData.length > 0) {
+              setEngineers(engineersData)
+              engineersLoaded = true
+            }
+          }
+        } catch { /* fall through to mock */ }
 
         // Fetch bookings
-        const bookingsRes = await fetch('/api/bookings')
-        if (bookingsRes.ok) {
-          const bookingsData = await bookingsRes.json()
-          setBookings(bookingsData.map((b: any) => ({
-            ...b,
-            clientName: b.client?.name || 'Unknown',
-            date: new Date(b.date),
-          })))
-        }
+        try {
+          const bookingsRes = await fetch('/api/bookings')
+          if (bookingsRes.ok) {
+            const bookingsData = await bookingsRes.json()
+            if (Array.isArray(bookingsData) && bookingsData.length > 0) {
+              setBookings(bookingsData.map((b: any) => ({
+                ...b,
+                clientName: b.client?.name || 'Unknown',
+                date: new Date(b.date),
+              })))
+              bookingsLoaded = true
+            }
+          }
+        } catch { /* fall through to mock */ }
+
+        // Use mock data for anything that didn't load from the API
+        if (!roomsLoaded)     setRooms(MOCK_ROOMS)
+        if (!engineersLoaded) setEngineers(MOCK_ENGINEERS)
+        if (!bookingsLoaded)  setBookings(MOCK_BOOKINGS)
       } catch (error) {
         console.error('Error fetching data:', error)
+        // Full fallback to mock data
+        setRooms(MOCK_ROOMS)
+        setEngineers(MOCK_ENGINEERS)
+        setBookings(MOCK_BOOKINGS)
       } finally {
         setIsLoading(false)
       }
@@ -94,6 +152,7 @@ export default function MasterCalendarPage() {
       case 'pending':
         return 'bg-yellow-100 text-yellow-800'
       case 'in_progress':
+      case 'in-progress':
         return 'bg-blue-100 text-blue-800'
       case 'completed':
         return 'bg-gray-100 text-gray-800'
@@ -103,6 +162,26 @@ export default function MasterCalendarPage() {
         return 'bg-gray-100 text-gray-800'
     }
   }
+
+  // ── Computed stats ──────────────────────────────────────────────────────────
+  const todayStr = format(new Date(), 'yyyy-MM-dd')
+
+  const totalRooms = rooms.length
+  const availableRooms = rooms.filter((r) => r.status === 'AVAILABLE').length
+
+  const totalEngineers = engineers.length
+  const availableEngineers = engineers.filter((e) => e.isAvailable).length
+
+  const todaySessions = bookings.filter(
+    (b) => format(new Date(b.date), 'yyyy-MM-dd') === todayStr
+  ).length
+
+  const thisWeekSessions = bookings.filter((b) => {
+    const bookingDate = new Date(b.date)
+    const today = new Date()
+    const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
+    return bookingDate >= today && bookingDate <= weekFromNow
+  }).length
 
   return (
     <DashboardPageShell>
@@ -127,55 +206,46 @@ export default function MasterCalendarPage() {
             <DoorOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{rooms.length}</div>
+            <div className="text-2xl font-bold">{totalRooms}</div>
             <p className="text-xs text-muted-foreground">
-              {rooms.filter(r => r.status === 'AVAILABLE').length} available
+              {availableRooms} available
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Engineers</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{engineers.length}</div>
+            <div className="text-2xl font-bold">{totalEngineers}</div>
             <p className="text-xs text-muted-foreground">
-              {engineers.filter(e => e.isAvailable).length} available today
+              {availableEngineers} available today
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Today's Sessions</CardTitle>
             <Music className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {bookings.filter(b => format(new Date(b.date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')).length}
-            </div>
+            <div className="text-2xl font-bold">{todaySessions}</div>
             <p className="text-xs text-muted-foreground">
               sessions scheduled
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">This Week</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {bookings.filter(b => {
-                const bookingDate = new Date(b.date)
-                const today = new Date()
-                const weekFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)
-                return bookingDate >= today && bookingDate <= weekFromNow
-              }).length}
-            </div>
+            <div className="text-2xl font-bold">{thisWeekSessions}</div>
             <p className="text-xs text-muted-foreground">
               bookings this week
             </p>
@@ -213,7 +283,7 @@ export default function MasterCalendarPage() {
               Session information
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedBooking && (
             <div className="space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-3">
@@ -222,7 +292,7 @@ export default function MasterCalendarPage() {
                   {selectedBooking.status}
                 </Badge>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Date:</span>
@@ -245,7 +315,7 @@ export default function MasterCalendarPage() {
                   <p className="font-medium">{selectedBooking.engineer}</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" className="flex-1">
                   View Full Details

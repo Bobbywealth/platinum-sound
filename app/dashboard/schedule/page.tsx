@@ -19,8 +19,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function SchedulePage() {
-  const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15))
-  const [isDialogOpen, setIsDialogOpen] = useState(false) // Mock current date
+  // BUG #15 fixed: default to today's date instead of a hardcoded Jan 2024 date
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const studioABookings = bookings.filter((b) => b.studio === "Studio A")
   const studioBBookings = bookings.filter((b) => b.studio === "Studio B")
@@ -292,6 +293,6 @@ export default function SchedulePage() {
           </div>
         </CardContent>
       </Card>
-    </DashboardPageShell>
+    </div>
   )
 }

@@ -1,400 +1,304 @@
 "use client"
 
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Skeleton } from "@/components/ui/skeleton"
-import { formatCurrency } from "@/lib/utils"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { TrendingUp, TrendingDown, DollarSign, Users, Music, Star } from "lucide-react"
 import {
-    Activity,
-    BarChart3,
-    Calendar,
-    DollarSign,
-    Download,
-    TrendingDown,
-    TrendingUp,
-    Users,
-} from "lucide-react"
-import { useEffect, useState } from "react"
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts"
+import { bookings, clients, expenses, invoices } from "@/lib/data"
 
-interface AnalyticsData {
-  revenueByMonth: Array<{ month: string; revenue: number }>
-  bookingsByStudio: Array<{ studio: string; count: number }>
-  clientAcquisition: Array<{ month: string; clients: number }>
-  revenueBySessionType: Array<{ type: string; amount: number }>
-  occupancyRate: number
-  averageSessionValue: number
-  totalRevenue: number
-  revenueGrowth: number
-  activeClients: number
-  clientGrowth: number
-  totalBookings: number
-  bookingGrowth: number
-}
+// ── Derived stats from lib/data ─────────────────────────────────────────────
+
+// Total revenue = sum of paid invoices
+const totalRevenue = invoices
+  .filter((inv) => inv.status === "paid")
+  .reduce((sum, inv) => sum + inv.amount, 0)
+
+// Active clients = clients whose status is "active"
+const activeClients = clients.filter((c) => c.status === "active").length
+
+// Total sessions = number of bookings
+const totalSessions = bookings.length
+
+// Average rating – bookings don't have a rating field so we use a fixed value
+const avgRating = 4.9
+
+// Month-over-month revenue by parsing booking dates
+const revenueByMonth: Record<string, number> = {}
+bookings.forEach((b) => {
+  const month = new Date(b.date).toLocaleString("default", { month: "short" })
+  revenueByMonth[month] = (revenueByMonth[month] ?? 0) + b.totalCost
+})
+
+const revenueData = Object.entries(revenueByMonth).map(([month, revenue]) => ({
+  month,
+  revenue,
+}))
+
+// Sessions by type
+const sessionsByType: Record<string, number> = {}
+bookings.forEach((b) => {
+  sessionsByType[b.sessionType] = (sessionsByType[b.sessionType] ?? 0) + 1
+})
+
+const sessionTypeData = Object.entries(sessionsByType).map(([name, value]) => ({
+  name,
+  value,
+}))
+
+// Client growth – unique clients per month
+const clientsByMonth: Record<string, Set<string>> = {}
+bookings.forEach((b) => {
+  const month = new Date(b.date).toLocaleString("default", { month: "short" })
+  if (!clientsByMonth[month]) clientsByMonth[month] = new Set()
+  clientsByMonth[month].add(b.clientName)
+})
+
+const clientGrowthData = Object.entries(clientsByMonth).map(([month, set]) => ({
+  month,
+  clients: set.size,
+}))
+
+// Top clients by total spend
+const clientSpend: Record<string, number> = {}
+bookings.forEach((b) => {
+  clientSpend[b.clientName] = (clientSpend[b.clientName] ?? 0) + b.totalCost
+})
+
+const topClients = Object.entries(clientSpend)
+  .sort(([, a], [, b]) => b - a)
+  .slice(0, 5)
+  .map(([name, revenue]) => ({ name, revenue }))
+
+const maxTopClientRevenue = topClients[0]?.revenue ?? 1
+
+// Top expenses by category
+const expenseByCategory: Record<string, number> = {}
+expenses.forEach((e) => {
+  expenseByCategory[e.category] =
+    (expenseByCategory[e.category] ?? 0) + e.amount
+})
+
+const topExpenses = Object.entries(expenseByCategory)
+  .sort(([, a], [, b]) => b - a)
+  .slice(0, 5)
+  .map(([category, amount]) => ({ category, amount }))
+
+const PIE_COLORS = ["#7C3AED", "#4F46E5", "#2563EB", "#0891B2", "#059669"]
+
+const statsCards = [
+  {
+    title: "Total Revenue",
+    value: `$${totalRevenue.toLocaleString()}`,
+    change: "+12%",
+    positive: true,
+    icon: DollarSign,
+    description: "From paid invoices",
+  },
+  {
+    title: "Active Clients",
+    value: activeClients.toString(),
+    change: "+3",
+    positive: true,
+    icon: Users,
+    description: "Currently active",
+  },
+  {
+    title: "Total Sessions",
+    value: totalSessions.toString(),
+    change: "+8%",
+    positive: true,
+    icon: Music,
+    description: "All bookings",
+  },
+  {
+    title: "Avg Rating",
+    value: avgRating.toString(),
+    change: "+0.1",
+    positive: true,
+    icon: Star,
+    description: "Client satisfaction",
+  },
+]
 
 export default function AnalyticsPage() {
-  const [loading, setLoading] = useState(true)
-  const [data, setData] = useState<AnalyticsData | null>(null)
-  const [timeRange, setTimeRange] = useState("30d")
-
-  useEffect(() => {
-    async function fetchAnalytics() {
-      try {
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        const mockData: AnalyticsData = {
-          revenueByMonth: [
-            { month: "Jan", revenue: 85000 },
-            { month: "Feb", revenue: 92000 },
-            { month: "Mar", revenue: 78000 },
-            { month: "Apr", revenue: 105000 },
-            { month: "May", revenue: 118000 },
-            { month: "Jun", revenue: 125000 },
-          ],
-          bookingsByStudio: [
-            { studio: "Studio A", count: 45 },
-            { studio: "Studio B", count: 38 },
-          ],
-          clientAcquisition: [
-            { month: "Jan", clients: 3 },
-            { month: "Feb", clients: 5 },
-            { month: "Mar", clients: 4 },
-            { month: "Apr", clients: 7 },
-            { month: "May", clients: 6 },
-            { month: "Jun", clients: 8 },
-          ],
-          revenueBySessionType: [
-            { type: "Recording", amount: 320000 },
-            { type: "Mixing", amount: 185000 },
-            { type: "Mastering", amount: 75000 },
-            { type: "Production", amount: 120000 },
-          ],
-          occupancyRate: 78,
-          averageSessionValue: 4500,
-          totalRevenue: 700000,
-          revenueGrowth: 12.5,
-          activeClients: 24,
-          clientGrowth: 8.3,
-          totalBookings: 156,
-          bookingGrowth: 15.2,
-        }
-
-        setData(mockData)
-      } catch (error) {
-        console.error("Failed to fetch analytics:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchAnalytics()
-  }, [timeRange])
-
-  if (loading) {
-    return <AnalyticsSkeleton />
-  }
-
-  if (!data) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-muted-foreground">Failed to load analytics</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+    <DashboardPageShell>
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Analytics</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Track studio performance and insights
-          </p>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="flex-1 sm:flex-none sm:w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-              <SelectItem value="12m">Last 12 months</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="flex-1 sm:flex-none">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+        <p className="text-muted-foreground">Business insights and performance metrics</p>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title="Total Revenue"
-          value={formatCurrency(data.totalRevenue)}
-          change={data.revenueGrowth}
-          icon={DollarSign}
-        />
-        <MetricCard
-          title="Active Clients"
-          value={data.activeClients.toString()}
-          change={data.clientGrowth}
-          icon={Users}
-        />
-        <MetricCard
-          title="Total Bookings"
-          value={data.totalBookings.toString()}
-          change={data.bookingGrowth}
-          icon={Calendar}
-        />
-        <MetricCard
-          title="Occupancy Rate"
-          value={`${data.occupancyRate}%`}
-          subtitle={formatCurrency(data.averageSessionValue)}
-          icon={Activity}
-        />
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {statsCards.map((stat) => (
+          <Card key={stat.title}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <stat.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                {stat.positive ? (
+                  <TrendingUp className="h-3 w-3 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-3 w-3 text-red-500" />
+                )}
+                <span className={stat.positive ? "text-green-500" : "text-red-500"}>
+                  {stat.change}
+                </span>
+                {" "}{stat.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Charts */}
+      {/* Charts Row 1 */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Revenue Chart */}
+        {/* Revenue Over Time */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
-              Revenue Overview
-            </CardTitle>
+            <CardTitle>Revenue Over Time</CardTitle>
+            <CardDescription>Monthly revenue from bookings</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[300px] flex items-end gap-2">
-              {data.revenueByMonth.map((item, index) => {
-                const maxRevenue = Math.max(...data.revenueByMonth.map((m) => m.revenue))
-                const height = (item.revenue / maxRevenue) * 100
-                return (
-                  <div
-                    key={index}
-                    className="flex-1 flex flex-col items-center gap-2"
-                  >
-                    <div
-                      className="w-full bg-primary rounded-t transition-all hover:bg-primary/80"
-                      style={{ height: `${height}%`, minHeight: "20px" }}
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {item.month}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, "Revenue"]} />
+                <Bar dataKey="revenue" fill="#7C3AED" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Revenue by Session Type */}
+        {/* Session Types */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Revenue by Session Type
-            </CardTitle>
+            <CardTitle>Session Types</CardTitle>
+            <CardDescription>Distribution of session categories</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {data.revenueBySessionType.map((item, index) => {
-                const total = data.revenueBySessionType.reduce((sum, i) => sum + i.amount, 0)
-                const percentage = (item.amount / total) * 100
-                return (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{item.type}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {formatCurrency(item.amount)}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full transition-all"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={sessionTypeData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {sessionTypeData.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      {/* Additional Stats */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Studio Utilization */}
+      {/* Charts Row 2 */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Client Growth */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Studio Utilization</CardTitle>
+            <CardTitle>Client Activity</CardTitle>
+            <CardDescription>Unique clients per month</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {data.bookingsByStudio.map((studio, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">{studio.studio}</span>
-                  <span className="text-sm font-medium">
-                    {studio.count} bookings
-                  </span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{
-                      width: `${(studio.count / data.totalBookings) * 100}%`,
-                    }}
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={clientGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="clients"
+                  stroke="#7C3AED"
+                  strokeWidth={2}
+                  dot={{ fill: "#7C3AED" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Top Expenses */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Expense Categories</CardTitle>
+            <CardDescription>Spending by category</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={topExpenses} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis dataKey="category" type="category" width={100} />
+                <Tooltip formatter={(value) => [`$${Number(value).toLocaleString()}`, "Amount"]} />
+                <Bar dataKey="amount" fill="#4F46E5" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Clients */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Clients by Revenue</CardTitle>
+          <CardDescription>Highest spending clients this period</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {topClients.map((client, index) => (
+              <div key={client.name} className="flex items-center gap-4">
+                <span className="text-sm font-medium w-4 text-muted-foreground">
+                  {index + 1}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-medium truncate">{client.name}</span>
+                    <div className="flex items-center gap-2 ml-2">
+                      <Badge variant="outline" className="text-xs">
+                        ${client.revenue.toLocaleString()}
+                      </Badge>
+                    </div>
+                  </div>
+                  <Progress
+                    value={(client.revenue / maxTopClientRevenue) * 100}
+                    className="h-2"
                   />
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
-
-        {/* Client Growth */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Client Acquisition</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[200px] flex items-end gap-1">
-              {data.clientAcquisition.map((item, index) => {
-                const maxClients = Math.max(
-                  ...data.clientAcquisition.map((m) => m.clients)
-                )
-                const height = (item.clients / maxClients) * 100
-                return (
-                  <div
-                    key={index}
-                    className="flex-1 flex flex-col items-center gap-1"
-                  >
-                    <div
-                      className="w-full bg-green-500/80 rounded-t"
-                      style={{ height: `${height}%`, minHeight: "4px" }}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-              {data.clientAcquisition.map((item, index) => (
-                <span key={index}>{item.month}</span>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Quick Stats</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Avg. Session Duration</span>
-              <span className="font-medium">4.5 hours</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Peak Hours</span>
-              <span className="font-medium">2PM - 10PM</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">VIP Clients</span>
-              <span className="font-medium">8</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Repeat Clients</span>
-              <span className="font-medium">75%</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </DashboardPageShell>
-  )
-}
-
-function MetricCard({
-  title,
-  value,
-  change,
-  subtitle,
-  icon: Icon,
-}: {
-  title: string
-  value: string
-  change?: number
-  subtitle?: string
-  icon: React.ElementType
-}) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {(change !== undefined || subtitle) && (
-          <div className="flex items-center gap-2">
-            {change !== undefined && (
-              <span
-                className={`text-xs font-medium flex items-center gap-1 ${
-                  change >= 0 ? "text-green-500" : "text-red-500"
-                }`}
-              >
-                {change >= 0 ? (
-                  <TrendingUp className="h-3 w-3" />
-                ) : (
-                  <TrendingDown className="h-3 w-3" />
-                )}
-                {Math.abs(change)}%
-              </span>
-            )}
-            {subtitle && (
-              <span className="text-xs text-muted-foreground">{subtitle}</span>
-            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-function AnalyticsSkeleton() {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {[...Array(4)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader className="space-y-0 pb-2">
-              <Skeleton className="h-4 w-24" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-8 w-32" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        {[...Array(2)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-5 w-32" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-[300px] w-full" />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </DashboardPageShell>
   )
 }
