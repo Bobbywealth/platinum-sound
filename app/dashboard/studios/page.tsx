@@ -452,7 +452,7 @@ export default function StudiosPage() {
                       {detailStudio.features.map((feature, i) => {
                         const Icon = feature.icon
                         return (
-                          <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div>
                             <Icon className="h-4 w-4 flex-shrink-0" />
                             {feature.text}
                           </div>
@@ -649,4 +649,3 @@ export default function StudiosPage() {
     </DashboardPageShell>
   )
 }
-

@@ -179,7 +179,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-8 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+    <DashboardPageShell className="space-y-4 sm:space-y-8 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
       {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
