@@ -3,15 +3,32 @@
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { formatCurrency } from "@/lib/utils"
 import {
-    DollarSign,
-    Hammer,
-    Plus,
-    Receipt,
-    TrendingDown,
-    TrendingUp,
-    Zap
+  DollarSign,
+  Hammer,
+  Plus,
+  Receipt,
+  TrendingDown,
+  TrendingUp,
+  Zap,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -65,9 +82,62 @@ const categoryColors: Record<string, string> = {
   Other: "bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-400",
 }
 
+const emptyForm = {
+  description: "",
+  amount: "",
+  category: "Equipment" as string,
+  date: new Date().toISOString().split("T")[0],
+  vendor: "",
+}
+
+/** Recalculate summary totals from the current expense list. */
+function computeSummary(expenses: Expense[], base: ExpenseSummary): ExpenseSummary {
+  const equipment = expenses.filter((e) => e.category === "Equipment").reduce((s, e) => s + e.amount, 0)
+  const utilities = expenses.filter((e) => e.category === "Utilities").reduce((s, e) => s + e.amount, 0)
+  const maintenance = expenses.filter((e) => e.category === "Maintenance").reduce((s, e) => s + e.amount, 0)
+  const other = expenses.filter((e) => e.category === "Other").reduce((s, e) => s + e.amount, 0)
+  const total = equipment + utilities + maintenance + other
+  return {
+    ...base,
+    totalExpenses: total,
+    equipmentCosts: equipment,
+    utilitiesCosts: utilities,
+    maintenanceCosts: maintenance,
+    otherCosts: other,
+  }
+}
+
 export default function ExpensesPage() {
-  const [summary] = useState<ExpenseSummary>(mockSummary)
-  const [expenses] = useState<Expense[]>(mockExpenses)
+  const [expenses, setExpenses] = useState<Expense[]>(mockExpenses)
+  const [summary, setSummary] = useState<ExpenseSummary>(mockSummary)
+
+  // Add Expense modal state
+  const [addOpen, setAddOpen] = useState(false)
+  const [addForm, setAddForm] = useState({ ...emptyForm })
+
+  function openAddModal() {
+    setAddForm({ ...emptyForm, date: new Date().toISOString().split("T")[0] })
+    setAddOpen(true)
+  }
+
+  function handleAddSubmit() {
+    const parsedAmount = parseFloat(addForm.amount)
+    if (!addForm.description.trim() || isNaN(parsedAmount) || parsedAmount <= 0) return
+
+    const newExpense: Expense = {
+      id: Date.now().toString(),
+      description: addForm.description.trim(),
+      amount: parsedAmount,
+      category: addForm.category,
+      date: addForm.date,
+      vendor: addForm.vendor.trim() || "—",
+    }
+
+    const updated = [newExpense, ...expenses]
+    setExpenses(updated)
+    setSummary(computeSummary(updated, summary))
+    setAddOpen(false)
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
@@ -79,7 +149,7 @@ export default function ExpensesPage() {
             Track and manage studio expenses
           </p>
         </div>
-        <Button className="w-full sm:w-auto">
+        <Button className="w-full sm:w-auto" onClick={openAddModal}>
           <Plus className="mr-2 h-4 w-4" />
           Add Expense
         </Button>
@@ -117,7 +187,9 @@ export default function ExpensesPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(summary.equipmentCosts)}</div>
             <span className="text-xs text-muted-foreground">
-              {((summary.equipmentCosts / summary.totalExpenses) * 100).toFixed(0)}% of total
+              {summary.totalExpenses > 0
+                ? ((summary.equipmentCosts / summary.totalExpenses) * 100).toFixed(0)
+                : 0}% of total
             </span>
           </CardContent>
         </Card>
@@ -130,7 +202,9 @@ export default function ExpensesPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(summary.utilitiesCosts)}</div>
             <span className="text-xs text-muted-foreground">
-              {((summary.utilitiesCosts / summary.totalExpenses) * 100).toFixed(0)}% of total
+              {summary.totalExpenses > 0
+                ? ((summary.utilitiesCosts / summary.totalExpenses) * 100).toFixed(0)
+                : 0}% of total
             </span>
           </CardContent>
         </Card>
@@ -143,7 +217,9 @@ export default function ExpensesPage() {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(summary.maintenanceCosts)}</div>
             <span className="text-xs text-muted-foreground">
-              {((summary.maintenanceCosts / summary.totalExpenses) * 100).toFixed(0)}% of total
+              {summary.totalExpenses > 0
+                ? ((summary.maintenanceCosts / summary.totalExpenses) * 100).toFixed(0)
+                : 0}% of total
             </span>
           </CardContent>
         </Card>
@@ -203,7 +279,7 @@ export default function ExpensesPage() {
                 Maintenance: summary.maintenanceCosts,
                 Other: summary.otherCosts,
               }).map(([category, amount]) => {
-                const percentage = (amount / summary.totalExpenses) * 100
+                const percentage = summary.totalExpenses > 0 ? (amount / summary.totalExpenses) * 100 : 0
                 const Icon = categoryIcons[category] || Receipt
                 const colorClass = categoryColors[category] || categoryColors.Other
 
@@ -259,6 +335,92 @@ export default function ExpensesPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardPageShell>
+
+      {/* ── Add Expense Modal ── */}
+      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Expense</DialogTitle>
+            <DialogDescription>
+              Record a new studio expense.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="exp-description">Description <span className="text-destructive">*</span></Label>
+              <Input
+                id="exp-description"
+                placeholder="e.g. Studio monitor repair"
+                value={addForm.description}
+                onChange={(e) => setAddForm((f) => ({ ...f, description: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exp-amount">Amount ($) <span className="text-destructive">*</span></Label>
+              <Input
+                id="exp-amount"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={addForm.amount}
+                onChange={(e) => setAddForm((f) => ({ ...f, amount: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exp-category">Category <span className="text-destructive">*</span></Label>
+              <Select
+                value={addForm.category}
+                onValueChange={(val) => setAddForm((f) => ({ ...f, category: val }))}
+              >
+                <SelectTrigger id="exp-category">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Equipment">Equipment</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                  <SelectItem value="Utilities">Utilities</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exp-date">Date <span className="text-destructive">*</span></Label>
+              <Input
+                id="exp-date"
+                type="date"
+                value={addForm.date}
+                onChange={(e) => setAddForm((f) => ({ ...f, date: e.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="exp-vendor">Vendor</Label>
+              <Input
+                id="exp-vendor"
+                placeholder="e.g. Sweetwater"
+                value={addForm.vendor}
+                onChange={(e) => setAddForm((f) => ({ ...f, vendor: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddSubmit}
+              disabled={
+                !addForm.description.trim() ||
+                !addForm.amount ||
+                isNaN(parseFloat(addForm.amount)) ||
+                parseFloat(addForm.amount) <= 0
+              }
+            >
+              Add Expense
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
