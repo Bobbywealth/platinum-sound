@@ -8,6 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
   MessageSquare,
   Send,
   Users,
@@ -18,6 +28,7 @@ import {
   Edit,
   Phone,
   Calendar,
+  UserPlus,
 } from "lucide-react"
 
 const smsCampaigns = [
@@ -86,15 +97,62 @@ const smsTemplates = [
   },
 ]
 
+type Contact = {
+  id: string
+  name: string
+  phone: string
+  status: "Active" | "Opted Out"
+  dateAdded: string
+}
+
+const initialContacts: Contact[] = [
+  { id: "CON001", name: "Drake", phone: "+1 (416) 555-0101", status: "Active", dateAdded: "2023-08-15" },
+  { id: "CON002", name: "Rihanna", phone: "+1 (246) 555-0102", status: "Active", dateAdded: "2023-09-02" },
+  { id: "CON003", name: "The Weeknd", phone: "+1 (416) 555-0103", status: "Active", dateAdded: "2023-09-18" },
+  { id: "CON004", name: "Bad Bunny", phone: "+1 (787) 555-0104", status: "Active", dateAdded: "2023-10-05" },
+  { id: "CON005", name: "Kendrick Lamar", phone: "+1 (310) 555-0105", status: "Active", dateAdded: "2023-10-22" },
+  { id: "CON006", name: "Beyoncé", phone: "+1 (713) 555-0106", status: "Opted Out", dateAdded: "2023-11-01" },
+  { id: "CON007", name: "J. Cole", phone: "+1 (910) 555-0107", status: "Active", dateAdded: "2023-11-14" },
+  { id: "CON008", name: "SZA", phone: "+1 (973) 555-0108", status: "Active", dateAdded: "2023-12-03" },
+  { id: "CON009", name: "Travis Scott", phone: "+1 (713) 555-0109", status: "Opted Out", dateAdded: "2023-12-20" },
+  { id: "CON010", name: "Doja Cat", phone: "+1 (818) 555-0110", status: "Active", dateAdded: "2024-01-08" },
+]
+
 export default function SmsCampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("campaigns")
+  const [contacts, setContacts] = useState<Contact[]>(initialContacts)
+  const [contactSearch, setContactSearch] = useState("")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [newContactName, setNewContactName] = useState("")
+  const [newContactPhone, setNewContactPhone] = useState("")
 
   const filteredCampaigns = smsCampaigns.filter(
     (campaign) =>
       campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.message.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      contact.name.toLowerCase().includes(contactSearch.toLowerCase()) ||
+      contact.phone.toLowerCase().includes(contactSearch.toLowerCase())
+  )
+
+  const handleAddContact = () => {
+    if (!newContactName.trim() || !newContactPhone.trim()) return
+    const newContact: Contact = {
+      id: `CON${String(contacts.length + 1).padStart(3, "0")}`,
+      name: newContactName.trim(),
+      phone: newContactPhone.trim(),
+      status: "Active",
+      dateAdded: new Date().toISOString().split("T")[0],
+    }
+    setContacts((prev) => [newContact, ...prev])
+    setNewContactName("")
+    setNewContactPhone("")
+    setIsAddDialogOpen(false)
+  }
 
   return (
     <DashboardPageShell>
@@ -284,17 +342,116 @@ export default function SmsCampaignsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="contacts">
+        <TabsContent value="contacts" className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search contacts..."
+                className="pl-10"
+                value={contactSearch}
+                onChange={(e) => setContactSearch(e.target.value)}
+              />
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Add Contact
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Contact</DialogTitle>
+                  <DialogDescription>
+                    Add a new contact to your SMS marketing list.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="contact-name">Name</Label>
+                    <Input
+                      id="contact-name"
+                      placeholder="e.g. Drake"
+                      value={newContactName}
+                      onChange={(e) => setNewContactName(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="contact-phone">Phone Number</Label>
+                    <Input
+                      id="contact-phone"
+                      type="tel"
+                      placeholder="e.g. +1 (555) 000-0000"
+                      value={newContactPhone}
+                      onChange={(e) => setNewContactPhone(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddContact} disabled={!newContactName.trim() || !newContactPhone.trim()}>
+                    Add Contact
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           <Card>
             <CardHeader>
               <CardTitle>SMS Contacts</CardTitle>
               <CardDescription>
-                Manage contacts who receive SMS notifications
+                {filteredContacts.length} of {contacts.length} contacts
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                Contact management coming soon
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Name</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Phone Number</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Status</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Date Added</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredContacts.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                          No contacts found.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredContacts.map((contact) => (
+                        <tr key={contact.id} className="border-b hover:bg-muted/50 transition-colors">
+                          <td className="p-4">
+                            <div className="font-medium">{contact.name}</div>
+                          </td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Phone className="h-3.5 w-3.5" />
+                              {contact.phone}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Badge variant={contact.status === "Active" ? "success" : "secondary"}>
+                              {contact.status}
+                            </Badge>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(contact.dateAdded).toLocaleDateString()}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>

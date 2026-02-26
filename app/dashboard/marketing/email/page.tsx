@@ -8,6 +8,16 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
   Mail,
   Send,
   Users,
@@ -20,6 +30,7 @@ import {
   Trash,
   Play,
   Pause,
+  UserPlus,
 } from "lucide-react"
 
 const emailCampaigns = [
@@ -82,15 +93,62 @@ const emailTemplates = [
   },
 ]
 
+type Subscriber = {
+  id: string
+  name: string
+  email: string
+  status: "Active" | "Unsubscribed"
+  dateAdded: string
+}
+
+const initialSubscribers: Subscriber[] = [
+  { id: "SUB001", name: "Drake", email: "drake@octobersveryown.com", status: "Active", dateAdded: "2023-08-15" },
+  { id: "SUB002", name: "Rihanna", email: "rihanna@fentybeauty.com", status: "Active", dateAdded: "2023-09-02" },
+  { id: "SUB003", name: "The Weeknd", email: "abel@xo.com", status: "Active", dateAdded: "2023-09-18" },
+  { id: "SUB004", name: "Bad Bunny", email: "badbunny@rimas.com", status: "Active", dateAdded: "2023-10-05" },
+  { id: "SUB005", name: "Kendrick Lamar", email: "kendrick@pglanation.com", status: "Active", dateAdded: "2023-10-22" },
+  { id: "SUB006", name: "Beyoncé", email: "beyonce@parkwood.com", status: "Unsubscribed", dateAdded: "2023-11-01" },
+  { id: "SUB007", name: "J. Cole", email: "jcole@dreamville.com", status: "Active", dateAdded: "2023-11-14" },
+  { id: "SUB008", name: "SZA", email: "sza@tde.com", status: "Active", dateAdded: "2023-12-03" },
+  { id: "SUB009", name: "Travis Scott", email: "travis@cactusjack.com", status: "Unsubscribed", dateAdded: "2023-12-20" },
+  { id: "SUB010", name: "Doja Cat", email: "doja@kemosabe.com", status: "Active", dateAdded: "2024-01-08" },
+]
+
 export default function EmailCampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeTab, setActiveTab] = useState("campaigns")
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(initialSubscribers)
+  const [subscriberSearch, setSubscriberSearch] = useState("")
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [newSubscriberName, setNewSubscriberName] = useState("")
+  const [newSubscriberEmail, setNewSubscriberEmail] = useState("")
 
   const filteredCampaigns = emailCampaigns.filter(
     (campaign) =>
       campaign.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.subject.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const filteredSubscribers = subscribers.filter(
+    (sub) =>
+      sub.name.toLowerCase().includes(subscriberSearch.toLowerCase()) ||
+      sub.email.toLowerCase().includes(subscriberSearch.toLowerCase())
+  )
+
+  const handleAddSubscriber = () => {
+    if (!newSubscriberName.trim() || !newSubscriberEmail.trim()) return
+    const newSub: Subscriber = {
+      id: `SUB${String(subscribers.length + 1).padStart(3, "0")}`,
+      name: newSubscriberName.trim(),
+      email: newSubscriberEmail.trim(),
+      status: "Active",
+      dateAdded: new Date().toISOString().split("T")[0],
+    }
+    setSubscribers((prev) => [newSub, ...prev])
+    setNewSubscriberName("")
+    setNewSubscriberEmail("")
+    setIsAddDialogOpen(false)
+  }
 
   return (
     <DashboardPageShell>
@@ -330,17 +388,113 @@ export default function EmailCampaignsPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="subscribers">
+        <TabsContent value="subscribers" className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search subscribers..."
+                className="pl-10"
+                value={subscriberSearch}
+                onChange={(e) => setSubscriberSearch(e.target.value)}
+              />
+            </div>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Add Subscriber
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add Subscriber</DialogTitle>
+                  <DialogDescription>
+                    Add a new subscriber to your email marketing list.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="sub-name">Name</Label>
+                    <Input
+                      id="sub-name"
+                      placeholder="e.g. Drake"
+                      value={newSubscriberName}
+                      onChange={(e) => setNewSubscriberName(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="sub-email">Email</Label>
+                    <Input
+                      id="sub-email"
+                      type="email"
+                      placeholder="e.g. artist@label.com"
+                      value={newSubscriberEmail}
+                      onChange={(e) => setNewSubscriberEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddSubscriber} disabled={!newSubscriberName.trim() || !newSubscriberEmail.trim()}>
+                    Add Subscriber
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           <Card>
             <CardHeader>
               <CardTitle>Email Subscribers</CardTitle>
               <CardDescription>
-                Manage your email marketing subscriber list
+                {filteredSubscribers.length} of {subscribers.length} subscribers
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                Subscriber management coming soon
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Name</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Email</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Status</th>
+                      <th className="text-left p-4 font-medium text-muted-foreground text-sm">Date Added</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubscribers.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="p-8 text-center text-muted-foreground">
+                          No subscribers found.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredSubscribers.map((sub) => (
+                        <tr key={sub.id} className="border-b hover:bg-muted/50 transition-colors">
+                          <td className="p-4">
+                            <div className="font-medium">{sub.name}</div>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm text-muted-foreground">{sub.email}</div>
+                          </td>
+                          <td className="p-4">
+                            <Badge variant={sub.status === "Active" ? "success" : "secondary"}>
+                              {sub.status}
+                            </Badge>
+                          </td>
+                          <td className="p-4">
+                            <div className="text-sm text-muted-foreground">
+                              {new Date(sub.dateAdded).toLocaleDateString()}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
