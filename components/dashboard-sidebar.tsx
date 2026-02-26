@@ -187,10 +187,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
             height={40}
             className="h-10 w-auto"
           />
-          <div>
-            <span className="font-bold text-lg block">Platinum Sound</span>
-            <span className="text-xs text-muted-foreground">Studio Management</span>
-          </div>
         </Link>
       </div>
 
