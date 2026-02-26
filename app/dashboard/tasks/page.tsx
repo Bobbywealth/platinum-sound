@@ -290,7 +290,7 @@ export default function TasksPage() {
             const StatusIcon = config.icon
 
             return (
-              <div key={status} className="space-y-4">
+              <div>
                 <div className={cn("flex items-center justify-between p-4 rounded-lg border", config.color)}>
                   <div className="flex items-center gap-2">
                     <StatusIcon className="h-5 w-5" />

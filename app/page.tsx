@@ -84,8 +84,6 @@ export default function Home() {
           <PublicMobileNav />
         </div>
 
-        {/* Mobile Navigation */}
-        <MobileNav />
       </nav>
 
       {/* Hero Section with Background Video */}

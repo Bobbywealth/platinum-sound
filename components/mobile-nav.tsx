@@ -11,14 +11,14 @@ const mobileMenuVariants = {
   closed: {
     x: "100%",
     transition: {
-      type: "tween",
+      type: "tween" as const,
       duration: 0.3,
     },
   },
   open: {
     x: 0,
     transition: {
-      type: "tween",
+      type: "tween" as const,
       duration: 0.3,
     },
   },
