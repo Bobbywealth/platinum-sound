@@ -304,7 +304,7 @@ export default function Home() {
                 {
                   name: "Serge \"Surgical\" Tsai",
                   role: "Chief Engineer",
-                  bio: "Grammy-winning, multi-platinum recording and mix engineer with over 20 years of experience. Based in NYC since 1989, Serge is Chief Engineer at Platinum Sound, working with artists like Shakira, Kanye West, Justin Bieber, and Beyonce. His credits include Grammy-winning albums, an Oscar-nominated soundtrack, and collabs with Aretha Franklin and Carlos Santana. Known for his \"Sonic Air Bending\" techniques, he also mentors upcoming engineers and artists."
+                  bio: "Grammy-winning, multi-platinum recording and mix engineer with over 20 years of experience. Based in NYC since 1989, Serge is Chief Engineer at Platinum Sound, working with artists like Shakira, Kanye West, Justin Bieber, and Client E. His credits include Grammy-winning albums, an Oscar-nominated soundtrack, and collabs with Aretha Franklin and Carlos Santana. Known for his \"Sonic Air Bending\" techniques, he also mentors upcoming engineers and artists."
                 },
                 {
                   name: "Devonne \"Knice\" Knights",
@@ -425,10 +425,10 @@ export default function Home() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { artist: "Drake", project: "Certified Lover Boy Sessions", rating: 5 },
-              { artist: "Rihanna", project: "Vocal Recording & Production", rating: 5 },
-              { artist: "The Weeknd", project: "After Hours Album", rating: 5 },
-              { artist: "Bad Bunny", project: "Un Verano Sin Ti", rating: 5 },
+              { artist: "Client A", project: "Certified Lover Boy Sessions", rating: 5 },
+              { artist: "Client B", project: "Vocal Recording & Production", rating: 5 },
+              { artist: "Client C", project: "After Hours Album", rating: 5 },
+              { artist: "Client D", project: "Un Verano Sin Ti", rating: 5 },
               { artist: "Wyclef Jean", project: "Carnival Series", rating: 5 },
               { artist: "A$AP Rocky", project: "Mixing Sessions", rating: 5 },
             ].map((client, i) => (

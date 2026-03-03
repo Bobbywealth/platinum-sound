@@ -4,7 +4,6 @@ import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { clients as initialClients, bookings, type Client } from "@/lib/data"
 import { formatCurrency, getInitials } from "@/lib/utils"
 import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload } from "lucide-react"
 import { useState } from "react"
@@ -33,6 +32,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+
+interface Client {
+  id: string
+  name: string
+  email: string
+  phone: string
+  label: string
+  project: string
+  budget: number
+  status: "active" | "pending" | "completed"
+  createdAt: string
+}
+
+interface BookingRef { clientId: string }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -73,7 +87,8 @@ const emptyClientForm = {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function ClientsPage() {
-  const [clientList, setClientList] = useState<Client[]>(initialClients)
+  const [clientList, setClientList] = useState<Client[]>([])
+  const [bookings, setBookings] = useState<BookingRef[]>([])
   const [searchQuery, setSearchQuery] = useState("")
 
   // ── Add Client dialog ──
@@ -95,6 +110,11 @@ export default function ClientsPage() {
   // ── Delete confirmation dialog ──
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
+
+  useEffect(() => {
+    fetch("/api/clients").then((r) => (r.ok ? r.json() : [])).then((data) => setClientList(data.map((c: any) => ({ ...c, status: c.status.toLowerCase() }))))
+    fetch("/api/bookings").then((r) => (r.ok ? r.json() : [])).then(setBookings)
+  }, [])
 
   const filteredClients = clientList.filter(
     (client) =>

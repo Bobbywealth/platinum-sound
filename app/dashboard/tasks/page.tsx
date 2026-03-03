@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { tasks, Task } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import {
   CheckCircle2,
@@ -34,7 +33,19 @@ import {
   Plus,
   RotateCw,
 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+
+interface Task {
+  id: string
+  title: string
+  description?: string
+  status: "todo" | "in_progress" | "completed"
+  priority: "low" | "medium" | "high" | "urgent"
+  assignee?: string
+  isRecurring: boolean
+  recurrencePattern?: "daily" | "weekly" | "biweekly" | "monthly"
+  createdAt: string
+}
 
 type ViewMode = "kanban" | "list"
 type TaskStatus = "todo" | "in_progress" | "completed"
@@ -58,7 +69,13 @@ const priorityColors = {
 export default function TasksPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("kanban")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [taskList, setTaskList] = useState<Task[]>(tasks)
+  const [taskList, setTaskList] = useState<Task[]>([])
+  useEffect(() => {
+    fetch("/api/tasks")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => setTaskList(rows.map((t: any) => ({ ...t, status: String(t.status).toLowerCase(), priority: String(t.priority).toLowerCase(), assignee: t.assignee?.name }))))
+  }, [])
+
   const [newTask, setNewTask] = useState<{
     title: string
     description: string

@@ -1,20 +1,32 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { bookings } from "@/lib/data"
-import { Clock, Loader2, Mail, MapPin, MessageSquare, Music, Phone, QrCode, User } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
 import { useState } from "react"
+import Link from "next/link"
+import { Loader2, Music, Clock, User, MapPin, QrCode, MessageSquare, Mail, Phone } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+
+interface CheckInBooking {
+  id: string
+  bookingCode: string
+  studio: string
+  date: string
+  startTime: string
+  endTime: string
+  sessionType: string
+  isVip: boolean
+  client: {
+    name: string
+  }
+}
 
 export default function CheckInPage() {
   const [bookingCode, setBookingCode] = useState("")
   const [loading, setLoading] = useState(false)
-  const [foundBooking, setFoundBooking] = useState<typeof bookings[0] | null>(null)
   const [error, setError] = useState("")
+  const [foundBooking, setFoundBooking] = useState<CheckInBooking | null>(null)
 
   const handleCheckIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,208 +34,73 @@ export default function CheckInPage() {
     setError("")
     setFoundBooking(null)
 
-    const normalizedCode = bookingCode.trim().toUpperCase()
-    if (!normalizedCode) {
-      setError("Please enter a booking code.")
+    try {
+      const res = await fetch("/api/check-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingCode: bookingCode.trim().toUpperCase() }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error ?? "Booking not found. Please check your booking code.")
+      } else {
+        setFoundBooking(data.booking)
+      }
+    } catch {
+      setError("Unable to check in right now. Please try again.")
+    } finally {
       setLoading(false)
-      return
     }
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    const booking = bookings.find((b) => b.id === normalizedCode)
-
-    if (booking) {
-      setFoundBooking(booking)
-    } else {
-      setError("Booking not found. Please check your booking code.")
-    }
-
-    setLoading(false)
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/">
-            <Image
-              src="/Platinum Sound logo with 3D effect.png"
-              alt="Platinum Sound Logo"
-              width={360}
-              height={80}
-              className="h-16 w-auto"
-              priority
-            />
-          </Link>
-          <Link href="/login">
-            <Button variant="outline" size="sm">
-              Staff Login
-            </Button>
-          </Link>
-        </div>
-      </header>
+    <div className="container mx-auto px-4 py-10">
+      <Card>
+        <CardHeader>
+          <CardTitle>Client Check-In</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleCheckIn} className="flex flex-col sm:flex-row gap-4">
+            <Input placeholder="Enter booking code" value={bookingCode} onChange={(e) => setBookingCode(e.target.value)} />
+            <Button type="submit" disabled={loading}>{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Check In"}</Button>
+          </form>
 
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Check In for Your Session</h1>
-          <p className="text-muted-foreground text-lg">
-            Enter your booking code below to check in for your studio session
-          </p>
-        </div>
+          {error && <div className="mt-4 p-3 rounded bg-destructive/10 text-destructive">{error}</div>}
 
-        {/* Check-In Form */}
-        <Card className="mb-12">
-          <CardContent className="pt-6">
-            <form onSubmit={handleCheckIn} className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <Input
-                  id="bookingCode"
-                  placeholder="e.g., B001"
-                  value={bookingCode}
-                  onChange={(e) => setBookingCode(e.target.value)}
-                  className="text-lg py-6 w-full"
-                />
+          {foundBooking && (
+            <div className="mt-6 p-6 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="success">Check-In Successful!</Badge>
+                {foundBooking.isVip && <Badge variant="warning">VIP Client</Badge>}
               </div>
-              <Button type="submit" size="lg" className="px-8 w-full sm:w-auto" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Checking...
-                  </>
-                ) : (
-                  "Check In"
-                )}
-              </Button>
-            </form>
-
-            {error && (
-              <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-lg">
-                {error}
-              </div>
-            )}
-
-            {foundBooking && (
-              <div className="mt-6 p-6 bg-green-500/10 border border-green-500/20 rounded-lg animate-fade-in">
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge variant="success">Check-In Successful!</Badge>
-                  {foundBooking.isVip && (
-                    <Badge variant="warning">VIP Client</Badge>
-                  )}
-                </div>
-                <h3 className="text-xl font-semibold mb-4">Your Session Details</h3>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="flex items-center gap-3">
-                    <User className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Client Name</p>
-                      <p className="font-medium">{foundBooking.clientName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Studio</p>
-                      <p className="font-medium">{foundBooking.studio}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Session Time</p>
-                      <p className="font-medium">
-                        {foundBooking.date} • {foundBooking.startTime} - {foundBooking.endTime}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Music className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm text-muted-foreground">Session Type</p>
-                      <p className="font-medium">{foundBooking.sessionType}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Alternative Check-In Methods */}
-        <div className="grid sm:grid-cols-3 gap-6 mb-12">
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <QrCode className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Scan QR Code</h3>
-              <p className="text-sm text-muted-foreground">
-                Scan the QR code on your confirmation email
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <MessageSquare className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Text Check-In</h3>
-              <p className="text-sm text-muted-foreground">
-                Reply to your confirmation SMS
-              </p>
-            </CardContent>
-          </Card>
-          <Card className="text-center">
-            <CardContent className="pt-6">
-              <User className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h3 className="font-semibold mb-2">Front Desk</h3>
-              <p className="text-sm text-muted-foreground">
-                Check in with our front desk staff
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Contact Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Need Help?</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid sm:grid-cols-3 gap-6">
-              <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="font-medium">support@platinumsound.com</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
-                  <p className="font-medium">(212) 265-6060</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Address</p>
-                  <p className="font-medium">122 W. 26th St., New York, NY</p>
-                </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-2"><User className="h-4 w-4" /><p>{foundBooking.client.name}</p></div>
+                <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /><p>{foundBooking.studio}</p></div>
+                <div className="flex items-center gap-2"><Clock className="h-4 w-4" /><p>{new Date(foundBooking.date).toLocaleDateString()} • {foundBooking.startTime}-{foundBooking.endTime}</p></div>
+                <div className="flex items-center gap-2"><Music className="h-4 w-4" /><p>{foundBooking.sessionType}</p></div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Dashboard Link for Staff */}
-        <div className="mt-8 text-center">
-          <Link href="/dashboard">
-            <Button variant="ghost">
-              Go to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </main>
+      <div className="grid sm:grid-cols-3 gap-6 my-8">
+        <Card><CardContent className="pt-6 text-center"><QrCode className="h-8 w-8 mx-auto mb-2" />Scan QR Code</CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><MessageSquare className="h-8 w-8 mx-auto mb-2" />Text Check-In</CardContent></Card>
+        <Card><CardContent className="pt-6 text-center"><User className="h-8 w-8 mx-auto mb-2" />Front Desk</CardContent></Card>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6 grid sm:grid-cols-3 gap-4 text-sm">
+          <p className="flex items-center gap-2"><Mail className="h-4 w-4" />support@platinumsound.com</p>
+          <p className="flex items-center gap-2"><Phone className="h-4 w-4" />(212) 265-6060</p>
+          <p className="flex items-center gap-2"><MapPin className="h-4 w-4" />122 W. 26th St., New York, NY</p>
+        </CardContent>
+      </Card>
+
+      <div className="mt-8 text-center">
+        <Link href="/dashboard" className="underline">Staff Login</Link>
+      </div>
     </div>
   )
 }

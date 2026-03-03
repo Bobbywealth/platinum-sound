@@ -60,13 +60,6 @@ const studioOptions = [
   { value: "Studio C", description: "Mixing and mastering suite", rate: 175 },
 ]
 
-const engineerOptions = [
-  "No preference",
-  "Alex Morgan",
-  "Jamie Lee",
-  "Taylor Rivera",
-  "Jordan Blake",
-]
 
 // Helper function to check if selected slots are consecutive
 const areSlotsConsecutive = (slots: string[]): boolean => {
@@ -115,6 +108,7 @@ export default function BookingPage() {
   const [sessionMode, setSessionMode] = useState<"Online" | "In-Person">("In-Person")
   const [sessionType, setSessionType] = useState<string | null>(null)
   const [engineer, setEngineer] = useState<string | null>(null)
+  const [engineerOptions, setEngineerOptions] = useState<string[]>(["No preference"])
   const [paymentOption, setPaymentOption] = useState<string | null>(null)
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null)
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([])
@@ -135,6 +129,12 @@ export default function BookingPage() {
   
   const router = useRouter()
   const { toast } = useToast()
+
+  useEffect(() => {
+    fetch('/api/engineers')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)]))
+  }, [])
 
   // Updated steps with new flow
   const steps = [

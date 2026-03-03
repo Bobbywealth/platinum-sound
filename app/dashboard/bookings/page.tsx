@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { bookings as initialBookings, type Booking } from "@/lib/data"
 import { cn } from "@/lib/utils"
 import {
   Calendar,
@@ -42,6 +41,21 @@ import {
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useCallback, useEffect, useState } from "react"
+
+interface Booking {
+  id: string
+  clientId: string
+  clientName: string
+  studio: string
+  date: string
+  startTime: string
+  endTime: string
+  engineer: string
+  sessionType: string
+  status: "confirmed" | "pending" | "in-progress" | "completed" | "cancelled"
+  notes?: string
+  isVip?: boolean
+}
 
 type ViewMode = "grid" | "list" | "calendar"
 type BookingStatus = Booking["status"]
@@ -356,7 +370,7 @@ function BookingsPageInner() {
   const searchParams = useSearchParams()
 
   const [bookingsList, setBookingsList] =
-    useState<Booking[]>(initialBookings)
+    useState<Booking[]>([])
   const [filter, setFilter] = useState<string>("all")
   const [viewMode, setViewMode] = useState<ViewMode>("calendar")
   const [currentDate, setCurrentDate] = useState(new Date(2024, 0, 15))
@@ -841,7 +855,7 @@ function BookingsPageInner() {
               {Array.from({ length: daysInMonth }).map((_, index) => {
                 const day = index + 1
                 const dayBookings = getBookingsForDate(day)
-                const isToday = day === 15 // demo marker
+                const isToday = currentDate.getDate() === day
                 return (
                   <div
                     key={day}
