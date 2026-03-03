@@ -105,6 +105,7 @@ enum PaymentMethod {
   SQUARE
   CREDIT_CARD
   BANK_TRANSFER
+  STRIPE
   OTHER
 }
 
@@ -265,11 +266,12 @@ model Booking {
   updatedAt   DateTime      @updatedAt
   
   // New fields for enhanced booking
-  sessionMode       SessionMode?
-  originalRoomId    String?
-  originalEngineer  String?
-  roomSwappedAt     DateTime?
-  engineerSwappedAt DateTime?
+  sessionMode           SessionMode?
+  originalRoomId        String?
+  originalEngineer      String?
+  roomSwappedAt         DateTime?
+  engineerSwappedAt     DateTime?
+  stripePaymentIntentId String?      // Set when paid via Stripe
   
   // Relations
   authorization BookingAuthorization?

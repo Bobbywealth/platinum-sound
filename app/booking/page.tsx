@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { BookingAuthorization } from "@/components/booking-authorization"
 import { MicSelection } from "@/components/mic-selection"
 import { ReferralDropdown } from "@/components/referral-dropdown"
+import { StripePaymentForm } from "@/components/stripe-payment-form"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -126,7 +127,14 @@ export default function BookingPage() {
   const [micSelection, setMicSelection] = useState<{ micId: string; quantity: number; price: number }[]>([])
   const [referral, setReferral] = useState<{ referrerType: string; referrerId: string; referrerName: string } | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
-  
+
+  // Stripe payment state
+  const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null)
+  const [stripePaymentIntentId, setStripePaymentIntentId] = useState<string | null>(null)
+  const [stripeError, setStripeError] = useState<string | null>(null)
+  const [paymentComplete, setPaymentComplete] = useState(false)
+  const [isFetchingIntent, setIsFetchingIntent] = useState(false)
+
   const router = useRouter()
   const { toast } = useToast()
 
@@ -135,6 +143,54 @@ export default function BookingPage() {
       .then((r) => (r.ok ? r.json() : []))
       .then((rows) => setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)]))
   }, [])
+
+  // Create Stripe Payment Intent when reaching the review step with upfront payment
+  useEffect(() => {
+    if (currentStep !== 9 || !requiresStripePayment || stripeClientSecret || isFetchingIntent) {
+      return
+    }
+
+    setIsFetchingIntent(true)
+    setStripeError(null)
+
+    fetch("/api/stripe/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        amount: stripeChargeAmount,
+        currency: "usd",
+        description: `Platinum Sound Studios - ${sessionType} Session (${paymentOption})`,
+        metadata: {
+          clientEmail,
+          clientName,
+          sessionType: sessionType || "",
+          studio: selectedStudio || "Online",
+          paymentOption: paymentOption || "",
+        },
+      }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.clientSecret) {
+          setStripeClientSecret(data.clientSecret)
+        } else {
+          setStripeError(data.error || "Failed to initialize payment")
+        }
+      })
+      .catch(() => setStripeError("Failed to connect to payment service"))
+      .finally(() => setIsFetchingIntent(false))
+  }, [
+    currentStep,
+    requiresStripePayment,
+    stripeClientSecret,
+    isFetchingIntent,
+    stripeChargeAmount,
+    sessionType,
+    paymentOption,
+    clientEmail,
+    clientName,
+    selectedStudio,
+  ])
 
   // Updated steps with new flow
   const steps = [
@@ -170,6 +226,18 @@ export default function BookingPage() {
   const micAddOnPrice = micSelection.reduce((sum, m) => sum + m.price, 0)
   const totalPrice = basePrice + micAddOnPrice
   const depositAmount = paymentOption === "50% deposit" ? totalPrice * 0.5 : paymentOption === "Full payment" ? totalPrice : 0
+
+  // Stripe is required for full payment and deposit (not for pay-in-studio)
+  const requiresStripePayment =
+    paymentOption === "Full payment" || paymentOption === "50% deposit"
+
+  // Amount to charge via Stripe
+  const stripeChargeAmount =
+    paymentOption === "Full payment"
+      ? totalPrice
+      : paymentOption === "50% deposit"
+      ? totalPrice * 0.5
+      : 0
 
   const goToNextStep = () => {
     if (currentStep < totalSteps) {
@@ -208,6 +276,10 @@ export default function BookingPage() {
         return true // Add-ons are optional
       case 8:
         return authorization !== null && authorization.acknowledged
+      case 9:
+        // If payment is required via Stripe, payment must be completed first
+        if (requiresStripePayment) return paymentComplete
+        return true
       default:
         return true
     }
@@ -310,6 +382,7 @@ export default function BookingPage() {
         signatureData: authorization.signatureData,
         acknowledged: authorization.acknowledged,
       },
+      stripePaymentIntentId: stripePaymentIntentId || undefined,
     }
 
     try {
@@ -341,6 +414,10 @@ export default function BookingPage() {
         setMicSelection([])
         setReferral(null)
         setAuthorization(null)
+        setStripeClientSecret(null)
+        setStripePaymentIntentId(null)
+        setStripeError(null)
+        setPaymentComplete(false)
         setCurrentStep(1)
         setVisitedSteps([1])
 
@@ -876,6 +953,65 @@ export default function BookingPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Stripe Payment Section */}
+            {requiresStripePayment && (
+              <Card className="max-w-lg mx-auto mt-6">
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {paymentComplete ? "Payment Complete" : `Pay ${paymentOption === "Full payment" ? "in Full" : "50% Deposit"}`}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {paymentComplete ? (
+                    <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                      <Check className="h-6 w-6 text-green-600 shrink-0" />
+                      <div>
+                        <p className="font-medium text-green-800 dark:text-green-200">Payment Successful!</p>
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          ${stripeChargeAmount.toFixed(2)} charged. Click &quot;Submit Booking&quot; to complete your reservation.
+                        </p>
+                      </div>
+                    </div>
+                  ) : stripeError ? (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg">
+                        <p className="text-sm text-red-700 dark:text-red-300">{stripeError}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setStripeError(null)
+                          setStripeClientSecret(null)
+                        }}
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  ) : isFetchingIntent ? (
+                    <div className="flex items-center justify-center py-8 gap-3">
+                      <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      <span className="text-sm text-muted-foreground">Initializing payment...</span>
+                    </div>
+                  ) : stripeClientSecret ? (
+                    <StripePaymentForm
+                      clientSecret={stripeClientSecret}
+                      amount={stripeChargeAmount}
+                      onPaymentSuccess={(intentId) => {
+                        setStripePaymentIntentId(intentId)
+                        setPaymentComplete(true)
+                        setStripeError(null)
+                      }}
+                      onPaymentError={(error) => {
+                        setStripeError(error)
+                      }}
+                    />
+                  ) : null}
+                </CardContent>
+              </Card>
+            )}
           </div>
         )
 
@@ -998,7 +1134,11 @@ export default function BookingPage() {
                 className="gap-2"
               >
                 <Check className="h-4 w-4" />
-                <span className="hidden sm:inline">Submit Booking</span>
+                <span className="hidden sm:inline">
+                  {requiresStripePayment && !paymentComplete
+                    ? "Complete Payment Above"
+                    : "Submit Booking"}
+                </span>
                 <span className="sm:hidden">Submit</span>
               </Button>
             )}

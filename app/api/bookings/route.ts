@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
       referral,
       micAddOns,
       authorization,
+      stripePaymentIntentId,
     } = body
 
     // Validate contact info against staff
@@ -164,10 +165,12 @@ export async function POST(request: NextRequest) {
         engineer: engineer || 'No preference',
         sessionType: sessionTypeEnum,
         sessionMode: sessionModeEnum,
-        status: BookingStatus.PENDING,
+        // Confirm immediately if a Stripe payment was collected
+        status: stripePaymentIntentId ? BookingStatus.CONFIRMED : BookingStatus.PENDING,
         notes,
         isVip: isVip || false,
         bookingCode,
+        ...(stripePaymentIntentId && { stripePaymentIntentId }),
         ...(roomIds && roomIds.length > 0 && {
           rooms: {
             create: roomIds.map((roomId: string) => ({
