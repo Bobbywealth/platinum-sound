@@ -224,6 +224,8 @@ model Client {
   label     String?
   project   String?
   budget    Float?
+  genre     String?
+  notes     String?
   status    ClientStatus  @default(ACTIVE)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -232,6 +234,17 @@ model Client {
   bookings  Booking[]
   invoices  Invoice[]
   referrals Referral[]
+  revenue   ClientRevenue?
+}
+
+
+model ClientRevenue {
+  id           String   @id @default(cuid())
+  clientId      String   @unique
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  totalRevenue  Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Booking {

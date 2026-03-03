@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, getInitials } from "@/lib/utils"
-import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload } from "lucide-react"
+import { useState } from "react"
+import { ImportClientsDialog } from "@/components/clients/import-clients-dialog"
 import {
   Dialog,
   DialogContent,
@@ -93,6 +94,9 @@ export default function ClientsPage() {
   // ── Add Client dialog ──
   const [addOpen, setAddOpen] = useState(false)
   const [addForm, setAddForm] = useState({ ...emptyClientForm })
+
+  // ── Import dialog ──
+  const [importOpen, setImportOpen] = useState(false)
 
   // ── Edit Client dialog ──
   const [editOpen, setEditOpen] = useState(false)
@@ -302,10 +306,16 @@ export default function ClientsPage() {
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Client Roster</h2>
           <p className="text-sm sm:text-base text-muted-foreground">Manage your studio clients and projects</p>
         </div>
-        <Button className="w-full sm:w-auto" onClick={openAddModal}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Client
-        </Button>
+        <div className="flex w-full sm:w-auto gap-2">
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setImportOpen(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button className="w-full sm:w-auto" onClick={openAddModal}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Client
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -534,6 +544,30 @@ export default function ClientsPage() {
           </Card>
         )}
       </div>
+
+      <ImportClientsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={(rows) => {
+          const importedClients: Client[] = rows
+            .filter((row) => row.name.trim())
+            .map((row) => ({
+              id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+              name: row.name.trim(),
+              email: row.email?.trim() || "",
+              phone: row.phone?.trim() || "",
+              label: row.genre?.trim() || "—",
+              project: row.notes?.trim() || "—",
+              budget: Number(row.totalRevenue) || 0,
+              status: row.status?.toLowerCase() === "active" ? "active" : "pending",
+              createdAt: new Date().toISOString().split("T")[0],
+            }))
+
+          if (importedClients.length) {
+            setClientList((prev) => [...importedClients, ...prev])
+          }
+        }}
+      />
 
       {/* ═══════════════════════════════════════════════════════════════════════
           Add Client Dialog
