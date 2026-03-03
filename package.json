@@ -50,6 +50,9 @@
     "sharp": "^0.33.2",
     "tailwind-merge": "^2.2.1",
     "xlsx": "^0.18.5",
+    "stripe": "^14.21.0",
+    "@stripe/stripe-js": "^3.5.0",
+    "@stripe/react-stripe-js": "^2.7.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
