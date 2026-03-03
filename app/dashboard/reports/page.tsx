@@ -20,6 +20,12 @@ import {
   Cell,
 } from "recharts"
 import { Download, TrendingUp, DollarSign, Calendar, Users } from "lucide-react"
+import { invoices, bookings } from "@/lib/data"
+
+// Total revenue from paid invoices — same source of truth as Dashboard & Analytics
+const totalRevenue = invoices
+  .filter((inv) => inv.status === "paid")
+  .reduce((sum, inv) => sum + inv.amount, 0)
 
 const monthlyRevenue = [
   { month: "Jan", revenue: 18500, bookings: 24 },
@@ -93,7 +99,7 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-xl sm:text-2xl font-bold">$282.8K</p>
+                <p className="text-xl sm:text-2xl font-bold">${totalRevenue.toLocaleString()}</p>
                 <p className="text-xs text-green-600 mt-1">+12.5% vs last year</p>
               </div>
               <DollarSign className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />

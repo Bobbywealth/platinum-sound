@@ -240,7 +240,7 @@ export const bookings: Booking[] = [
     date: "2024-01-18",
     startTime: "14:00",
     endTime: "23:00",
-    engineer: "40",
+    engineer: "Noah '40' Shebib",
     sessionType: "Mixing",
     status: "confirmed",
     isVip: true,
@@ -383,8 +383,13 @@ export const staff: StaffMember[] = [
 ]
 
 // Dashboard stats
+// Computed stats — derived from invoice data for consistency
+const paidInvoiceTotal = invoices
+  .filter((inv) => inv.status === "paid")
+  .reduce((sum, inv) => sum + inv.amount, 0)
+
 export const dashboardStats = {
-  totalRevenue: 124500,
+  totalRevenue: paidInvoiceTotal,
   revenueChange: 12,
   activeClients: 6,
   clientsChange: 2,
