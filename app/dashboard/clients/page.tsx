@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, getInitials } from "@/lib/utils"
 import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ImportClientsDialog } from "@/components/clients/import-clients-dialog"
 import {
   Dialog,
