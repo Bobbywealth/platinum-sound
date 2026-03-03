@@ -28,6 +28,9 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install OpenSSL runtime libraries required by Prisma on Debian Bookworm
+RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
 # Create a non-root user
 RUN groupadd --system --gid 1001 nodejs
 RUN useradd --system --uid 1001 --gid nodejs nextjs
