@@ -2,6 +2,21 @@ import { NextResponse } from 'next/server'
 import { BookingStatus, InvoiceStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
+type RevenueAggregate = {
+  _sum: {
+    amount: number | null
+  }
+}
+
+async function safeQuery<T>(name: string, query: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await query()
+  } catch (error) {
+    console.error(`Dashboard query failed (${name}):`, error)
+    return fallback
+  }
+}
+
 function startOfDay(date: Date) {
   const result = new Date(date)
   result.setHours(0, 0, 0, 0)
@@ -9,15 +24,15 @@ function startOfDay(date: Date) {
 }
 
 export async function GET() {
-  const now = new Date()
-  const todayStart = startOfDay(now)
-  const tomorrow = new Date(todayStart)
-  tomorrow.setDate(tomorrow.getDate() + 1)
-
-  const lastMonth = new Date(now)
-  lastMonth.setMonth(lastMonth.getMonth() - 1)
-
   try {
+    const now = new Date()
+    const todayStart = startOfDay(now)
+    const tomorrow = new Date(todayStart)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const lastMonth = new Date(now)
+    lastMonth.setMonth(lastMonth.getMonth() - 1)
+
     const [
       activeClients,
       activeBookings,
@@ -31,57 +46,95 @@ export async function GET() {
       recentBookings,
       recentClients,
     ] = await Promise.all([
-      prisma.client.count({ where: { status: 'ACTIVE' } }),
-      prisma.booking.count({
-        where: { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS] } },
-      }),
-      prisma.invoice.findMany({ where: { status: InvoiceStatus.PENDING } }),
-      prisma.invoice.findMany({ where: { status: InvoiceStatus.PAID }, orderBy: { issuedDate: 'desc' }, take: 30 }),
-      prisma.invoice.aggregate({
-        where: { status: InvoiceStatus.PAID, issuedDate: { gte: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)) } },
-        _sum: { amount: true },
-      }),
-      prisma.invoice.aggregate({
-        where: {
-          status: InvoiceStatus.PAID,
-          issuedDate: {
-            gte: startOfDay(new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1)),
-            lt: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
-          },
-        },
-        _sum: { amount: true },
-      }),
-      prisma.booking.findMany({
-        where: {
-          date: { gte: now },
-          status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING] },
-        },
-        include: { client: true },
-        orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
-        take: 5,
-      }),
-      prisma.booking.findMany({
-        where: {
-          date: { gte: todayStart, lt: tomorrow },
-          status: { in: [BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.PENDING] },
-        },
-        include: { client: true },
-        orderBy: { startTime: 'asc' },
-      }),
-      prisma.invoice.findMany({
-        where: { status: InvoiceStatus.PENDING },
-        include: { client: true },
-        orderBy: { dueDate: 'asc' },
-        take: 5,
-      }),
-      prisma.booking.findMany({ include: { client: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
-      prisma.client.findMany({ orderBy: { createdAt: 'desc' }, take: 2 }),
+      safeQuery<number>('activeClients', () => prisma.client.count({ where: { status: 'ACTIVE' } }), 0),
+      safeQuery<number>(
+        'activeBookings',
+        () =>
+          prisma.booking.count({
+            where: { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS] } },
+          }),
+        0,
+      ),
+      safeQuery<any[]>('pendingInvoices', () => prisma.invoice.findMany({ where: { status: InvoiceStatus.PENDING } }), []),
+      safeQuery<any[]>(
+        'paidInvoices',
+        () => prisma.invoice.findMany({ where: { status: InvoiceStatus.PAID }, orderBy: { issuedDate: 'desc' }, take: 30 }),
+        [],
+      ),
+      safeQuery<RevenueAggregate>(
+        'thisMonthRevenue',
+        () =>
+          prisma.invoice.aggregate({
+            where: { status: InvoiceStatus.PAID, issuedDate: { gte: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)) } },
+            _sum: { amount: true },
+          }),
+        { _sum: { amount: 0 } },
+      ),
+      safeQuery<RevenueAggregate>(
+        'previousMonthRevenue',
+        () =>
+          prisma.invoice.aggregate({
+            where: {
+              status: InvoiceStatus.PAID,
+              issuedDate: {
+                gte: startOfDay(new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1)),
+                lt: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
+              },
+            },
+            _sum: { amount: true },
+          }),
+        { _sum: { amount: 0 } },
+      ),
+      safeQuery<any[]>(
+        'upcomingBookings',
+        () =>
+          prisma.booking.findMany({
+            where: {
+              date: { gte: now },
+              status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING] },
+            },
+            include: { client: true },
+            orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+            take: 5,
+          }),
+        [],
+      ),
+      safeQuery<any[]>(
+        'todaySessions',
+        () =>
+          prisma.booking.findMany({
+            where: {
+              date: { gte: todayStart, lt: tomorrow },
+              status: { in: [BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.PENDING] },
+            },
+            include: { client: true },
+            orderBy: { startTime: 'asc' },
+          }),
+        [],
+      ),
+      safeQuery<any[]>(
+        'recentInvoices',
+        () =>
+          prisma.invoice.findMany({
+            where: { status: InvoiceStatus.PENDING },
+            include: { client: true },
+            orderBy: { dueDate: 'asc' },
+            take: 5,
+          }),
+        [],
+      ),
+      safeQuery<any[]>(
+        'recentBookings',
+        () => prisma.booking.findMany({ include: { client: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
+        [],
+      ),
+      safeQuery<any[]>('recentClients', () => prisma.client.findMany({ orderBy: { createdAt: 'desc' }, take: 2 }), []),
     ])
 
     const pendingAmount = pendingInvoices.reduce((total, invoice) => total + invoice.amount, 0)
     const totalRevenue = paidInvoices.reduce((total, invoice) => total + invoice.amount, 0)
-    const thisMonthAmount = thisMonthRevenue._sum.amount ?? 0
-    const previousMonthAmount = previousMonthRevenue._sum.amount ?? 0
+    const thisMonthAmount = thisMonthRevenue?._sum?.amount ?? 0
+    const previousMonthAmount = previousMonthRevenue?._sum?.amount ?? 0
     const revenueChange = previousMonthAmount === 0 ? 0 : ((thisMonthAmount - previousMonthAmount) / previousMonthAmount) * 100
 
     const recentActivity = [
