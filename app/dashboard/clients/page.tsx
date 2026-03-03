@@ -46,7 +46,17 @@ interface Client {
   createdAt: string
 }
 
-interface BookingRef { clientId: string }
+interface BookingRef {
+  id: string
+  clientId: string
+  sessionType: string
+  studio: string
+  date: string
+  startTime: string
+  endTime: string
+  engineer: string
+  status: "completed" | "confirmed" | "in-progress" | "pending" | string
+}
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
@@ -771,4 +781,3 @@ export default function ClientsPage() {
     </div>
   )
 }
-
