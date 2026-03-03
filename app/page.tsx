@@ -56,7 +56,7 @@ export default function Home() {
               CLIENTS
             </Link>
             <Link
-              href="/dashboard/bookings"
+              href="/booking"
               className="px-4 py-2 text-base font-semibold text-royal hover:text-royal/80 hover:bg-royal/5 rounded-md transition-all"
             >
               BOOKING
@@ -108,7 +108,7 @@ export default function Home() {
             Est. NYC
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
-            <span className="text-platinum-gradient">PLATINUM SOUNDS</span>
+            <span className="text-platinum-gradient">PLATINUM SOUND</span>
             <br />
             <span className="text-royal">RECORDING STUDIOS</span>
           </h1>
@@ -454,9 +454,9 @@ export default function Home() {
             Book your session today and join the legacy of platinum records
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/dashboard">
+            <Link href="/booking">
               <Button size="lg" className="text-lg px-8">
-                Access Studio CRM
+                Book a Session
               </Button>
             </Link>
             <Button size="lg" variant="outline" className="text-lg px-8">

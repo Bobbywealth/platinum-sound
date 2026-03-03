@@ -13,7 +13,7 @@ const NAV_LINKS = [
   { href: "#team", label: "TEAM" },
   { href: "#services", label: "SERVICES" },
   { href: "#clients", label: "CLIENTS" },
-  { href: "/dashboard/bookings", label: "BOOKING" },
+  { href: "/booking", label: "BOOKING" },
 ]
 
 const sheetId = "public-mobile-nav-drawer"
