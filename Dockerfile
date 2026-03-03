@@ -12,6 +12,9 @@ COPY prisma ./prisma
 # Install dependencies (using npm install to handle dependency updates)
 RUN npm install --legacy-peer-deps
 
+# Generate Prisma client for target runtime before building
+RUN npx prisma generate
+
 # Copy source code
 COPY . .
 
@@ -33,6 +36,7 @@ RUN useradd --system --uid 1001 --gid nodejs nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
