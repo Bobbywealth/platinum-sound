@@ -28,8 +28,15 @@ declare module "@auth/core/jwt" {
   }
 }
 
+const authSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
+
+if (process.env.NODE_ENV == "production" && !authSecret) {
+  throw new Error("NEXTAUTH_SECRET is required in production")
+}
+
 const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
+  secret: authSecret,
   providers: [
     Credentials({
       credentials: {
