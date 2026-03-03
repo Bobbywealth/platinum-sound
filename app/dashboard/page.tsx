@@ -4,12 +4,7 @@ import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { DashboardSkeleton } from "@/components/skeletons"
 import { StatCard } from "@/components/stat-card"
 import { formatCurrency } from "@/lib/utils"
-import {
-    Calendar,
-    DollarSign,
-    TrendingUp,
-    Users,
-} from "lucide-react"
+import { Calendar, DollarSign, TrendingUp, Users } from "lucide-react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -50,6 +45,17 @@ interface Session {
   time: string
   engineer: string
   status: "active" | "upcoming" | "completed"
+}
+
+const defaultStats: DashboardData["stats"] = {
+  totalRevenue: 0,
+  revenueChange: 0,
+  activeClients: 0,
+  clientsChange: 0,
+  activeBookings: 0,
+  bookingsChange: 0,
+  pendingInvoices: 0,
+  pendingAmount: 0,
 }
 
 // Mock sessions data - in production, fetch from API
@@ -104,7 +110,6 @@ const upcomingSessions: Session[] = [
   },
 ]
 
-// Simple waveform component
 function Waveform() {
   return (
     <div className="flex items-center gap-[2px] h-8 flex-1 mx-4">
@@ -125,19 +130,17 @@ function Waveform() {
 function SessionCard({ session }: { session: Session }) {
   return (
     <div className="flex flex-wrap items-center gap-4 p-4 bg-[#FAFAF8] rounded-xl hover:bg-[#F5F3EF] transition-colors sm:flex-nowrap">
-      {/* Status indicator */}
       <div className={`w-2.5 h-2.5 rounded-full ${session.status === "active" ? "bg-green-500" : "bg-gray-300"}`} />
 
-      {/* Artist & Studio info */}
       <div className="min-w-[120px] sm:min-w-[140px]">
         <p className="font-semibold text-gray-900">{session.artist}</p>
-        <p className="text-sm text-gray-500">{session.studio} ({session.studioType})</p>
+        <p className="text-sm text-gray-500">
+          {session.studio} ({session.studioType})
+        </p>
       </div>
 
-      {/* Waveform */}
       <Waveform />
 
-      {/* Time & Engineer */}
       <div className="text-right min-w-[100px] sm:min-w-[120px]">
         <p className="font-semibold text-gray-900">{session.time}</p>
         <p className="text-sm text-gray-500">{session.engineer}</p>
@@ -149,14 +152,20 @@ function SessionCard({ session }: { session: Session }) {
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<DashboardData | null>(null)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     async function fetchDashboard() {
       try {
         const res = await fetch("/api/dashboard")
-        const dashboardData = await res.json()
+        if (!res.ok) {
+          throw new Error(`Dashboard request failed with status ${res.status}`)
+        }
+
+        const dashboardData: DashboardData = await res.json()
         setData(dashboardData)
       } catch (error) {
+        setHasError(true)
         console.error("Failed to fetch dashboard data:", error)
       } finally {
         setLoading(false)
@@ -170,51 +179,28 @@ export default function DashboardPage() {
     return <DashboardSkeleton />
   }
 
-  if (!data) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <p className="text-gray-500">Failed to load dashboard data</p>
-      </div>
-    )
-  }
+  const stats = data?.stats ?? defaultStats
 
   return (
     <DashboardPageShell className="space-y-4 sm:space-y-8 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
-      {/* Overview Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
         <p className="text-gray-500 mt-1">Track your studio&apos;s performance at a glance</p>
+        {hasError ? <p className="text-sm text-amber-600 mt-2">Some data could not be loaded. Showing defaults.</p> : null}
       </div>
 
-      {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Total Revenue"
-          value={formatCurrency(data.stats.totalRevenue)}
-          change={data.stats.revenueChange}
-          icon={DollarSign}
-        />
-        <StatCard
-          title="Active Clients"
-          value={data.stats.activeClients.toString()}
-          change={data.stats.clientsChange}
-          icon={Users}
-        />
-        <StatCard
-          title="Active Bookings"
-          value={data.stats.activeBookings.toString()}
-          change={data.stats.bookingsChange}
-          icon={Calendar}
-        />
+        <StatCard title="Total Revenue" value={formatCurrency(stats.totalRevenue ?? 0)} change={stats.revenueChange ?? 0} icon={DollarSign} />
+        <StatCard title="Active Clients" value={(stats.activeClients ?? 0).toString()} change={stats.clientsChange ?? 0} icon={Users} />
+        <StatCard title="Active Bookings" value={(stats.activeBookings ?? 0).toString()} change={stats.bookingsChange ?? 0} icon={Calendar} />
         <StatCard
           title="Pending Invoices"
-          value={data.stats.pendingInvoices.toString()}
-          description={`${formatCurrency(data.stats.pendingAmount)} pending`}
+          value={(stats.pendingInvoices ?? 0).toString()}
+          description={`${formatCurrency(stats.pendingAmount ?? 0)} pending`}
           icon={TrendingUp}
         />
       </div>
 
-      {/* Today's Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Today&apos;s Sessions</h2>
@@ -232,7 +218,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Upcoming Sessions */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-xl font-semibold text-gray-900">Upcoming Sessions</h2>
