@@ -1,28 +1,39 @@
-import { clients } from "@/lib/data"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from 'next/server'
+import { ClientStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
 export async function GET() {
-  return NextResponse.json(clients)
+  try {
+    const clients = await prisma.client.findMany({
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return NextResponse.json(clients)
+  } catch (error) {
+    console.error('Error fetching clients:', error)
+    return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 })
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    const newClient = {
-      id: String(clients.length + 1).padStart(3, "0"),
-      ...body,
-      status: "active",
-      createdAt: new Date().toISOString(),
-    }
+    const client = await prisma.client.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        label: body.label,
+        project: body.project,
+        budget: body.budget ? Number(body.budget) : null,
+        status: (body.status?.toUpperCase() as ClientStatus) || ClientStatus.ACTIVE,
+      },
+    })
 
-    clients.push(newClient as any)
-
-    return NextResponse.json(newClient, { status: 201 })
-  } catch {
-    return NextResponse.json(
-      { error: "Failed to create client" },
-      { status: 500 }
-    )
+    return NextResponse.json(client, { status: 201 })
+  } catch (error) {
+    console.error('Error creating client:', error)
+    return NextResponse.json({ error: 'Failed to create client' }, { status: 500 })
   }
 }

@@ -1,63 +1,134 @@
-import { bookings, dashboardStats, invoices, todaySessions } from "@/lib/data"
-import { NextResponse } from "next/server"
+import { NextResponse } from 'next/server'
+import { BookingStatus, InvoiceStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
+
+function startOfDay(date: Date) {
+  const result = new Date(date)
+  result.setHours(0, 0, 0, 0)
+  return result
+}
 
 export async function GET() {
-  // Generate recent activity from bookings and invoices
-  const recentActivity = [
-    {
-      id: "1",
-      type: "booking" as const,
-      title: "New Booking",
-      description: `${bookings[0]?.clientName || "New client"} booked ${bookings[0]?.studio || "a studio"}`,
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-    },
-    {
-      id: "2",
-      type: "payment" as const,
-      title: "Payment Received",
-      description: `${invoices.find(i => i.status === "paid")?.clientName || "Client"} paid invoice #${invoices.find(i => i.status === "paid")?.id || "001"}`,
-      timestamp: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      id: "3",
-      type: "client" as const,
-      title: "New Client",
-      description: "New client registered",
-      timestamp: new Date(Date.now() - 7200000).toISOString(),
-    },
-    {
-      id: "4",
-      type: "invoice" as const,
-      title: "Invoice Sent",
-      description: `Invoice sent to ${invoices.find(i => i.status === "pending")?.clientName || "client"}`,
-      timestamp: new Date(Date.now() - 10800000).toISOString(),
-    },
-    {
-      id: "5",
-      type: "booking" as const,
-      title: "Session Completed",
-      description: `Recording session in ${bookings[0]?.studio || "studio"} completed`,
-      timestamp: new Date(Date.now() - 14400000).toISOString(),
-    },
-  ]
+  const now = new Date()
+  const todayStart = startOfDay(now)
+  const tomorrow = new Date(todayStart)
+  tomorrow.setDate(tomorrow.getDate() + 1)
 
-  // Generate revenue chart data
-  const revenueChart = [
-    { name: "Mon", revenue: 1200, bookings: 4 },
-    { name: "Tue", revenue: 1800, bookings: 6 },
-    { name: "Wed", revenue: 2400, bookings: 8 },
-    { name: "Thu", revenue: 1600, bookings: 5 },
-    { name: "Fri", revenue: 3200, bookings: 10 },
-    { name: "Sat", revenue: 2800, bookings: 9 },
-    { name: "Sun", revenue: 1450, bookings: 4 },
-  ]
+  const lastMonth = new Date(now)
+  lastMonth.setMonth(lastMonth.getMonth() - 1)
 
-  return NextResponse.json({
-    stats: dashboardStats,
-    upcomingBookings: bookings.filter((b) => b.status === "confirmed").slice(0, 5),
-    todaySessions,
-    recentInvoices: invoices.filter((i) => i.status === "pending").slice(0, 5),
-    recentActivity,
-    revenueChart,
-  })
+  try {
+    const [
+      activeClients,
+      activeBookings,
+      pendingInvoices,
+      paidInvoices,
+      thisMonthRevenue,
+      previousMonthRevenue,
+      upcomingBookings,
+      todaySessions,
+      recentInvoices,
+      recentBookings,
+      recentClients,
+    ] = await Promise.all([
+      prisma.client.count({ where: { status: 'ACTIVE' } }),
+      prisma.booking.count({
+        where: { status: { in: [BookingStatus.PENDING, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS] } },
+      }),
+      prisma.invoice.findMany({ where: { status: InvoiceStatus.PENDING } }),
+      prisma.invoice.findMany({ where: { status: InvoiceStatus.PAID }, orderBy: { issuedDate: 'desc' }, take: 30 }),
+      prisma.invoice.aggregate({
+        where: { status: InvoiceStatus.PAID, issuedDate: { gte: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)) } },
+        _sum: { amount: true },
+      }),
+      prisma.invoice.aggregate({
+        where: {
+          status: InvoiceStatus.PAID,
+          issuedDate: {
+            gte: startOfDay(new Date(lastMonth.getFullYear(), lastMonth.getMonth(), 1)),
+            lt: startOfDay(new Date(now.getFullYear(), now.getMonth(), 1)),
+          },
+        },
+        _sum: { amount: true },
+      }),
+      prisma.booking.findMany({
+        where: {
+          date: { gte: now },
+          status: { in: [BookingStatus.CONFIRMED, BookingStatus.PENDING] },
+        },
+        include: { client: true },
+        orderBy: [{ date: 'asc' }, { startTime: 'asc' }],
+        take: 5,
+      }),
+      prisma.booking.findMany({
+        where: {
+          date: { gte: todayStart, lt: tomorrow },
+          status: { in: [BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS, BookingStatus.PENDING] },
+        },
+        include: { client: true },
+        orderBy: { startTime: 'asc' },
+      }),
+      prisma.invoice.findMany({
+        where: { status: InvoiceStatus.PENDING },
+        include: { client: true },
+        orderBy: { dueDate: 'asc' },
+        take: 5,
+      }),
+      prisma.booking.findMany({ include: { client: true }, orderBy: { createdAt: 'desc' }, take: 3 }),
+      prisma.client.findMany({ orderBy: { createdAt: 'desc' }, take: 2 }),
+    ])
+
+    const pendingAmount = pendingInvoices.reduce((total, invoice) => total + invoice.amount, 0)
+    const totalRevenue = paidInvoices.reduce((total, invoice) => total + invoice.amount, 0)
+    const thisMonthAmount = thisMonthRevenue._sum.amount ?? 0
+    const previousMonthAmount = previousMonthRevenue._sum.amount ?? 0
+    const revenueChange = previousMonthAmount === 0 ? 0 : ((thisMonthAmount - previousMonthAmount) / previousMonthAmount) * 100
+
+    const recentActivity = [
+      ...recentBookings.map((booking) => ({
+        id: `booking-${booking.id}`,
+        type: 'booking' as const,
+        title: 'New Booking',
+        description: `${booking.client.name} booked ${booking.studio.replace('STUDIO_', 'Studio ')}`,
+        timestamp: booking.createdAt.toISOString(),
+      })),
+      ...recentInvoices.slice(0, 2).map((invoice) => ({
+        id: `invoice-${invoice.id}`,
+        type: 'invoice' as const,
+        title: 'Invoice Pending',
+        description: `Invoice sent to ${invoice.client.name}`,
+        timestamp: invoice.createdAt.toISOString(),
+      })),
+      ...recentClients.map((client) => ({
+        id: `client-${client.id}`,
+        type: 'client' as const,
+        title: 'New Client',
+        description: `${client.name} was added`,
+        timestamp: client.createdAt.toISOString(),
+      })),
+    ]
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, 5)
+
+    return NextResponse.json({
+      stats: {
+        totalRevenue,
+        revenueChange: Number(revenueChange.toFixed(1)),
+        activeClients,
+        clientsChange: 0,
+        activeBookings,
+        bookingsChange: 0,
+        pendingInvoices: pendingInvoices.length,
+        pendingAmount,
+      },
+      upcomingBookings,
+      todaySessions,
+      recentInvoices,
+      recentActivity,
+      revenueChart: [],
+    })
+  } catch (error) {
+    console.error('Error loading dashboard data:', error)
+    return NextResponse.json({ error: 'Failed to fetch dashboard data' }, { status: 500 })
+  }
 }
