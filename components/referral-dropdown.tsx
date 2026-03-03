@@ -17,19 +17,14 @@ interface ReferralDropdownProps {
 
 export function ReferralDropdown({ onSelectionChange }: ReferralDropdownProps) {
   const [selectedReferrer, setSelectedReferrer] = useState<string>('')
-  const [referrers, setReferrers] = useState<ReferralOption[]>([
-    // Default options - in production these would come from the API
-    { id: 'manager-1', name: 'Bobby Chidumaga', type: 'MANAGER' },
-    { id: 'engineer-1', name: 'Alex Morgan', type: 'ENGINEER' },
-    { id: 'engineer-2', name: 'Jamie Lee', type: 'ENGINEER' },
-    { id: 'engineer-3', name: 'Taylor Rivera', type: 'ENGINEER' },
-    { id: 'engineer-4', name: 'Jordan Blake', type: 'ENGINEER' },
-    { id: 'team-1', name: 'Lisa - Front Desk', type: 'TEAM_MEMBER' },
-    { id: 'team-2', name: 'Mike - Production', type: 'TEAM_MEMBER' },
-    { id: 'external-1', name: 'Google/Search', type: 'EXTERNAL' },
-    { id: 'external-2', name: 'Social Media', type: 'EXTERNAL' },
-    { id: 'external-3', name: 'Word of Mouth', type: 'EXTERNAL' },
-  ])
+  const [referrers, setReferrers] = useState<ReferralOption[]>([])
+
+
+  useEffect(() => {
+    fetch('/api/engineers')
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => setReferrers(rows.map((e: any) => ({ id: e.id, name: e.name, type: 'ENGINEER' as const }))))
+  }, [])
 
   useEffect(() => {
     if (selectedReferrer) {

@@ -3,10 +3,9 @@
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { invoices as initialInvoices } from "@/lib/data"
 import { formatCurrency, formatDate } from "@/lib/utils"
 import { Plus, Download, Send, DollarSign, Clock, AlertTriangle, CheckCircle, Pencil } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -46,11 +45,26 @@ interface Invoice {
 }
 
 export default function InvoicesPage() {
-  const [invoiceList, setInvoiceList] = useState<Invoice[]>(initialInvoices as Invoice[])
+  const [invoiceList, setInvoiceList] = useState<Invoice[]>([])
   const [filter, setFilter] = useState<string>("all")
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null)
   const [editForm, setEditForm] = useState<Partial<Invoice>>({})
+
+  useEffect(() => {
+    fetch("/api/invoices")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => setInvoiceList(rows.map((inv: any) => ({
+        id: inv.id,
+        clientId: inv.clientId,
+        clientName: inv.client?.name ?? "Unknown",
+        amount: inv.amount,
+        status: String(inv.status).toLowerCase(),
+        dueDate: inv.dueDate,
+        issuedDate: inv.issuedDate,
+        items: Array.isArray(inv.items) ? inv.items : [],
+      }))))
+  }, [])
 
   const filteredInvoices = filter === "all"
     ? invoiceList

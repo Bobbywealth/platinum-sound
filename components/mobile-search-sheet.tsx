@@ -49,49 +49,11 @@ function getTypeColor(type: string) {
   }
 }
 
-// Mock search function - in production, this would call an API
 async function performSearch(query: string): Promise<SearchResult[]> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 300))
-
-  const mockData: SearchResult[] = [
-    {
-      type: "client",
-      title: "John Doe",
-      subtitle: "john@example.com • Last session: 2 days ago",
-      href: "/dashboard/clients",
-    },
-    {
-      type: "booking",
-      title: "Studio A Session",
-      subtitle: "Tomorrow at 2:00 PM • John Doe",
-      href: "/dashboard/bookings",
-    },
-    {
-      type: "invoice",
-      title: "Invoice #1234",
-      subtitle: "$450 • Due in 5 days",
-      href: "/dashboard/invoices",
-    },
-    {
-      type: "client",
-      title: "Sarah Smith",
-      subtitle: "sarah@example.com • VIP Client",
-      href: "/dashboard/clients",
-    },
-    {
-      type: "studio",
-      title: "Studio B",
-      subtitle: "Available • 5-star rating",
-      href: "/dashboard/studios",
-    },
-  ]
-
-  return mockData.filter(
-    (item) =>
-      item.title.toLowerCase().includes(query.toLowerCase()) ||
-      item.subtitle.toLowerCase().includes(query.toLowerCase())
-  )
+  const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.results ?? []
 }
 
 export function MobileSearchSheet({ open, onClose }: MobileSearchSheetProps) {
