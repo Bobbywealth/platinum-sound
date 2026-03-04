@@ -260,13 +260,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b">
-        <Link href="/dashboard" className="flex items-center gap-3" onClick={onClose}>
+        <Link href="/dashboard" className="flex flex-col items-center justify-center gap-2" onClick={onClose}>
           <Image
             src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound"
-            width={80}
-            height={80}
-            className="h-16 w-auto"
+            width={120}
+            height={120}
+            className="h-24 w-auto"
           />
         </Link>
       </div>
