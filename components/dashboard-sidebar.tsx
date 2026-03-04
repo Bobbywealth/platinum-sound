@@ -24,7 +24,7 @@ import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Role } from "@prisma/client"
 import { useRolePreview } from "@/lib/role-preview-context"
 
@@ -234,8 +234,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const { data: session } = useSession()
   const { previewRole } = useRolePreview()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    "CALENDAR & SCHEDULING": true,
-    "FINANCE & REPORTS": true,
+    "CALENDAR": true,
+    "FINANCE": true,
   })
 
   const effectiveRole: Role = (previewRole ?? session?.user?.role ?? "ADMIN") as Role
@@ -257,13 +257,17 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     onClose?.()
   }
 
-  // Filter sections and items by effective role
-  const filteredSections = navSections
-    .map((section) => ({
-      ...section,
-      items: section.items.filter((item) => canSeeHref(effectiveRole, item.href)),
-    }))
-    .filter((section) => section.items.length > 0)
+  // Filter sections and items by effective role (memoized for performance)
+  const filteredSections = useMemo(
+    () =>
+      navSections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => canSeeHref(effectiveRole, item.href)),
+        }))
+        .filter((section) => section.items.length > 0),
+    [effectiveRole]
+  )
 
   return (
     <div className="flex flex-col h-full">
@@ -294,7 +298,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                     <div className="flex items-center gap-2">
                       {sectionIcons[section.label] && (
                         <motion.div
-                          animate={{ rotate: expandedSections[section.label] ? 0 : 0 }}
+                          animate={{ rotate: expandedSections[section.label] ? 0 : -90 }}
                           transition={{ duration: 0.2 }}
                         >
                           {React.createElement(sectionIcons[section.label], { className: "h-3.5 w-3.5" })}
