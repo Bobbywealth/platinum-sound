@@ -264,9 +264,9 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           <Image
             src="/Platinum Sound logo with 3D effect.png"
             alt="Platinum Sound"
-            width={60}
-            height={40}
-            className="h-10 w-auto"
+            width={80}
+            height={80}
+            className="h-16 w-auto"
           />
         </Link>
       </div>
