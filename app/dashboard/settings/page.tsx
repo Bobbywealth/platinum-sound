@@ -11,6 +11,15 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { Settings, Bell, Shield, CreditCard, Users, Building2, Loader2 } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 type User = {
   id: string
@@ -41,6 +50,15 @@ const ROLES = ['ADMIN', 'MANAGER', 'BOOKING_AGENT', 'ENGINEER', 'INTERN', 'FINAN
 export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  
+  // Password dialog state
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
+  const [isChangingPassword, setIsChangingPassword] = useState(false)
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  })
   
   // Studio settings
   const [studioName, setStudioName] = useState("Platinum Sound Studios")
@@ -123,6 +141,46 @@ export default function SettingsPage() {
     } catch (error) {
       console.error('Error saving notification:', error)
       toast({ title: 'Failed to update notifications', variant: 'destructive' })
+    }
+  }
+
+  async function handlePasswordChange(e: React.FormEvent) {
+    e.preventDefault()
+    
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({ title: 'Passwords do not match', variant: 'destructive' })
+      return
+    }
+    
+    if (passwordForm.newPassword.length < 6) {
+      toast({ title: 'Password must be at least 6 characters', variant: 'destructive' })
+      return
+    }
+    
+    setIsChangingPassword(true)
+    try {
+      const res = await fetch('/api/user/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      })
+      
+      if (res.ok) {
+        toast({ title: 'Password changed successfully' })
+        setIsPasswordDialogOpen(false)
+        setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" })
+      } else {
+        const data = await res.json()
+        toast({ title: data.error || 'Failed to change password', variant: 'destructive' })
+      }
+    } catch (error) {
+      console.error('Error changing password:', error)
+      toast({ title: 'Failed to change password', variant: 'destructive' })
+    } finally {
+      setIsChangingPassword(false)
     }
   }
 
@@ -290,7 +348,61 @@ export default function SettingsPage() {
           <CardDescription>Manage your account security settings</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Button variant="outline" className="w-full sm:w-auto">Change Password</Button>
+          <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">Change Password</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handlePasswordChange}>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                  <DialogDescription>
+                    Enter your current password and choose a new password.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="currentPassword">Current Password</Label>
+                    <Input
+                      id="currentPassword"
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="newPassword">New Password</Label>
+                    <Input
+                      id="newPassword"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setIsPasswordDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isChangingPassword}>
+                    {isChangingPassword ? 'Changing...' : 'Change Password'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
           <Separator />
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -315,13 +427,30 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
             <div>
               <p className="text-sm font-medium">Professional Plan</p>
-              <p className="text-xs text-muted-foreground">Contact support for billing inquiries</p>
+              <p className="text-xs text-muted-foreground">Your subscription is active</p>
             </div>
-            <Badge className="bg-green-100 text-green-700 w-fit">Contact Us</Badge>
+            <Badge className="bg-green-100 text-green-700 w-fit">Active</Badge>
+          </div>
+          <div className="p-3 bg-muted/30 rounded-lg">
+            <p className="text-sm font-medium mb-2">Billing Contact</p>
+            <p className="text-xs text-muted-foreground">For billing inquiries, please contact:</p>
+            <p className="text-sm">billing@platinumsound.com</p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button variant="outline" className="flex-1" disabled>Manage Plan</Button>
-            <Button variant="outline" className="flex-1" disabled>Update Payment</Button>
+            <Button 
+              variant="outline" 
+              className="flex-1" 
+              onClick={() => window.location.href = 'mailto:billing@platinumsound.com?subject=Billing Inquiry'}
+            >
+              Contact Billing
+            </Button>
+            <Button 
+              variant="outline" 
+              className="flex-1" 
+              onClick={() => window.location.href = 'mailto:support@platinumsound.com?subject=Subscription Change'}
+            >
+              Change Plan
+            </Button>
           </div>
         </CardContent>
       </Card>
