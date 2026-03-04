@@ -393,16 +393,6 @@ export default function DashboardHeader() {
           </AnimatePresence>
         </div>
 
-        {/* Settings */}
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Link
-            href="/dashboard/settings"
-            className="p-2 rounded-full hover:bg-gray-100 transition-colors block"
-          >
-            <Settings className="h-5 w-5 text-gray-600" />
-          </Link>
-        </motion.div>
-
         {/* User Menu */}
         <div className="relative flex items-center gap-3 border-l pl-4 ml-1" ref={userMenuRef}>
           <motion.button
@@ -477,14 +467,6 @@ export default function DashboardHeader() {
                   >
                     <User className="h-4 w-4" />
                     Profile
-                  </Link>
-                  <Link
-                    href="/dashboard/settings"
-                    className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-50 transition-colors"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
                   </Link>
                 </div>
                 <div className="border-t py-1">
