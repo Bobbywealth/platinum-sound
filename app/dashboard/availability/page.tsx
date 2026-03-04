@@ -43,6 +43,7 @@ export default function AvailabilityPage() {
 
   useEffect(() => {
     const fetchEngineers = async () => {
+      setIsLoading(true)
       try {
         const res = await fetch('/api/engineers')
         if (res.ok) {
@@ -54,6 +55,8 @@ export default function AvailabilityPage() {
         }
       } catch (error) {
         console.error('Error fetching engineers:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -165,6 +168,16 @@ export default function AvailabilityPage() {
 
   const selectedEngineer = engineers.find(e => e.id === selectedEngineerId)
 
+  if (isLoading) {
+    return (
+      <DashboardPageShell>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </DashboardPageShell>
+    )
+  }
+
   return (
     <DashboardPageShell>
       {/* Header */}
@@ -186,18 +199,22 @@ export default function AvailabilityPage() {
           <CardTitle>Select Engineer</CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={selectedEngineerId} onValueChange={setSelectedEngineerId}>
-            <SelectTrigger className="w-full sm:w-56 md:w-72">
-              <SelectValue placeholder="Select an engineer" />
-            </SelectTrigger>
-            <SelectContent>
-              {engineers.map(engineer => (
-                <SelectItem key={engineer.id} value={engineer.id}>
-                  {engineer.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {engineers.length === 0 ? (
+            <p className="text-muted-foreground">No engineers found. Please add engineers first.</p>
+          ) : (
+            <Select value={selectedEngineerId} onValueChange={setSelectedEngineerId}>
+              <SelectTrigger className="w-full sm:w-56 md:w-72">
+                <SelectValue placeholder="Select an engineer" />
+              </SelectTrigger>
+              <SelectContent>
+                {engineers.map(engineer => (
+                  <SelectItem key={engineer.id} value={engineer.id}>
+                    {engineer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </CardContent>
       </Card>
 
