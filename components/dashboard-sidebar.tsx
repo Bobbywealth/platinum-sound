@@ -124,7 +124,6 @@ const navSections: NavSection[] = [
     items: [
       { href: "/dashboard/calendar", label: "Master Calendar", icon: Calendar },
       { href: "/dashboard/availability", label: "Availability", icon: Clock },
-      { href: "/dashboard/schedule", label: "Daily Schedule", icon: Clock },
     ],
   },
   {
