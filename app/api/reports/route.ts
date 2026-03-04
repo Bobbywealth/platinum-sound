@@ -4,6 +4,8 @@ import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, format } from 'date-fns'
 
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient()
 
 // GET /api/reports - Get reports

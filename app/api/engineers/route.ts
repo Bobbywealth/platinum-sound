@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient, Role } from '@prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient()
 
 // GET /api/engineers - Get all engineers with their room assignments

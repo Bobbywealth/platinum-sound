@@ -3,6 +3,8 @@ import { PrismaClient, BookingStatus, SessionMode, SessionType, Studio } from '@
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
 
+export const dynamic = 'force-dynamic'
+
 const prisma = new PrismaClient()
 
 // GET /api/bookings - Get all bookings with filters
