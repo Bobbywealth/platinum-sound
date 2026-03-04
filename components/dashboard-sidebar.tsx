@@ -101,13 +101,24 @@ const rolePageAccess: Record<Role, string[]> = {
   ],
 }
 
+// Section icons for visual reference
+const sectionIcons: Record<string, React.ElementType> = {
+  "DASHBOARD": LayoutDashboard,
+  "CALENDAR & SCHEDULING": Calendar,
+  "OPERATIONS": Building2,
+  "FINANCE & REPORTS": DollarSign,
+  "MARKETING": Mail,
+  "PEOPLE": Users,
+  "SYSTEM": Settings,
+}
+
 const navSections: NavSection[] = [
   {
-    label: "DASHBOARD",
+    label: "MAIN",
     items: [{ href: "/dashboard", label: "Overview", icon: LayoutDashboard }],
   },
   {
-    label: "CALENDAR & SCHEDULING",
+    label: "CALENDAR",
     expandable: true,
     expandIcon: Calendar,
     items: [
@@ -130,7 +141,7 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    label: "FINANCE & REPORTS",
+    label: "FINANCE",
     expandable: true,
     expandIcon: DollarSign,
     items: [
@@ -141,20 +152,17 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    label: "MARKETING",
+    label: "GROWTH",
+    expandable: true,
+    expandIcon: Mail,
     items: [
       { href: "/dashboard/marketing", label: "Marketing", icon: Mail },
-    ],
-  },
-  {
-    label: "PEOPLE",
-    items: [
       { href: "/dashboard/clients", label: "Clients", icon: Users },
       { href: "/dashboard/teams", label: "Teams", icon: Users },
     ],
   },
   {
-    label: "SYSTEM",
+    label: "SETTINGS",
     items: [{ href: "/dashboard/settings", label: "Settings", icon: Settings }],
   },
 ]
@@ -280,9 +288,19 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                 <>
                   <button
                     onClick={() => toggleSection(section.label)}
-                    className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors"
+                    className="flex items-center justify-between w-full px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest hover:text-foreground hover:bg-muted/50 rounded-lg transition-all"
                   >
-                    <span>{section.label}</span>
+                    <div className="flex items-center gap-2">
+                      {sectionIcons[section.label] && (
+                        <motion.div
+                          animate={{ rotate: expandedSections[section.label] ? 0 : 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {React.createElement(sectionIcons[section.label], { className: "h-3.5 w-3.5" })}
+                        </motion.div>
+                      )}
+                      <span>{section.label}</span>
+                    </div>
                     <motion.div
                       animate={{ rotate: expandedSections[section.label] ? 180 : 0 }}
                       transition={{ duration: 0.2 }}
@@ -299,7 +317,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                         exit="exit"
                         className="overflow-hidden"
                       >
-                        <div className="space-y-1 mt-1">
+                        <div className="space-y-0.5 mt-1 ml-1">
                           {section.items.map((item) => {
                             const isActive = pathname === item.href
                             const Icon = item.icon
@@ -311,13 +329,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                                 animate="animate"
                                 whileTap="tap"
                                 onClick={() => handleNavClick(item.href)}
-                                className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors ${
+                                className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
                                   isActive
-                                    ? "bg-primary text-primary-foreground"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                                 }`}
                               >
-                                <Icon className="h-4 w-4" />
+                                <Icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
                                 {item.label}
                               </motion.button>
                             )
@@ -329,10 +347,11 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                 </>
               ) : (
                 <>
-                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <div className="px-3 py-3 text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                    {sectionIcons[section.label] && React.createElement(sectionIcons[section.label], { className: "h-3.5 w-3.5" })}
                     {section.label}
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-0.5 ml-1">
                     {section.items.map((item) => {
                       const isActive = pathname === item.href
                       const Icon = item.icon
@@ -344,13 +363,13 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
                           animate="animate"
                           whileTap="tap"
                           onClick={() => handleNavClick(item.href)}
-                          className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm transition-colors ${
+                          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-200 ${
                             isActive
-                              ? "bg-primary text-primary-foreground"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              ? "bg-primary/10 text-primary font-medium border-l-2 border-primary"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
                           }`}
                         >
-                          <Icon className="h-4 w-4" />
+                          <Icon className={`h-4 w-4 ${isActive ? "text-primary" : ""}`} />
                           {item.label}
                         </motion.button>
                       )
