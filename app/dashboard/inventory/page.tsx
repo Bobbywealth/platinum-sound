@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { AlertTriangle, Archive, Package, Plus, Truck } from "lucide-react"
+import { useState } from "react"
 
 type InventoryStatus = "in-stock" | "low-stock" | "out-of-stock"
 
@@ -29,64 +30,6 @@ interface InventoryItem {
   onOrder: boolean
 }
 
-const inventoryItems: InventoryItem[] = [
-  {
-    id: "INV-001",
-    name: "Neumann TLM 103",
-    category: "Microphones",
-    stock: 4,
-    reorderPoint: 2,
-    status: "in-stock",
-    location: "Mic Locker",
-    nextRestock: "—",
-    onOrder: false,
-  },
-  {
-    id: "INV-002",
-    name: "Shure SM7B",
-    category: "Microphones",
-    stock: 1,
-    reorderPoint: 2,
-    status: "low-stock",
-    location: "Studio B",
-    nextRestock: "Oct 12, 2024",
-    onOrder: true,
-  },
-  {
-    id: "INV-003",
-    name: "Audio Interface Cables",
-    category: "Accessories",
-    stock: 0,
-    reorderPoint: 6,
-    status: "out-of-stock",
-    location: "Supply Room",
-    nextRestock: "Oct 08, 2024",
-    onOrder: true,
-  },
-  {
-    id: "INV-004",
-    name: "Sony MDR-7506",
-    category: "Headphones",
-    stock: 12,
-    reorderPoint: 6,
-    status: "in-stock",
-    location: "Studio A",
-    nextRestock: "—",
-    onOrder: false,
-  },
-  {
-    id: "INV-005",
-    name: "XLR Cables (20ft)",
-    category: "Cables",
-    stock: 3,
-    reorderPoint: 10,
-    status: "low-stock",
-    location: "Supply Room",
-    nextRestock: "Oct 15, 2024",
-    onOrder: true,
-  },
-]
-
 const statusStyles: Record<InventoryStatus, string> = {
   "in-stock": "bg-green-100 text-green-700",
   "low-stock": "bg-yellow-100 text-yellow-800",
@@ -94,6 +37,7 @@ const statusStyles: Record<InventoryStatus, string> = {
 }
 
 export default function InventoryPage() {
+  const [inventoryItems] = useState<InventoryItem[]>([])
   const totalItems = inventoryItems.length
   const lowStockCount = inventoryItems.filter((item) => item.status === "low-stock").length
   const outOfStockCount = inventoryItems.filter((item) => item.status === "out-of-stock").length
@@ -167,7 +111,13 @@ export default function InventoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inventoryItems.map((item) => (
+            {inventoryItems.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  No inventory items yet.
+                </TableCell>
+              </TableRow>
+            ) : inventoryItems.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">{item.name}</TableCell>
                 <TableCell>{item.category}</TableCell>

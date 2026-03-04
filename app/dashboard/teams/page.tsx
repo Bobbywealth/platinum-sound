@@ -35,57 +35,6 @@ interface TeamMember {
   roleType: "admin" | "editor" | "viewer"
 }
 
-const initialTeamMembers: TeamMember[] = [
-  {
-    id: "1",
-    name: "Bobby Chidumaga",
-    role: "Admin",
-    email: "bobbyc@platinumsound.com",
-    phone: "+1 (555) 123-4567",
-    roleType: "admin",
-  },
-  {
-    id: "2",
-    name: "John Smith",
-    role: "Editor",
-    email: "johnsmith@platinumsound.com",
-    phone: "+1 (555) 234-5678",
-    roleType: "editor",
-  },
-  {
-    id: "3",
-    name: "Jane Doe",
-    role: "Editor",
-    email: "janedoe@platinumsound.com",
-    phone: "+1 (555) 345-6789",
-    roleType: "editor",
-  },
-  {
-    id: "4",
-    name: "Mike Johnson",
-    role: "Viewer",
-    email: "mikej@platinumsound.com",
-    phone: "+1 (555) 456-7890",
-    roleType: "viewer",
-  },
-  {
-    id: "5",
-    name: "Sarah Wilson",
-    role: "Editor",
-    email: "sarahw@platinumsound.com",
-    phone: "+1 (555) 567-8901",
-    roleType: "editor",
-  },
-  {
-    id: "6",
-    name: "Tom Brown",
-    role: "Viewer",
-    email: "tombrown@platinumsound.com",
-    phone: "+1 (555) 678-9012",
-    roleType: "viewer",
-  },
-]
-
 const roleConfig = {
   admin: {
     variant: "default" as const,
@@ -112,7 +61,7 @@ const emptyAddForm = {
 }
 
 export default function TeamsPage() {
-  const [members, setMembers] = useState<TeamMember[]>(initialTeamMembers)
+  const [members, setMembers] = useState<TeamMember[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRole, setSelectedRole] = useState<string | null>(null)
 
