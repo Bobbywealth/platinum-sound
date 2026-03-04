@@ -144,6 +144,53 @@ export default function BookingPage() {
       .then((rows) => setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)]))
   }, [])
 
+  // Updated steps with new flow
+  const steps = [
+    { number: 1, label: "Your Info", icon: User },
+    { number: 2, label: "Date", shortLabel: "Date", icon: Calendar },
+    { number: 3, label: "Session Mode", shortLabel: "Mode", icon: Globe },
+    { number: 4, label: "Session Type", shortLabel: "Type", icon: Music },
+    { number: 5, label: "Room(s)", shortLabel: "Room", icon: MapPin },
+    { number: 6, label: "Time", shortLabel: "Time", icon: Clock },
+    { number: 7, label: "Add-Ons", shortLabel: "Add-ons", icon: Mic },
+    { number: 8, label: "Authorization", shortLabel: "Auth", icon: Check },
+    { number: 9, label: "Review", shortLabel: "Review", icon: Wallet },
+  ]
+
+  const totalSteps = steps.length
+  const progressPercent = Math.round((currentStep / totalSteps) * 100)
+  
+  const formattedDate = selectedDate
+    ? selectedDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Not set"
+    
+  const formattedTime = selectedTimeSlots.length > 0 ? getFormattedTimeRange(selectedTimeSlots) : "Not set"
+  
+  // Calculate pricing
+  const studioRate = selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
+  const duration = getDuration(selectedTimeSlots)
+  const basePrice = studioRate * duration
+  const micAddOnPrice = micSelection.reduce((sum, m) => sum + m.price, 0)
+  const totalPrice = basePrice + micAddOnPrice
+  const depositAmount = paymentOption === "50% deposit" ? totalPrice * 0.5 : paymentOption === "Full payment" ? totalPrice : 0
+
+  // Stripe is required for full payment and deposit (not for pay-in-studio)
+  const requiresStripePayment =
+    paymentOption === "Full payment" || paymentOption === "50% deposit"
+
+  // Amount to charge via Stripe
+  const stripeChargeAmount =
+    paymentOption === "Full payment"
+      ? totalPrice
+      : paymentOption === "50% deposit"
+      ? totalPrice * 0.5
+      : 0
+
   // Create Stripe Payment Intent when reaching the review step with upfront payment
   useEffect(() => {
     if (currentStep !== 9 || !requiresStripePayment || stripeClientSecret || isFetchingIntent) {
@@ -191,53 +238,6 @@ export default function BookingPage() {
     clientName,
     selectedStudio,
   ])
-
-  // Updated steps with new flow
-  const steps = [
-    { number: 1, label: "Your Info", icon: User },
-    { number: 2, label: "Date", shortLabel: "Date", icon: Calendar },
-    { number: 3, label: "Session Mode", shortLabel: "Mode", icon: Globe },
-    { number: 4, label: "Session Type", shortLabel: "Type", icon: Music },
-    { number: 5, label: "Room(s)", shortLabel: "Room", icon: MapPin },
-    { number: 6, label: "Time", shortLabel: "Time", icon: Clock },
-    { number: 7, label: "Add-Ons", shortLabel: "Add-ons", icon: Mic },
-    { number: 8, label: "Authorization", shortLabel: "Auth", icon: Check },
-    { number: 9, label: "Review", shortLabel: "Review", icon: Wallet },
-  ]
-
-  const totalSteps = steps.length
-  const progressPercent = Math.round((currentStep / totalSteps) * 100)
-  
-  const formattedDate = selectedDate
-    ? selectedDate.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "Not set"
-    
-  const formattedTime = selectedTimeSlots.length > 0 ? getFormattedTimeRange(selectedTimeSlots) : "Not set"
-  
-  // Calculate pricing
-  const studioRate = selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
-  const duration = getDuration(selectedTimeSlots)
-  const basePrice = studioRate * duration
-  const micAddOnPrice = micSelection.reduce((sum, m) => sum + m.price, 0)
-  const totalPrice = basePrice + micAddOnPrice
-  const depositAmount = paymentOption === "50% deposit" ? totalPrice * 0.5 : paymentOption === "Full payment" ? totalPrice : 0
-
-  // Stripe is required for full payment and deposit (not for pay-in-studio)
-  const requiresStripePayment =
-    paymentOption === "Full payment" || paymentOption === "50% deposit"
-
-  // Amount to charge via Stripe
-  const stripeChargeAmount =
-    paymentOption === "Full payment"
-      ? totalPrice
-      : paymentOption === "50% deposit"
-      ? totalPrice * 0.5
-      : 0
 
   const goToNextStep = () => {
     if (currentStep < totalSteps) {
