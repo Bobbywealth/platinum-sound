@@ -34,20 +34,13 @@ ENV NODE_ENV=production
 # Install OpenSSL runtime libraries required by Prisma on Debian Bookworm
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN groupadd --system --gid 1001 nodejs
-RUN useradd --system --uid 1001 --gid nodejs nextjs
-
 # Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
 
-# Set ownership
-RUN chown -R nextjs:nodejs /app
-
-USER nextjs
+USER node
 
 # Expose port
 EXPOSE 3000
