@@ -1,24 +1,40 @@
 "use client"
 
+import dynamic from "next/dynamic"
+import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState, useEffect, useCallback, useMemo } from "react"
+
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ResponsiveCalendarGrid } from "@/components/ui/responsive-calendar-grid"
 import { Input } from "@/components/ui/input"
-import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, UserPlus, AlertCircle } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
-
-import { useToast } from "@/hooks/use-toast"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { BookingAuthorization } from "@/components/booking-authorization"
-import { MicSelection } from "@/components/mic-selection"
-import { ReferralDropdown } from "@/components/referral-dropdown"
-import { StripePaymentForm } from "@/components/stripe-payment-form"
+import { useToast } from "@/hooks/use-toast"
+
+// Lazy load heavy components to reduce initial bundle size
+const BookingAuthorization = dynamic(() => import("@/components/booking-authorization").then(mod => mod.BookingAuthorization), {
+  loading: () => <div className="animate-pulse h-48 bg-muted rounded-lg" />,
+  ssr: false
+})
+const MicSelection = dynamic(() => import("@/components/mic-selection").then(mod => mod.MicSelection), {
+  loading: () => <div className="animate-pulse h-32 bg-muted rounded-lg" />,
+  ssr: false
+})
+const StripePaymentForm = dynamic(() => import("@/components/stripe-payment-form").then(mod => mod.StripePaymentForm), {
+  loading: () => <div className="animate-pulse h-32 bg-muted rounded-lg" />,
+  ssr: false
+})
+const ReferralDropdown = dynamic(() => import("@/components/referral-dropdown").then(mod => mod.ReferralDropdown), {
+  loading: () => <div className="animate-pulse h-10 bg-muted rounded-lg" />,
+  ssr: false
+})
+
+// Icons - only import what's needed
+import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, AlertCircle } from "lucide-react"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -127,6 +143,7 @@ export default function BookingPage() {
   const [micSelection, setMicSelection] = useState<{ micId: string; quantity: number; price: number }[]>([])
   const [referral, setReferral] = useState<{ referrerType: string; referrerId: string; referrerName: string } | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
+  const [engineersLoading, setEngineersLoading] = useState(true)
 
   // Stripe payment state
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null)
@@ -140,8 +157,14 @@ export default function BookingPage() {
 
   useEffect(() => {
     fetch('/api/engineers')
-      .then((r) => (r.ok ? r.json() : []))
-      .then((rows) => setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)]))
+      .then((r) => {
+        if (!r.ok) return []
+        return r.json()
+      })
+      .then((rows) => {
+        setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)])
+      })
+      .finally(() => setEngineersLoading(false))
   }, [])
 
   // Updated steps with new flow
@@ -160,36 +183,50 @@ export default function BookingPage() {
   const totalSteps = steps.length
   const progressPercent = Math.round((currentStep / totalSteps) * 100)
   
-  const formattedDate = selectedDate
-    ? selectedDate.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "Not set"
-    
-  const formattedTime = selectedTimeSlots.length > 0 ? getFormattedTimeRange(selectedTimeSlots) : "Not set"
+  // Memoize formatted date to avoid recalculating on every render
+  const formattedDate = useMemo(() => {
+    if (!selectedDate) return "Not set"
+    return selectedDate.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }, [selectedDate])
+      
+  // Memoize formatted time range
+  const formattedTime = useMemo(() => {
+    if (selectedTimeSlots.length === 0) return "Not set"
+    return getFormattedTimeRange(selectedTimeSlots)
+  }, [selectedTimeSlots])
   
-  // Calculate pricing
-  const studioRate = selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
-  const duration = getDuration(selectedTimeSlots)
-  const basePrice = studioRate * duration
-  const micAddOnPrice = micSelection.reduce((sum, m) => sum + m.price, 0)
-  const totalPrice = basePrice + micAddOnPrice
-  const depositAmount = paymentOption === "50% deposit" ? totalPrice * 0.5 : paymentOption === "Full payment" ? totalPrice : 0
+  // Memoize pricing calculations to avoid recalculating on every render
+  const studioRate = useMemo(() => {
+    return selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
+  }, [selectedStudio])
+  
+  const duration = useMemo(() => getDuration(selectedTimeSlots), [selectedTimeSlots])
+  const basePrice = useMemo(() => studioRate * duration, [studioRate, duration])
+  const micAddOnPrice = useMemo(() => micSelection.reduce((sum, m) => sum + m.price, 0), [micSelection])
+  const totalPrice = useMemo(() => basePrice + micAddOnPrice, [basePrice, micAddOnPrice])
+  const depositAmount = useMemo(() => {
+    if (paymentOption === "50% deposit") return totalPrice * 0.5
+    if (paymentOption === "Full payment") return totalPrice
+    return 0
+  }, [paymentOption, totalPrice])
 
   // Stripe is required for full payment and deposit (not for pay-in-studio)
-  const requiresStripePayment =
-    paymentOption === "Full payment" || paymentOption === "50% deposit"
+  const requiresStripePayment = useMemo(() =>
+    paymentOption === "Full payment" || paymentOption === "50% deposit",
+    [paymentOption]
+  )
 
-  // Amount to charge via Stripe
-  const stripeChargeAmount =
-    paymentOption === "Full payment"
-      ? totalPrice
-      : paymentOption === "50% deposit"
-      ? totalPrice * 0.5
-      : 0
+  // Amount to charge via Stripe - memoized
+  const stripeChargeAmount = useMemo(() => {
+    if (paymentOption === "Full payment") return totalPrice
+    if (paymentOption === "50% deposit") return totalPrice * 0.5
+    return 0
+  }, [paymentOption, totalPrice])
 
   // Create Stripe Payment Intent when reaching the review step with upfront payment
   useEffect(() => {
@@ -239,23 +276,21 @@ export default function BookingPage() {
     selectedStudio,
   ])
 
-  const goToNextStep = () => {
+  const goToNextStep = useCallback(() => {
     if (currentStep < totalSteps) {
       const nextStep = currentStep + 1
       setCurrentStep(nextStep)
-      if (!visitedSteps.includes(nextStep)) {
-        setVisitedSteps([...visitedSteps, nextStep])
-      }
+      setVisitedSteps(prev => prev.includes(nextStep) ? prev : [...prev, nextStep])
     }
-  }
+  }, [currentStep, totalSteps])
 
-  const goToPrevStep = () => {
+  const goToPrevStep = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1)
     }
-  }
+  }, [currentStep])
 
-  const canProceed = () => {
+  const canProceed = useCallback(() => {
     switch (currentStep) {
       case 1: 
         return clientName.trim().length > 0 && 
@@ -283,7 +318,7 @@ export default function BookingPage() {
       default:
         return true
     }
-  }
+  }, [currentStep, clientName, clientEmail, clientPhone, phoneError, selectedDate, sessionMode, sessionType, paymentOption, selectedStudio, selectedTimeSlots, authorization, requiresStripePayment, paymentComplete])
 
   // Validate phone against staff
   useEffect(() => {
@@ -309,44 +344,46 @@ export default function BookingPage() {
     "July", "August", "September", "October", "November", "December"
   ]
 
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
+  // Calendar helpers - memoized with useMemo
+  const daysInMonth = useMemo(() => {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
     const lastDay = new Date(year, month + 1, 0)
     return lastDay.getDate()
-  }
+  }, [currentMonth])
 
-  const getFirstDayOfMonth = (date: Date) => {
-    const year = date.getFullYear()
-    const month = date.getMonth()
+  const firstDay = useMemo(() => {
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
     return new Date(year, month, 1).getDay()
-  }
+  }, [currentMonth])
 
-  const daysInMonth = getDaysInMonth(currentMonth)
-  const firstDay = getFirstDayOfMonth(currentMonth)
-  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+  const days = useMemo(() => 
+    Array.from({ length: daysInMonth }, (_, i) => i + 1),
+    [daysInMonth]
+  )
 
-  const prevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
-  }
+  const prevMonth = useCallback(() => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1))
+  }, [])
 
-  const nextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
-  }
+  const nextMonth = useCallback(() => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1))
+  }, [])
 
-  const isDateAvailable = (day: number) => {
+  const isDateAvailable = useCallback((day: number) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
     const dayOfWeek = date.getDay()
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     return dayOfWeek !== 0 && dayOfWeek !== 6 && date >= today
-  }
+  }, [currentMonth])
 
-  const handleAuthorizationComplete = (auth: typeof authorization) => {
+  const handleAuthorizationComplete = useCallback((auth: typeof authorization) => {
     setAuthorization(auth)
-  }
+  }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!authorization) {
@@ -440,21 +477,24 @@ export default function BookingPage() {
         variant: "destructive",
       })
     }
-  }
+  }, [authorization, selectedTimeSlots, clientName, clientEmail, clientPhone, selectedDate, sessionMode, sessionType, engineer, paymentOption, selectedStudio, duration, referral, micSelection, stripePaymentIntentId, toast, router])
 
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                <User className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Let's get to know you</h2>
               <p className="text-muted-foreground">Enter your contact information to get started</p>
             </div>
             
-            <div className="space-y-4 max-w-md mx-auto">
+            <div className="space-y-5 max-w-md mx-auto">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
+                <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
                 <Input
                   id="name"
                   placeholder="Your name"
@@ -465,7 +505,7 @@ export default function BookingPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
@@ -480,7 +520,7 @@ export default function BookingPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
+                <Label htmlFor="phone" className="text-sm font-medium">Phone Number *</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
@@ -500,7 +540,7 @@ export default function BookingPage() {
                 )}
               </div>
               
-              <div className="pt-4">
+              <div className="pt-2">
                 <ReferralDropdown onSelectionChange={setReferral} />
               </div>
             </div>
@@ -510,7 +550,10 @@ export default function BookingPage() {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                <Calendar className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Select a Date</h2>
               <p className="text-muted-foreground">Choose your preferred session date</p>
             </div>
@@ -521,7 +564,7 @@ export default function BookingPage() {
                   <Button variant="ghost" size="icon" onClick={prevMonth}>
                     <ChevronLeft className="h-5 w-5" />
                   </Button>
-                  <span className="font-medium">
+                  <span className="font-semibold">
                     {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                   </span>
                   <Button variant="ghost" size="icon" onClick={nextMonth}>
@@ -531,7 +574,7 @@ export default function BookingPage() {
 
                 <ResponsiveCalendarGrid
                   weekdayHeader={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="text-xs text-muted-foreground py-2 text-center">
+                    <div key={day} className="text-xs text-muted-foreground py-2 text-center font-medium">
                       <span className="sm:hidden">{day[0]}</span>
                       <span className="hidden sm:inline">{day}</span>
                     </div>
@@ -558,11 +601,13 @@ export default function BookingPage() {
                             setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
                           }
                         }}
-                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-colors
-                          ${isSelected ? "bg-primary text-primary-foreground" : ""}
-                          ${!isSelected && isAvailable ? "hover:bg-muted cursor-pointer" : ""}
-                          ${!isAvailable ? "text-muted-foreground/30 cursor-not-allowed" : ""}
-                        `}
+                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${
+                          isSelected 
+                            ? "bg-primary text-primary-foreground font-semibold shadow-md" 
+                            : isAvailable 
+                            ? "hover:bg-primary/10 cursor-pointer" 
+                            : "text-muted-foreground/30 cursor-not-allowed"
+                        }`}
                       >
                         {day}
                       </button>
@@ -577,7 +622,10 @@ export default function BookingPage() {
       case 3:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                <Globe className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Session Mode</h2>
               <p className="text-muted-foreground">Will this be an online or in-person session?</p>
             </div>
@@ -586,9 +634,9 @@ export default function BookingPage() {
               <button
                 type="button"
                 onClick={() => setSessionMode("In-Person")}
-                className={`p-6 rounded-xl border-2 text-left transition-all ${
+                className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   sessionMode === "In-Person"
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary bg-primary/5 shadow-md"
                     : "border-muted hover:border-muted-foreground/50"
                 }`}
               >
@@ -608,9 +656,9 @@ export default function BookingPage() {
               <button
                 type="button"
                 onClick={() => setSessionMode("Online")}
-                className={`p-6 rounded-xl border-2 text-left transition-all ${
+                className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   sessionMode === "Online"
-                    ? "border-primary bg-primary/5"
+                    ? "border-primary bg-primary/5 shadow-md"
                     : "border-muted hover:border-muted-foreground/50"
                 }`}
               >
@@ -635,22 +683,25 @@ export default function BookingPage() {
         
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                <Music className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Session Details</h2>
               <p className="text-muted-foreground">Select your service type and payment preference</p>
             </div>
 
-            <div className="space-y-8 max-w-lg mx-auto">
+            <div className="space-y-6 max-w-lg mx-auto">
               <div className="space-y-3">
-                <Label className="text-base font-medium">Service Type</Label>
+                <Label className="text-sm font-medium">Service Type</Label>
                 {services.map((service) => (
                   <button
                     key={service.value}
                     type="button"
                     onClick={() => setSessionType(service.value)}
-                    className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                    className={`w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
                       sessionType === service.value
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 shadow-md"
                         : "border-muted hover:border-muted-foreground/50"
                     }`}
                   >
@@ -661,15 +712,15 @@ export default function BookingPage() {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-base font-medium">Payment Option</Label>
+                <Label className="text-sm font-medium">Payment Option</Label>
                 {paymentOptions.map((option) => (
                   <button
                     key={option.value}
                     type="button"
                     onClick={() => setPaymentOption(option.value)}
-                    className={`w-full p-4 rounded-lg border-2 text-left transition-all ${
+                    className={`w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
                       paymentOption === option.value
-                        ? "border-primary bg-primary/5"
+                        ? "border-primary bg-primary/5 shadow-md"
                         : "border-muted hover:border-muted-foreground/50"
                     }`}
                   >
@@ -680,7 +731,7 @@ export default function BookingPage() {
               </div>
 
               <div className="space-y-3">
-                <Label className="text-base font-medium">Engineer Preference (Optional)</Label>
+                <Label className="text-sm font-medium">Engineer Preference (Optional)</Label>
                 <Select value={engineer || ""} onValueChange={setEngineer}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select an engineer" />
@@ -702,7 +753,10 @@ export default function BookingPage() {
         if (sessionMode === "Online") {
           return (
             <div className="space-y-6 text-center">
-              <div className="text-center mb-8">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                  <Globe className="h-6 w-6 text-primary" />
+                </div>
                 <h2 className="text-2xl font-bold mb-2">Online Session</h2>
                 <p className="text-muted-foreground">No studio selection needed for online sessions</p>
               </div>
@@ -720,7 +774,10 @@ export default function BookingPage() {
 
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                <MapPin className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Select Studio</h2>
               <p className="text-muted-foreground">Choose your preferred recording space</p>
             </div>
@@ -731,9 +788,9 @@ export default function BookingPage() {
                   key={studio.value}
                   type="button"
                   onClick={() => setSelectedStudio(studio.value)}
-                  className={`p-6 rounded-xl border-2 text-left transition-all ${
+                  className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                     selectedStudio === studio.value
-                      ? "border-primary bg-primary/5"
+                      ? "border-primary bg-primary/5 shadow-md"
                       : "border-muted hover:border-muted-foreground/50"
                   }`}
                 >
@@ -743,7 +800,7 @@ export default function BookingPage() {
                       <p className="text-muted-foreground text-sm">{studio.description}</p>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold">${studio.rate}/hr</div>
+                      <div className="font-bold text-lg">${studio.rate}/hr</div>
                     </div>
                   </div>
                 </button>
@@ -759,7 +816,10 @@ export default function BookingPage() {
       case 6:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                <Clock className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Select Time</h2>
               <p className="text-muted-foreground">Choose your session time slot(s)</p>
             </div>
@@ -797,7 +857,7 @@ export default function BookingPage() {
                       }}
                       className={`p-3 rounded-lg text-sm transition-all ${
                         isSelected
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary text-primary-foreground shadow-md"
                           : wouldBreakConsecutive
                           ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
                           : "bg-muted hover:bg-muted/80"
@@ -810,14 +870,14 @@ export default function BookingPage() {
               </div>
 
               {selectedTimeSlots.length > 0 && (
-                <div className="mt-6 p-4 bg-muted rounded-lg">
+                <div className="mt-6 p-4 bg-primary/5 rounded-lg border">
                   <div className="flex justify-between items-center">
                     <span className="font-medium">Selected Time:</span>
-                    <span>{formattedTime}</span>
+                    <span className="font-semibold">{formattedTime}</span>
                   </div>
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-medium">Duration:</span>
-                    <span>{duration} hour(s)</span>
+                    <span className="font-semibold">{duration} hour(s)</span>
                   </div>
                 </div>
               )}
@@ -828,7 +888,10 @@ export default function BookingPage() {
       case 7:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                <Mic className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Add-Ons</h2>
               <p className="text-muted-foreground">Enhance your session with premium options</p>
             </div>
@@ -845,7 +908,10 @@ export default function BookingPage() {
       case 8:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                <Check className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Authorization</h2>
               <p className="text-muted-foreground">Please review and authorize your booking</p>
             </div>
@@ -868,7 +934,10 @@ export default function BookingPage() {
       case 9:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
+                <Wallet className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-2xl font-bold mb-2">Review Your Booking</h2>
               <p className="text-muted-foreground">Please confirm all details before submitting</p>
             </div>
@@ -877,59 +946,59 @@ export default function BookingPage() {
               <CardContent className="p-4 sm:p-6 space-y-4">
                 <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2">
                   <div>
-                    <span className="text-sm text-muted-foreground">Name</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Name</span>
                     <p className="font-medium">{clientName}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Email</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Email</span>
                     <p className="font-medium">{clientEmail}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Phone</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Phone</span>
                     <p className="font-medium">{clientPhone}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Session Mode</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Mode</span>
                     <p className="font-medium">{sessionMode}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Date</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Date</span>
                     <p className="font-medium">{formattedDate}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Time</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Time</span>
                     <p className="font-medium">{formattedTime}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Session Type</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Type</span>
                     <p className="font-medium">{sessionType}</p>
                   </div>
                   <div>
-                    <span className="text-sm text-muted-foreground">Studio</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Studio</span>
                     <p className="font-medium">{selectedStudio || "Online"}</p>
                   </div>
                   {engineer && engineer !== "No preference" && (
                     <div>
-                      <span className="text-sm text-muted-foreground">Engineer</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Engineer</span>
                       <p className="font-medium">{engineer}</p>
                     </div>
                   )}
                   {referral && (
                     <div>
-                      <span className="text-sm text-muted-foreground">Referred By</span>
+                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Referred By</span>
                       <p className="font-medium">{referral.referrerName}</p>
                     </div>
                   )}
                 </div>
 
                 <div className="border-t pt-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Base Rate ({duration} hr × ${studioRate})</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Base Rate ({duration} hr × ${studioRate})</span>
                     <span>${basePrice.toFixed(2)}</span>
                   </div>
                   {micAddOnPrice > 0 && (
-                    <div className="flex justify-between">
-                      <span>Mic Add-On</span>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Mic Add-On</span>
                       <span>${micAddOnPrice.toFixed(2)}</span>
                     </div>
                   )}
@@ -938,9 +1007,9 @@ export default function BookingPage() {
                     <span>${totalPrice.toFixed(2)}</span>
                   </div>
                   {depositAmount > 0 && (
-                    <div className="flex justify-between text-primary">
+                    <div className="flex justify-between text-primary font-medium">
                       <span>Due Now ({paymentOption})</span>
-                      <span className="font-bold">${depositAmount.toFixed(2)}</span>
+                      <span>${depositAmount.toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -1059,8 +1128,8 @@ export default function BookingPage() {
 
       {/* Step Indicators */}
       <div className="border-b bg-background/95 backdrop-blur overflow-x-auto snap-x snap-mandatory">
-        <div className="container py-4">
-          <div className="flex items-center gap-2 min-w-max">
+        <div className="container py-3">
+          <div className="flex items-center gap-1 min-w-max">
             {steps.map((step, index) => {
               const Icon = step.icon
               const isActive = currentStep === step.number
@@ -1073,17 +1142,21 @@ export default function BookingPage() {
                     type="button"
                     onClick={() => isVisited && setCurrentStep(step.number)}
                     disabled={!isVisited}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
                       isActive
-                        ? "bg-primary text-primary-foreground"
+                        ? "bg-primary text-primary-foreground shadow-md"
                         : isCompleted
                         ? "bg-primary/10 text-primary"
                         : isVisited
                         ? "bg-muted hover:bg-muted/80 cursor-pointer"
-                        : "text-muted-foreground"
+                        : "text-muted-foreground/50"
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
+                    {isCompleted ? (
+                      <Check className="h-4 w-4" />
+                    ) : (
+                      <Icon className="h-4 w-4" />
+                    )}
                     <span className="text-xs font-medium sm:hidden">{step.shortLabel ?? step.label}</span>
                     <span className="text-sm font-medium hidden sm:inline">{step.label}</span>
                   </button>
@@ -1097,54 +1170,157 @@ export default function BookingPage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <main className="container px-4 sm:px-6 py-4 sm:py-8">
-        <form onSubmit={handleSubmit}>
-          {renderStepContent()}
+      {/* Main Content Area */}
+      <div className="container mx-auto px-4 sm:px-6 py-6">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
+          {/* Left Column - Form Steps */}
+          <div className="lg:col-span-2">
+            <div className="bg-card rounded-xl border shadow-sm">
+              <div className="p-6 sm:p-8">
+                <form onSubmit={handleSubmit}>
+                  {renderStepContent()}
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-8 max-w-lg mx-auto gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={goToPrevStep}
-              disabled={currentStep === 1}
-              className="gap-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Back</span>
-              <span className="sm:hidden">Prev</span>
-            </Button>
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between mt-8 pt-6 border-t gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={goToPrevStep}
+                      disabled={currentStep === 1}
+                      className="gap-2"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      <span className="hidden sm:inline">Back</span>
+                      <span className="sm:hidden">Prev</span>
+                    </Button>
 
-            {currentStep < totalSteps ? (
-              <Button
-                type="button"
-                onClick={goToNextStep}
-                disabled={!canProceed()}
-                className="gap-2"
-              >
-                <span className="hidden sm:inline">Continue</span>
-                <span className="sm:hidden">Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                disabled={!canProceed()}
-                className="gap-2"
-              >
-                <Check className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {requiresStripePayment && !paymentComplete
-                    ? "Complete Payment Above"
-                    : "Submit Booking"}
-                </span>
-                <span className="sm:hidden">Submit</span>
-              </Button>
-            )}
+                    {currentStep < totalSteps ? (
+                      <Button
+                        type="button"
+                        onClick={goToNextStep}
+                        disabled={!canProceed()}
+                        className="gap-2"
+                      >
+                        <span className="hidden sm:inline">Continue</span>
+                        <span className="sm:hidden">Next</span>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={!canProceed()}
+                        className="gap-2"
+                      >
+                        <Check className="h-4 w-4" />
+                        <span className="hidden sm:inline">
+                          {requiresStripePayment && !paymentComplete
+                            ? "Complete Payment Above"
+                            : "Submit Booking"}
+                        </span>
+                        <span className="sm:hidden">Submit</span>
+                      </Button>
+                    )}
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-        </form>
-      </main>
+
+          {/* Right Column - Booking Summary */}
+          <div className="hidden lg:block">
+            <div className="sticky top-24">
+              <div className="bg-card rounded-xl border shadow-sm p-6">
+                <h3 className="font-semibold text-lg mb-4">Booking Summary</h3>
+                
+                <div className="space-y-3 text-sm">
+                  {clientName && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Name</span>
+                      <span className="font-medium truncate ml-4">{clientName}</span>
+                    </div>
+                  )}
+                  {clientEmail && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Email</span>
+                      <span className="font-medium truncate ml-4">{clientEmail}</span>
+                    </div>
+                  )}
+                  {selectedDate && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Date</span>
+                      <span className="font-medium">{selectedDate.toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {sessionMode && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Session</span>
+                      <span className="font-medium">{sessionMode}</span>
+                    </div>
+                  )}
+                  {sessionType && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Type</span>
+                      <span className="font-medium">{sessionType}</span>
+                    </div>
+                  )}
+                  {selectedStudio && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Studio</span>
+                      <span className="font-medium">{selectedStudio}</span>
+                    </div>
+                  )}
+                  {selectedTimeSlots.length > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Time</span>
+                      <span className="font-medium">{duration} hour(s)</span>
+                    </div>
+                  )}
+                </div>
+
+                {totalPrice > 0 && (
+                  <>
+                    <div className="border-t mt-4 pt-4 space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Base ({duration} hr × ${studioRate})</span>
+                        <span>${basePrice.toFixed(2)}</span>
+                      </div>
+                      {micAddOnPrice > 0 && (
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Add-ons</span>
+                          <span>${micAddOnPrice.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                        <span>Total</span>
+                        <span>${totalPrice.toFixed(2)}</span>
+                      </div>
+                      {depositAmount > 0 && (
+                        <div className="flex justify-between text-primary font-medium">
+                          <span>Due Now</span>
+                          <span>${depositAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {/* Progress indicator */}
+                <div className="mt-6 pt-4 border-t">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <div className="flex-1 bg-muted rounded-full h-1.5">
+                      <div 
+                        className="bg-primary h-1.5 rounded-full transition-all" 
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                    <span>{progressPercent}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="border-t bg-background mt-auto">
