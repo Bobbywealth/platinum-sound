@@ -1,7 +1,7 @@
 "use client"
 
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,19 +9,132 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Settings, Bell, Shield, CreditCard, Users, Building2 } from "lucide-react"
+import { Settings, Bell, Shield, CreditCard, Users, Building2, Loader2 } from "lucide-react"
+import { toast } from "@/hooks/use-toast"
+
+type User = {
+  id: string
+  name: string | null
+  email: string
+  role: string
+  phone: string | null
+}
+
+type StudioSettings = {
+  name: string
+  email: string
+  phone: string
+  address: string
+}
+
+type NotificationKey = `${string}_${string}`
+
+const EMAIL_NOTIFICATION_TYPES = [
+  { key: 'BOOKING', label: 'New Bookings', description: 'Get notified when a new booking is made' },
+  { key: 'CANCELLATION', label: 'Cancellations', description: 'Alert when a booking is cancelled' },
+  { key: 'REMINDER', label: 'Reminders', description: 'Send reminders 24h before sessions' },
+  { key: 'REPORT', label: 'Weekly Reports', description: 'Receive weekly performance summaries' },
+]
+
+const ROLES = ['ADMIN', 'MANAGER', 'BOOKING_AGENT', 'ENGINEER', 'INTERN', 'FINANCE', 'MARKETING', 'FRONT_DESK']
 
 export default function SettingsPage() {
-  const [notifications, setNotifications] = useState({
-    newBookings: true,
-    cancellations: true,
-    reminders: false,
-    reports: true,
-  })
-
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  
+  // Studio settings
   const [studioName, setStudioName] = useState("Platinum Sound Studios")
   const [email, setEmail] = useState("admin@platinumsound.com")
   const [phone, setPhone] = useState("+1 (555) 234-5678")
+  const [address, setAddress] = useState("")
+  
+  // Notifications - keyed by ROLE_TYPE
+  const [notifications, setNotifications] = useState<Record<string, boolean>>({})
+  
+  // Team members
+  const [team, setTeam] = useState<User[]>([])
+
+  // Load settings on mount
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data) {
+          if (data.studio) {
+            setStudioName(data.studio.name || "Platinum Sound Studios")
+            setEmail(data.studio.email || "")
+            setPhone(data.studio.phone || "")
+            setAddress(data.studio.address || "")
+          }
+          if (data.notifications) {
+            setNotifications(data.notifications)
+          }
+          if (data.team) {
+            setTeam(data.team)
+          }
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
+  }, [])
+
+  async function handleSaveStudio() {
+    setIsSaving(true)
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studio: {
+            name: studioName,
+            email,
+            phone,
+            address,
+          }
+        })
+      })
+      
+      if (response.ok) {
+        toast({ title: 'Studio settings saved' })
+      } else {
+        toast({ title: 'Failed to save settings', variant: 'destructive' })
+      }
+    } catch (error) {
+      console.error('Error saving studio settings:', error)
+      toast({ title: 'Failed to save settings', variant: 'destructive' })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function handleNotificationChange(role: string, type: string, enabled: boolean) {
+    const key = `${role}_${type}` as NotificationKey
+    const newNotifications = { ...notifications, [key]: enabled }
+    setNotifications(newNotifications)
+    
+    // Save immediately
+    try {
+      await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notifications: newNotifications })
+      })
+      toast({ title: 'Notification settings updated' })
+    } catch (error) {
+      console.error('Error saving notification:', error)
+      toast({ title: 'Failed to update notifications', variant: 'destructive' })
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <DashboardPageShell className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </DashboardPageShell>
+    )
+  }
 
   return (
     <DashboardPageShell className="space-y-4 sm:space-y-6 bg-[#FAFAF8] min-h-screen p-4 sm:p-6">
@@ -72,8 +185,26 @@ export default function SettingsPage() {
                 onChange={(e) => setPhone(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Studio address"
+              />
+            </div>
           </div>
-          <Button>Save Changes</Button>
+          <Button onClick={handleSaveStudio} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              'Save Changes'
+            )}
+          </Button>
         </CardContent>
       </Card>
 
@@ -87,49 +218,32 @@ export default function SettingsPage() {
           <CardDescription>Configure how you receive alerts and updates</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">New Bookings</p>
-              <p className="text-xs text-muted-foreground">Get notified when a new booking is made</p>
+          {ROLES.map((role) => (
+            <div key={role}>
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline">{role.replace('_', ' ')}</Badge>
+              </div>
+              <div className="space-y-3 pl-4 border-l-2 border-muted">
+                {EMAIL_NOTIFICATION_TYPES.map((type) => {
+                  const key = `${role}_${type.key}`
+                  const isEnabled = notifications[key] ?? true
+                  return (
+                    <div key={key} className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium">{type.label}</p>
+                        <p className="text-xs text-muted-foreground">{type.description}</p>
+                      </div>
+                      <Switch
+                        checked={isEnabled}
+                        onCheckedChange={(checked) => handleNotificationChange(role, type.key, checked)}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+              <Separator className="mt-4" />
             </div>
-            <Switch
-              checked={notifications.newBookings}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, newBookings: checked })}
-            />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Cancellations</p>
-              <p className="text-xs text-muted-foreground">Alert when a booking is cancelled</p>
-            </div>
-            <Switch
-              checked={notifications.cancellations}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, cancellations: checked })}
-            />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Reminders</p>
-              <p className="text-xs text-muted-foreground">Send reminders 24h before sessions</p>
-            </div>
-            <Switch
-              checked={notifications.reminders}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, reminders: checked })}
-            />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Weekly Reports</p>
-              <p className="text-xs text-muted-foreground">Receive weekly performance summaries</p>
-            </div>
-            <Switch
-              checked={notifications.reports}
-              onCheckedChange={(checked) => setNotifications({ ...notifications, reports: checked })}
-            />
-          </div>
+          ))}
         </CardContent>
       </Card>
 
@@ -143,22 +257,25 @@ export default function SettingsPage() {
           <CardDescription>Manage access and permissions</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {[
-            { name: "Alex Johnson", role: "Admin", email: "alex@platinumsound.com" },
-            { name: "Maria Garcia", role: "Engineer", email: "maria@platinumsound.com" },
-            { name: "James Wilson", role: "Engineer", email: "james@platinumsound.com" },
-          ].map((member) => (
-            <div key={member.email} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
-              <div>
-                <p className="text-sm font-medium">{member.name}</p>
-                <p className="text-xs text-muted-foreground">{member.email}</p>
+          {team.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No team members found.</p>
+          ) : (
+            team.map((member) => (
+              <div key={member.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium">{member.name || 'Unknown'}</p>
+                  <p className="text-xs text-muted-foreground">{member.email}</p>
+                  {member.phone && <p className="text-xs text-muted-foreground">{member.phone}</p>}
+                </div>
+                <Badge variant="outline">{member.role.replace('_', ' ')}</Badge>
               </div>
-              <Badge variant="outline">{member.role}</Badge>
-            </div>
-          ))}
-          <Button variant="outline" className="w-full mt-2">
-            <Users className="h-4 w-4 mr-2" />
-            Invite Team Member
+            ))
+          )}
+          <Button variant="outline" className="w-full mt-2" asChild>
+            <a href="/dashboard/staff">
+              <Users className="h-4 w-4 mr-2" />
+              Manage Team Members
+            </a>
           </Button>
         </CardContent>
       </Card>
@@ -198,13 +315,13 @@ export default function SettingsPage() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between p-3 bg-muted/30 rounded-lg">
             <div>
               <p className="text-sm font-medium">Professional Plan</p>
-              <p className="text-xs text-muted-foreground">$99/month · Renews Jan 1, 2025</p>
+              <p className="text-xs text-muted-foreground">Contact support for billing inquiries</p>
             </div>
-            <Badge className="bg-green-100 text-green-700 w-fit">Active</Badge>
+            <Badge className="bg-green-100 text-green-700 w-fit">Contact Us</Badge>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
-            <Button variant="outline" className="flex-1">Manage Plan</Button>
-            <Button variant="outline" className="flex-1">Update Payment</Button>
+            <Button variant="outline" className="flex-1" disabled>Manage Plan</Button>
+            <Button variant="outline" className="flex-1" disabled>Update Payment</Button>
           </div>
         </CardContent>
       </Card>
