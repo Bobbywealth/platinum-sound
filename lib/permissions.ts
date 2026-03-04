@@ -76,6 +76,23 @@ export const rolePermissions: Record<Role, Permission[]> = {
     'apply_discounts',
     'sign_work_orders',
   ],
+  INTERN: [
+    'view_own_profile',
+    'view_master_calendar',
+    'sign_work_orders',
+  ],
+  FINANCE: [
+    'view_own_profile',
+    'view_reports',
+  ],
+  MARKETING: [
+    'view_own_profile',
+    'view_reports',
+  ],
+  FRONT_DESK: [
+    'view_own_profile',
+    'view_master_calendar',
+  ],
 }
 
 // Check if a role has a specific permission
@@ -107,6 +124,10 @@ export const roleDisplayNames: Record<Role, string> = {
   MANAGER: 'Manager',
   BOOKING_AGENT: 'Booking Agent',
   ENGINEER: 'Engineer',
+  INTERN: 'Intern',
+  FINANCE: 'Finance',
+  MARKETING: 'Marketing',
+  FRONT_DESK: 'Front Desk',
 }
 
 // Role descriptions
@@ -115,6 +136,10 @@ export const roleDescriptions: Record<Role, string> = {
   MANAGER: 'Manage bookings, staff, reports, and studio operations',
   BOOKING_AGENT: 'Create and manage bookings, view calendar, handle client requests',
   ENGINEER: 'Update availability, manage sessions, apply discounts within limits',
+  INTERN: 'Inventory sign-offs, work order signing, and view-only calendar access',
+  FINANCE: 'Invoices, expenses, and financial reports — no booking access',
+  MARKETING: 'Email/SMS campaigns, client communications, and analytics',
+  FRONT_DESK: 'View-only calendar and bookings, assist with client check-in',
 }
 
 // Check if user can apply a specific discount percentage
