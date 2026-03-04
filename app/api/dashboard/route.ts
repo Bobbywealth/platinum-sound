@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { BookingStatus, InvoiceStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 function startOfDay(date: Date) {
   const result = new Date(date)
   result.setHours(0, 0, 0, 0)

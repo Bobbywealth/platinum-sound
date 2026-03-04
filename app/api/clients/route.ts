@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ClientStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     const clients = await prisma.client.findMany({

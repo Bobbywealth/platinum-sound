@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Role, EmailType } from '@prisma/client'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/settings - Get all settings
 export async function GET() {
   try {
