@@ -12,8 +12,12 @@ import {
     X
 } from "lucide-react"
 import Link from "next/link"
+import { useSession } from "next-auth/react"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { roleDisplayNames } from "@/lib/permissions"
+import { useRolePreview } from "@/lib/role-preview-context"
+import { Role } from "@prisma/client"
 
 interface SearchResult {
   type: string
@@ -83,6 +87,8 @@ const searchResultVariants = {
 
 export default function DashboardHeader() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const { previewRole, isPreviewActive, setPreviewRole } = useRolePreview()
   const [searchQuery, setSearchQuery] = useState("")
   const [results, setResults] = useState<SearchResult[]>([])
   const [isSearching, setIsSearching] = useState(false)
@@ -97,6 +103,11 @@ export default function DashboardHeader() {
   const mobileNotificationRef = useRef<HTMLDivElement>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
   const mobileUserMenuRef = useRef<HTMLDivElement>(null)
+
+  const userName = session?.user?.name ?? "Studio Manager"
+  const userEmail = session?.user?.email ?? "manager@platinumsound.com"
+  const effectiveRole: Role = (previewRole ?? session?.user?.role ?? "ADMIN") as Role
+  const effectiveRoleLabel = roleDisplayNames[effectiveRole] ?? effectiveRole
 
   // Get page title from pathname
   const getPageTitle = () => {
@@ -401,11 +412,21 @@ export default function DashboardHeader() {
             whileTap={{ scale: 0.98 }}
           >
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-medium text-gray-900">Studio Manager</span>
-              <span className="text-xs text-gray-500">manager@platinumsound.com</span>
+              <span className="text-sm font-medium text-gray-900">{userName}</span>
+              <span className="flex items-center gap-1 text-xs text-gray-500">
+                {effectiveRoleLabel}
+                {isPreviewActive && (
+                  <span className="rounded bg-amber-100 px-1 py-px text-[10px] font-semibold text-amber-700">
+                    preview
+                  </span>
+                )}
+              </span>
             </div>
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
+            <div className="relative h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center">
               <User className="h-5 w-5 text-gray-600" />
+              {isPreviewActive && (
+                <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-amber-400" />
+              )}
             </div>
           </motion.button>
 
@@ -428,11 +449,25 @@ export default function DashboardHeader() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg overflow-hidden"
+                className="absolute right-0 top-full mt-2 w-56 bg-white border rounded-lg shadow-lg overflow-hidden"
               >
                 <div className="px-4 py-3 border-b">
-                  <p className="text-sm font-medium">Studio Manager</p>
-                  <p className="text-xs text-gray-500">manager@platinumsound.com</p>
+                  <p className="text-sm font-medium">{userName}</p>
+                  <p className="text-xs text-gray-500">{userEmail}</p>
+                  {isPreviewActive && (
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                        Previewing
+                      </span>
+                      <span className="text-xs text-gray-600">{effectiveRoleLabel}</span>
+                      <button
+                        onClick={() => { setPreviewRole(null); setShowUserMenu(false) }}
+                        className="ml-auto text-[10px] text-gray-400 underline hover:text-gray-600"
+                      >
+                        Reset
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div className="py-1">
                   <Link

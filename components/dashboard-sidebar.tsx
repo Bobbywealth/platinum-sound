@@ -20,16 +20,19 @@ import {
     Users,
     X,
 } from "lucide-react"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { Role } from "@prisma/client"
+import { useRolePreview } from "@/lib/role-preview-context"
 
 interface NavItem {
   href: string
   label: string
   icon: React.ElementType
+  roles?: Role[] // if undefined, visible to all roles
 }
 
 interface NavSection {
@@ -37,6 +40,65 @@ interface NavSection {
   items: NavItem[]
   expandable?: boolean
   expandIcon?: React.ElementType
+}
+
+// Which pages each role can access. ADMIN sees everything.
+const rolePageAccess: Record<Role, string[]> = {
+  ADMIN: ["*"],
+  MANAGER: [
+    "/dashboard",
+    "/dashboard/calendar",
+    "/dashboard/availability",
+    "/dashboard/schedule",
+    "/dashboard/bookings",
+    "/dashboard/tasks",
+    "/dashboard/studios",
+    "/dashboard/services",
+    "/dashboard/inventory",
+    "/dashboard/work-orders",
+    "/dashboard/reports",
+    "/dashboard/analytics",
+    "/dashboard/invoices",
+    "/dashboard/expenses",
+    "/dashboard/clients",
+    "/dashboard/teams",
+    "/dashboard/settings",
+  ],
+  BOOKING_AGENT: [
+    "/dashboard",
+    "/dashboard/calendar",
+    "/dashboard/bookings",
+    "/dashboard/clients",
+  ],
+  ENGINEER: [
+    "/dashboard",
+    "/dashboard/availability",
+    "/dashboard/schedule",
+    "/dashboard/bookings",
+  ],
+  INTERN: [
+    "/dashboard",
+    "/dashboard/calendar",
+    "/dashboard/inventory",
+    "/dashboard/work-orders",
+  ],
+  FINANCE: [
+    "/dashboard",
+    "/dashboard/reports",
+    "/dashboard/analytics",
+    "/dashboard/invoices",
+    "/dashboard/expenses",
+  ],
+  MARKETING: [
+    "/dashboard",
+    "/dashboard/marketing",
+    "/dashboard/analytics",
+  ],
+  FRONT_DESK: [
+    "/dashboard",
+    "/dashboard/calendar",
+    "/dashboard/bookings",
+  ],
 }
 
 const navSections: NavSection[] = [
@@ -150,13 +212,24 @@ const backdropVariants = {
   exit: { opacity: 0 },
 }
 
+function canSeeHref(role: Role, href: string): boolean {
+  const allowed = rolePageAccess[role]
+  if (!allowed) return false
+  if (allowed.includes("*")) return true
+  return allowed.includes(href)
+}
+
 function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
+  const { data: session } = useSession()
+  const { previewRole } = useRolePreview()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     "CALENDAR & SCHEDULING": true,
     "FINANCE & REPORTS": true,
   })
+
+  const effectiveRole: Role = (previewRole ?? session?.user?.role ?? "ADMIN") as Role
 
   const toggleSection = (label: string) => {
     setExpandedSections((prev) => ({
@@ -174,6 +247,14 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     router.push(href)
     onClose?.()
   }
+
+  // Filter sections and items by effective role
+  const filteredSections = navSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => canSeeHref(effectiveRole, item.href)),
+    }))
+    .filter((section) => section.items.length > 0)
 
   return (
     <div className="flex flex-col h-full">
@@ -193,7 +274,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4">
         <div className="space-y-1">
-          {navSections.map((section) => (
+          {filteredSections.map((section) => (
             <div key={section.label} className="mb-2">
               {section.expandable ? (
                 <>
