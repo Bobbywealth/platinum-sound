@@ -17,6 +17,10 @@ enum Role {
   MANAGER
   BOOKING_AGENT
   ENGINEER
+  INTERN
+  FINANCE
+  MARKETING
+  FRONT_DESK
 }
 
 enum ClientStatus {
