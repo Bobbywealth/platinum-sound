@@ -116,7 +116,6 @@ const navSections: NavSection[] = [
   },
   {
     label: "OPERATIONS",
-    label: "OPERATIONS",
     expandable: true,
     expandIcon: Building2,
     items: [
