@@ -38,6 +38,7 @@ export async function GET(request: NextRequest) {
         include: {
           bookings: true,
           invoices: true,
+          revenue: true,
         },
       }),
       prisma.client.count({ where }),
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
     const clientsWithStats = clients.map(client => ({
       ...client,
       transactionCount: client.bookings.length + client.invoices.length,
-      lifetimeSpend: client.invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0),
+      lifetimeSpend: client.revenue?.totalRevenue || client.invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0),
     }))
 
     return NextResponse.json({
