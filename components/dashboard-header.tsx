@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { MobileSearchSheet } from "@/components/mobile-search-sheet"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { AnimatePresence, motion } from "framer-motion"
 import {
     Bell,
@@ -305,8 +306,11 @@ export default function DashboardHeader() {
         </Button>
       </div>
 
-      {/* Right side - Notifications, Settings, Profile */}
+      {/* Right side - Theme, Notifications, Settings, Profile */}
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+        
         {/* Notifications */}
         <div className="relative" ref={notificationRef}>
           <motion.button

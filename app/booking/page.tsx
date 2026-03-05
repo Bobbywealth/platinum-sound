@@ -6,7 +6,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect, useCallback, useMemo } from "react"
 
-import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ResponsiveCalendarGrid } from "@/components/ui/responsive-calendar-grid"
@@ -1084,10 +1083,6 @@ export default function BookingPage() {
               className="h-20 w-auto"
             />
           </Link>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:inline">Theme</span>
-            <ThemeToggle />
-          </div>
         </div>
       </header>
 
