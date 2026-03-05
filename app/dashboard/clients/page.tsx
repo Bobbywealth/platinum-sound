@@ -646,9 +646,9 @@ export default function ClientsPage() {
         onOpenChange={setImportOpen}
         onImported={(rows) => {
           const importedClients: Client[] = rows
-            .filter((row) => (row.name || row.firstName || '').trim())
+            .filter((row) => (row.firstName).trim())
             .map((row) => {
-              const nameParts = (row.name || '').trim().split(' ')
+              const nameParts = ('').trim().split(' ')
               const firstName = row.firstName || nameParts[0] || ''
               const lastName = row.lastName || nameParts.slice(1).join(' ') || ''
               return {
@@ -657,7 +657,7 @@ export default function ClientsPage() {
                 lastName: lastName.trim(),
                 email: row.email?.trim() || "",
                 phone: row.phone?.trim() || "",
-                companyName: row.companyName?.trim() || row.genre?.trim() || "",
+                companyName: row.companyName?.trim() || "",
                 address: row.address?.trim() || "",
                 city: row.city?.trim() || "",
                 notes: row.notes?.trim() || "",
