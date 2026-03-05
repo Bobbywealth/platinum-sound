@@ -70,10 +70,37 @@ export default function TasksPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("kanban")
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [taskList, setTaskList] = useState<Task[]>([])
+  const [teamMembers, setTeamMembers] = useState<{id: string, name: string}[]>([])
+  
+  // Edit/View dialog state
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    priority: "medium" as Priority,
+    assignee: "",
+    status: "todo" as TaskStatus,
+    isRecurring: false,
+    recurrencePattern: "weekly" as RecurrencePattern,
+  })
+  
   useEffect(() => {
     fetch("/api/tasks")
       .then((r) => (r.ok ? r.json() : []))
       .then((rows) => setTaskList(rows.map((t: any) => ({ ...t, status: String(t.status).toLowerCase(), priority: String(t.priority).toLowerCase(), assignee: t.assignee?.name }))))
+  }, [])
+  
+  // Fetch team members for assignee dropdown
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.team) {
+          setTeamMembers(data.team.map((m: any) => ({ id: m.id, name: m.name })))
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const [newTask, setNewTask] = useState<{
@@ -104,6 +131,7 @@ export default function TasksPage() {
           status: 'TODO',
           isRecurring: newTask.isRecurring,
           recurrencePattern: newTask.isRecurring ? newTask.recurrencePattern.toUpperCase() : null,
+          assigneeName: newTask.assignee || null,
         }),
       })
       
@@ -241,11 +269,24 @@ export default function TasksPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Assignee</Label>
-                    <Input
+                    <Select
                       value={newTask.assignee}
-                      onChange={(e) => setNewTask({ ...newTask, assignee: e.target.value })}
-                      placeholder="Team member name"
-                    />
+                      onValueChange={(value) =>
+                        setNewTask({ ...newTask, assignee: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select team member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">Unassigned</SelectItem>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.name}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -285,6 +326,194 @@ export default function TasksPage() {
                   Cancel
                 </Button>
                 <Button onClick={handleCreateTask}>Create Task</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
+          {/* Edit Task Dialog */}
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogDescription>
+                  View and edit task details.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-title">Title</Label>
+                  <Input
+                    id="edit-title"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    placeholder="Enter task title"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description</Label>
+                  <Input
+                    id="edit-description"
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    placeholder="Optional description"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={editForm.status}
+                      onValueChange={(value: TaskStatus) =>
+                        setEditForm({ ...editForm, status: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todo">To Do</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Priority</Label>
+                    <Select
+                      value={editForm.priority}
+                      onValueChange={(value: Priority) =>
+                        setEditForm({ ...editForm, priority: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Assignee</Label>
+                  <Select
+                    value={editForm.assignee}
+                    onValueChange={(value) =>
+                      setEditForm({ ...editForm, assignee: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select team member" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Unassigned</SelectItem>
+                      {teamMembers.map((member) => (
+                        <SelectItem key={member.id} value={member.name}>
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="edit-recurring"
+                    checked={editForm.isRecurring}
+                    onChange={(e) => setEditForm({ ...editForm, isRecurring: e.target.checked })}
+                    className="rounded border-gray-300"
+                  />
+                  <Label htmlFor="edit-recurring">Recurring task</Label>
+                </div>
+                {editForm.isRecurring && (
+                  <div className="space-y-2">
+                    <Label>Recurrence Pattern</Label>
+                    <Select
+                      value={editForm.recurrencePattern}
+                      onValueChange={(value: RecurrencePattern) =>
+                        setEditForm({ ...editForm, recurrencePattern: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select pattern" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="biweekly">Every 2 Weeks</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+              <DialogFooter className="justify-between">
+                <Button 
+                  variant="destructive" 
+                  onClick={async () => {
+                    if (selectedTask && confirm("Are you sure you want to delete this task?")) {
+                      try {
+                        await fetch(`/api/tasks/${selectedTask.id}`, { method: 'DELETE' })
+                        setTaskList(taskList.filter(t => t.id !== selectedTask.id))
+                        setIsEditDialogOpen(false)
+                      } catch (error) {
+                        console.error('Failed to delete task:', error)
+                      }
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={async () => {
+                      if (!selectedTask || !editForm.title.trim()) return
+                      
+                      try {
+                        const response = await fetch(`/api/tasks/${selectedTask.id}`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            title: editForm.title,
+                            description: editForm.description,
+                            priority: editForm.priority.toUpperCase(),
+                            status: editForm.status.toUpperCase(),
+                            isRecurring: editForm.isRecurring,
+                            recurrencePattern: editForm.isRecurring ? editForm.recurrencePattern.toUpperCase() : null,
+                          }),
+                        })
+                        
+                        if (response.ok) {
+                          const updatedTask = await response.json()
+                          setTaskList(taskList.map(t => 
+                            t.id === selectedTask.id 
+                              ? {
+                                  ...t,
+                                  title: updatedTask.title,
+                                  description: updatedTask.description,
+                                  priority: updatedTask.priority.toLowerCase(),
+                                  status: updatedTask.status.toLowerCase(),
+                                  isRecurring: updatedTask.isRecurring,
+                                  recurrencePattern: updatedTask.recurrencePattern?.toLowerCase(),
+                                }
+                              : t
+                          ))
+                          setIsEditDialogOpen(false)
+                        }
+                      } catch (error) {
+                        console.error('Failed to update task:', error)
+                      }
+                    }}
+                  >
+                    Save Changes
+                  </Button>
+                </div>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -350,7 +579,23 @@ export default function TasksPage() {
                 </div>
                 <div className="space-y-3 min-h-[400px]">
                   {statusTasks.map((task) => (
-                    <Card key={task.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                    <Card 
+                      key={task.id} 
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        setSelectedTask(task)
+                        setEditForm({
+                          title: task.title,
+                          description: task.description || "",
+                          priority: task.priority,
+                          assignee: task.assignee || "",
+                          status: task.status,
+                          isRecurring: task.isRecurring,
+                          recurrencePattern: (task.recurrencePattern as RecurrencePattern) || "weekly",
+                        })
+                        setIsEditDialogOpen(true)
+                      }}
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-2">
                           <Badge className={cn(priorityColors[task.priority])} variant="secondary">
