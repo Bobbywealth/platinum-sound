@@ -92,19 +92,40 @@ export default function TasksPage() {
     recurrencePattern: "weekly",
   })
 
-  const handleCreateTask = () => {
-    const task: Task = {
-      id: `T${String(taskList.length + 1).padStart(3, "0")}`,
-      title: newTask.title,
-      description: newTask.description,
-      priority: newTask.priority,
-      assignee: newTask.assignee,
-      status: "todo",
-      isRecurring: newTask.isRecurring,
-      recurrencePattern: newTask.isRecurring ? newTask.recurrencePattern : undefined,
-      createdAt: new Date().toISOString().split("T")[0],
+  const handleCreateTask = async () => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: newTask.title,
+          description: newTask.description,
+          priority: newTask.priority.toUpperCase(),
+          status: 'TODO',
+          isRecurring: newTask.isRecurring,
+          recurrencePattern: newTask.isRecurring ? newTask.recurrencePattern.toUpperCase() : null,
+        }),
+      })
+      
+      if (response.ok) {
+        const savedTask = await response.json()
+        const task: Task = {
+          id: savedTask.id,
+          title: savedTask.title,
+          description: savedTask.description,
+          priority: savedTask.priority.toLowerCase(),
+          assignee: savedTask.assignee?.name,
+          status: savedTask.status.toLowerCase(),
+          isRecurring: savedTask.isRecurring,
+          recurrencePattern: savedTask.recurrencePattern?.toLowerCase(),
+          createdAt: savedTask.createdAt,
+        }
+        setTaskList([...taskList, task])
+      }
+    } catch (error) {
+      console.error('Failed to create task:', error)
     }
-    setTaskList([...taskList, task])
+    
     setIsDialogOpen(false)
     setNewTask({
       title: "",
@@ -116,10 +137,22 @@ export default function TasksPage() {
     })
   }
 
-  const updateTaskStatus = (taskId: string, newStatus: TaskStatus) => {
+  const updateTaskStatus = async (taskId: string, newStatus: TaskStatus) => {
+    // Optimistically update UI
     setTaskList(taskList.map((task) =>
       task.id === taskId ? { ...task, status: newStatus } : task
     ))
+    
+    // Save to database
+    try {
+      await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus.toUpperCase() }),
+      })
+    } catch (error) {
+      console.error('Failed to update task:', error)
+    }
   }
 
   const getTasksByStatus = (status: TaskStatus) =>
