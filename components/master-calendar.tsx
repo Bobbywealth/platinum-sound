@@ -32,10 +32,22 @@ interface Engineer {
   isAvailable?: boolean
 }
 
+interface CalendarEvent {
+  id: string
+  title: string
+  date: Date
+  type: 'task' | 'work-order'
+  status: string
+  priority: string
+  assignee?: string
+}
+
 interface MasterCalendarProps {
   bookings?: Booking[]
   rooms?: Room[]
   engineers?: Engineer[]
+  tasks?: CalendarEvent[]
+  isMasterCalendar?: boolean
   onDateSelect?: (date: Date) => void
   onBookingSelect?: (booking: Booking) => void
 }
@@ -44,6 +56,8 @@ export function MasterCalendar({
   bookings = [],
   rooms = [],
   engineers = [],
+  tasks = [],
+  isMasterCalendar = true,
   onDateSelect,
   onBookingSelect,
 }: MasterCalendarProps) {

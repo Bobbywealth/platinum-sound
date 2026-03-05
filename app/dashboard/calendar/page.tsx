@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, use } from "react"
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { MasterCalendar } from "@/components/master-calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,29 +29,134 @@ interface Engineer {
   isAvailable?: boolean
 }
 
-export default function CalendarPage() {
+interface Task {
+  id: string
+  title: string
+  description?: string
+  status: string
+  priority: string
+  assignee?: string
+  dueDate?: string
+  createdAt: string
+}
+
+interface WorkOrder {
+  id: string
+  title: string
+  description?: string
+  status: string
+  priority: string
+  assignedEngineerId?: string
+  assignedEngineer?: { name: string }
+  createdAt: string
+}
+
+interface User {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+export default function CalendarPage({ params }: { params: Promise<{ userId?: string }> }) {
+  const resolvedParams = use(params)
   const [bookings, setBookings] = useState<Booking[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [engineers, setEngineers] = useState<Engineer[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Check if user has master calendar access
+  const isMasterCalendar = resolvedParams.userId === undefined
+
   useEffect(() => {
-    Promise.all([
-      fetch('/api/bookings').then(r => r.ok ? r.json() : []),
-      fetch('/api/rooms').then(r => r.ok ? r.json() : []),
-      fetch('/api/engineers').then(r => r.ok ? r.json() : []),
-    ]).then(([bookingsData, roomsData, engineersData]) => {
-      setBookings(bookingsData)
-      setRooms(roomsData)
-      setEngineers(engineersData)
-      setLoading(false)
-    })
+    // First get current user
+    fetch('/api/settings')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.user) {
+          setCurrentUser(data.user)
+        }
+      })
+      .catch(() => {})
   }, [])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const promises = [
+          fetch('/api/bookings').then(r => r.ok ? r.json() : []),
+          fetch('/api/rooms').then(r => r.ok ? r.json() : []),
+          fetch('/api/engineers').then(r => r.ok ? r.json() : []),
+        ]
+        
+        // Only fetch tasks and work orders for master calendar
+        if (isMasterCalendar) {
+          promises.push(
+            fetch('/api/tasks').then(r => r.ok ? r.json() : []),
+            fetch('/api/work-orders').then(r => r.ok ? r.json() : [])
+          )
+        }
+        
+        const results = await Promise.all(promises)
+        
+        setBookings(results[0] || [])
+        setRooms(results[1] || [])
+        setEngineers(results[2] || [])
+        
+        if (isMasterCalendar && results[3]) {
+          setTasks(results[3] || [])
+          setWorkOrders(results[4] || [])
+        }
+      } catch (error) {
+        console.error('Error fetching calendar data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    
+    fetchData()
+  }, [isMasterCalendar])
 
   const formattedBookings = bookings.map(b => ({
     ...b,
     date: new Date(b.date),
   }))
+  
+  // Format tasks with due dates
+  const formattedTasks = tasks
+    .filter(t => t.dueDate)
+    .map(t => ({
+      id: t.id,
+      title: t.title,
+      date: new Date(t.dueDate!),
+      type: 'task' as const,
+      status: t.status,
+      priority: t.priority,
+      assignee: t.assignee,
+    }))
+  
+  // Format work orders (use createdAt as the date)
+  const formattedWorkOrders = workOrders.map(wo => ({
+    id: wo.id,
+    title: wo.title,
+    date: new Date(wo.createdAt),
+    type: 'work-order' as const,
+    status: wo.status,
+    priority: wo.priority,
+    assignee: wo.assignedEngineer?.name,
+  }))
+
+  // Filter for personal calendar (non-admin/non-manager users)
+  const isAdminOrManager = currentUser?.role === 'ADMIN' || currentUser?.role === 'MANAGER'
+  const showMasterCalendar = isMasterCalendar && (isAdminOrManager || currentUser?.role === undefined)
+  
+  // For personal calendar, filter to show only user's assigned tasks
+  const personalTasks = !showMasterCalendar && currentUser
+    ? formattedTasks.filter(t => t.assignee === currentUser.name)
+    : formattedTasks
 
   if (loading) {
     return (
@@ -67,14 +172,22 @@ export default function CalendarPage() {
   return (
     <DashboardPageShell className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Calendar</h1>
-        <p className="text-muted-foreground">Master calendar view of all bookings, rooms, and engineer schedules.</p>
+        <h1 className="text-2xl font-bold">
+          {showMasterCalendar ? 'Master Calendar' : 'My Calendar'}
+        </h1>
+        <p className="text-muted-foreground">
+          {showMasterCalendar 
+            ? 'Master calendar view of all bookings, tasks, work orders, and schedules.'
+            : 'Your personal calendar showing your assigned tasks and bookings.'}
+        </p>
       </div>
       
       <MasterCalendar
         bookings={formattedBookings}
         rooms={rooms}
         engineers={engineers}
+        tasks={showMasterCalendar ? [...personalTasks, ...formattedWorkOrders] : personalTasks}
+        isMasterCalendar={showMasterCalendar}
       />
 
       <Card>
