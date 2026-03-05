@@ -16,7 +16,7 @@
     "db:studio": "prisma studio",
     "db:seed": "npx tsx prisma/seed.ts",
     "postinstall": "prisma generate",
-    "predeploy": "npm run db:push"
+    "predeploy": "npx prisma@5.22.0 db push"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
