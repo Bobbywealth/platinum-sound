@@ -379,6 +379,22 @@ function BookingsPageInner() {
   const [modalBookingId, setModalBookingId] = useState<string | null>(null)
   const [modalMode, setModalMode] = useState<"view" | "edit">("view")
 
+  // Load bookings from API on initial load
+  useEffect(() => {
+    async function loadBookings() {
+      try {
+        const response = await fetch('/api/bookings')
+        if (response.ok) {
+          const data = await response.json()
+          setBookingsList(data)
+        }
+      } catch (error) {
+        console.error('Failed to load bookings:', error)
+      }
+    }
+    loadBookings()
+  }, [])
+
   // Sync modal with ?id= URL param
   useEffect(() => {
     const id = searchParams.get("id")
@@ -403,18 +419,45 @@ function BookingsPageInner() {
   }, [router])
 
   const handleStatusChange = useCallback(
-    (id: string, status: BookingStatus) => {
-      setBookingsList((prev) =>
-        prev.map((b) => (b.id === id ? { ...b, status } : b))
-      )
+    async (id: string, status: BookingStatus) => {
+      try {
+        const response = await fetch(`/api/bookings/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status }),
+        })
+        
+        if (response.ok) {
+          const updatedBooking = await response.json()
+          setBookingsList((prev) =>
+            prev.map((b) => (b.id === id ? { ...b, status: updatedBooking.status } : b))
+          )
+        }
+      } catch (error) {
+        console.error('Failed to update booking status:', error)
+      }
     },
     []
   )
 
-  const handleSave = useCallback((updated: Booking) => {
-    setBookingsList((prev) =>
-      prev.map((b) => (b.id === updated.id ? updated : b))
-    )
+  const handleSave = useCallback(async (updated: Booking) => {
+    try {
+      const response = await fetch(`/api/bookings/${updated.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      })
+      
+      if (response.ok) {
+        const savedBooking = await response.json()
+        setBookingsList((prev) =>
+          prev.map((b) => (b.id === updated.id ? savedBooking : b))
+        )
+      }
+    } catch (error) {
+      console.error('Failed to save booking:', error)
+    }
+    
     setModalMode("view")
   }, [])
 

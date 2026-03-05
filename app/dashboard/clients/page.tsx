@@ -142,20 +142,32 @@ export default function ClientsPage() {
     setAddOpen(true)
   }
 
-  function handleAddSubmit() {
+  async function handleAddSubmit() {
     if (!addForm.name.trim()) return
-    const newClient: Client = {
-      id: Date.now().toString(),
-      name: addForm.name.trim(),
-      email: addForm.email.trim(),
-      phone: addForm.phone.trim(),
-      label: addForm.label.trim() || "—",
-      project: addForm.project.trim() || "—",
-      budget: parseFloat(addForm.budget) || 0,
-      status: addForm.status,
-      createdAt: new Date().toISOString().split("T")[0],
+    
+    try {
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: addForm.name.trim(),
+          email: addForm.email.trim(),
+          phone: addForm.phone.trim(),
+          label: addForm.label.trim(),
+          project: addForm.project.trim(),
+          budget: parseFloat(addForm.budget) || 0,
+          status: addForm.status,
+        }),
+      })
+      
+      if (response.ok) {
+        const savedClient = await response.json()
+        setClientList((prev) => [...prev, savedClient])
+      }
+    } catch (error) {
+      console.error('Failed to add client:', error)
     }
-    setClientList((prev) => [...prev, newClient])
+    
     setAddOpen(false)
   }
 
@@ -174,24 +186,36 @@ export default function ClientsPage() {
     setEditOpen(true)
   }
 
-  function handleEditSubmit() {
+  async function handleEditSubmit() {
     if (!editingClient || !editForm.name.trim()) return
-    setClientList((prev) =>
-      prev.map((c) =>
-        c.id === editingClient.id
-          ? {
-              ...c,
-              name: editForm.name.trim(),
-              email: editForm.email.trim(),
-              phone: editForm.phone.trim(),
-              label: editForm.label.trim() || "—",
-              project: editForm.project.trim() || "—",
-              budget: parseFloat(editForm.budget) || 0,
-              status: editForm.status,
-            }
-          : c
-      )
-    )
+    
+    try {
+      const response = await fetch(`/api/clients?ids=${editingClient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editForm.name.trim(),
+          email: editForm.email.trim(),
+          phone: editForm.phone.trim(),
+          label: editForm.label.trim(),
+          project: editForm.project.trim(),
+          budget: parseFloat(editForm.budget) || 0,
+          status: editForm.status,
+        }),
+      })
+      
+      if (response.ok) {
+        const updatedClient = await response.json()
+        setClientList((prev) =>
+          prev.map((c) =>
+            c.id === editingClient.id ? updatedClient : c
+          )
+        )
+      }
+    } catch (error) {
+      console.error('Failed to update client:', error)
+    }
+    
     setEditOpen(false)
     setEditingClient(null)
   }
@@ -202,9 +226,21 @@ export default function ClientsPage() {
     setDeleteOpen(true)
   }
 
-  function handleDeleteConfirm() {
+  async function handleDeleteConfirm() {
     if (!deletingClient) return
-    setClientList((prev) => prev.filter((c) => c.id !== deletingClient.id))
+    
+    try {
+      const response = await fetch(`/api/clients?ids=${deletingClient.id}`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        setClientList((prev) => prev.filter((c) => c.id !== deletingClient.id))
+      }
+    } catch (error) {
+      console.error('Failed to delete client:', error)
+    }
+    
     setDeleteOpen(false)
     setDeletingClient(null)
   }
