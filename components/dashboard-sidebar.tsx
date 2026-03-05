@@ -60,6 +60,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard/analytics",
     "/dashboard/invoices",
     "/dashboard/expenses",
+    "/dashboard/leads",
     "/dashboard/clients",
     "/dashboard/teams",
     "/dashboard/settings",
@@ -68,6 +69,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard",
     "/dashboard/calendar",
     "/dashboard/bookings",
+    "/dashboard/leads",
     "/dashboard/clients",
   ],
   ENGINEER: [
@@ -98,6 +100,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard",
     "/dashboard/calendar",
     "/dashboard/bookings",
+    "/dashboard/leads",
   ],
 }
 
@@ -158,6 +161,7 @@ const navSections: NavSection[] = [
       { href: "/dashboard/marketing", label: "Marketing Overview", icon: Mail },
       { href: "/dashboard/marketing/email", label: "Email Campaigns", icon: Mail },
       { href: "/dashboard/marketing/sms", label: "SMS Campaigns", icon: Mail },
+      { href: "/dashboard/leads", label: "Leads", icon: Users },
       { href: "/dashboard/clients", label: "Clients", icon: Users },
       { href: "/dashboard/teams", label: "Teams", icon: Users },
     ],

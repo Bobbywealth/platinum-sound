@@ -655,3 +655,15 @@ model EmailNotificationSetting {
   
   @@unique([role, emailType])
 }
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  status    String   @default("NEW")
+  source    String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

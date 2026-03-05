@@ -276,13 +276,35 @@ export default function BookingPage() {
     selectedStudio,
   ])
 
-  const goToNextStep = useCallback(() => {
+  const goToNextStep = useCallback(async () => {
     if (currentStep < totalSteps) {
       const nextStep = currentStep + 1
+      
+      // Create lead when moving from step 1 to step 2
+      if (currentStep === 1 && clientName && clientEmail) {
+        try {
+          await fetch('/api/leads', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: clientName,
+              email: clientEmail,
+              phone: clientPhone,
+              sessionType: sessionType,
+              studio: selectedStudio,
+              date: selectedDate?.toISOString(),
+              time: formattedTime,
+            }),
+          })
+        } catch (e) {
+          console.error('Failed to create lead:', e)
+        }
+      }
+      
       setCurrentStep(nextStep)
       setVisitedSteps(prev => prev.includes(nextStep) ? prev : [...prev, nextStep])
     }
-  }, [currentStep, totalSteps])
+  }, [currentStep, totalSteps, clientName, clientEmail, clientPhone, sessionType, selectedStudio, selectedDate, formattedTime])
 
   const goToPrevStep = useCallback(() => {
     if (currentStep > 1) {
