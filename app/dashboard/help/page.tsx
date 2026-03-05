@@ -22,7 +22,8 @@ import {
   DollarSign,
   HelpCircle,
   ChevronRight,
-  Search
+  Search,
+  Download
 } from "lucide-react"
 
 interface HelpTopic {
@@ -532,6 +533,19 @@ export default function HelpPage() {
               </div>
             </CardContent>
           </Card>
+          <a href="/handbook.pdf" target="_blank" rel="noopener noreferrer" className="no-underline">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-100">
+                  <Download className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Staff Handbook</p>
+                  <p className="text-xs text-muted-foreground">Download PDF</p>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
         </div>
 
         {/* Category Filter */}
