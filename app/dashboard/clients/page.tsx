@@ -429,7 +429,7 @@ export default function ClientsPage() {
             <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{clientList.length}</div>
+            <div className="text-2xl font-bold">{totalClients}</div>
           </CardContent>
         </Card>
         <Card>
