@@ -67,20 +67,17 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard/staff",
   ],
   BOOKING_AGENT: [
-    "/dashboard",
     "/dashboard/calendar",
     "/dashboard/bookings",
     "/dashboard/leads",
     "/dashboard/clients",
   ],
   ENGINEER: [
-    "/dashboard",
     "/dashboard/availability",
     "/dashboard/schedule",
     "/dashboard/bookings",
   ],
   INTERN: [
-    "/dashboard",
     "/dashboard/calendar",
     "/dashboard/inventory",
     "/dashboard/work-orders",
@@ -93,14 +90,12 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard/expenses",
   ],
   MARKETING: [
-    "/dashboard",
     "/dashboard/marketing",
     "/dashboard/marketing/email",
     "/dashboard/marketing/sms",
     "/dashboard/analytics",
   ],
   FRONT_DESK: [
-    "/dashboard",
     "/dashboard/calendar",
     "/dashboard/bookings",
     "/dashboard/leads",
