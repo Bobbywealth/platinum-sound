@@ -555,15 +555,14 @@ export default function ClientsPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold flex-shrink-0">
-                    {getInitials(client.name)}
+                    {getInitials(client.firstName + ' ' + client.lastName)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    {/* BUG #8 fix: clicking the name opens the detail modal */}
                     <button
                       className="font-semibold truncate hover:underline hover:text-primary transition-colors text-left w-full"
                       onClick={() => openDetailModal(client)}
                     >
-                      {client.name}
+                      {client.firstName} {client.lastName}
                     </button>
                     <div className="text-sm text-muted-foreground truncate">{client.email}</div>
                   </div>
@@ -573,17 +572,17 @@ export default function ClientsPage() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Label / Company:</span>
-                  <span className="font-medium">{client.label}</span>
+                  <span className="text-muted-foreground">Company:</span>
+                  <span className="font-medium">{client.companyName || '—'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Project:</span>
-                  <span className="font-medium">{client.project}</span>
+                  <span className="text-muted-foreground">City:</span>
+                  <span className="font-medium">{client.city || '—'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Budget:</span>
+                  <span className="text-muted-foreground">Lifetime Spend:</span>
                   <span className="font-medium text-primary">
-                    {client.budget > 0 ? formatCurrency(client.budget) : "—"}
+                    {formatCurrency(client.lifetimeSpend || 0)}
                   </span>
                 </div>
               </div>
