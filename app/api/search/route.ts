@@ -13,9 +13,11 @@ export async function GET(request: Request) {
     prisma.client.findMany({
       where: {
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
+          { firstName: { contains: query, mode: 'insensitive' } },
+          { lastName: { contains: query, mode: 'insensitive' } },
           { email: { contains: query, mode: 'insensitive' } },
-          { project: { contains: query, mode: 'insensitive' } },
+          { companyName: { contains: query, mode: 'insensitive' } },
+          { city: { contains: query, mode: 'insensitive' } },
         ],
       },
       take: 10,
@@ -25,7 +27,8 @@ export async function GET(request: Request) {
         OR: [
           { bookingCode: { contains: query, mode: 'insensitive' } },
           { engineer: { contains: query, mode: 'insensitive' } },
-          { client: { name: { contains: query, mode: 'insensitive' } } },
+          { client: { firstName: { contains: query, mode: 'insensitive' } } },
+          { client: { lastName: { contains: query, mode: 'insensitive' } } },
         ],
       },
       include: { client: true },
@@ -35,7 +38,8 @@ export async function GET(request: Request) {
       where: {
         OR: [
           { id: { contains: query, mode: 'insensitive' } },
-          { client: { name: { contains: query, mode: 'insensitive' } } },
+          { client: { firstName: { contains: query, mode: 'insensitive' } } },
+          { client: { lastName: { contains: query, mode: 'insensitive' } } },
         ],
       },
       include: { client: true },
