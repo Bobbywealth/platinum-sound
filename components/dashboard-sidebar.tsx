@@ -6,15 +6,12 @@ import {
     Building2,
     Calendar,
     CheckSquare,
-    ChevronDown,
-    Clock,
     DollarSign,
     FileText,
     LayoutDashboard,
     LogOut,
     Mail,
     Menu,
-    Music2,
     Package,
     Settings,
     Users,
@@ -48,19 +45,13 @@ const rolePageAccess: Record<Role, string[]> = {
   MANAGER: [
     "/dashboard",
     "/dashboard/calendar",
-    "/dashboard/availability",
     "/dashboard/schedule",
     "/dashboard/bookings",
     "/dashboard/tasks",
     "/dashboard/studios",
-    "/dashboard/services",
     "/dashboard/inventory",
-    "/dashboard/work-orders",
     "/dashboard/reports",
-    "/dashboard/analytics",
     "/dashboard/invoices",
-    "/dashboard/expenses",
-    "/dashboard/leads",
     "/dashboard/clients",
     "/dashboard/teams",
     "/dashboard/settings",
@@ -69,34 +60,29 @@ const rolePageAccess: Record<Role, string[]> = {
   BOOKING_AGENT: [
     "/dashboard/calendar",
     "/dashboard/bookings",
-    "/dashboard/leads",
     "/dashboard/clients",
   ],
   ENGINEER: [
-    "/dashboard/availability",
+    "/dashboard/calendar",
     "/dashboard/schedule",
     "/dashboard/bookings",
   ],
   INTERN: [
     "/dashboard/calendar",
     "/dashboard/inventory",
-    "/dashboard/work-orders",
   ],
   FINANCE: [
     "/dashboard",
     "/dashboard/reports",
-    "/dashboard/analytics",
     "/dashboard/invoices",
-    "/dashboard/expenses",
   ],
   MARKETING: [
     "/dashboard/marketing",
-    "/dashboard/analytics",
   ],
   FRONT_DESK: [
     "/dashboard/calendar",
     "/dashboard/bookings",
-    "/dashboard/leads",
+    "/dashboard/clients",
   ],
 }
 
@@ -118,11 +104,8 @@ const navSections: NavSection[] = [
   },
   {
     label: "CALENDAR",
-    expandable: true,
-    expandIcon: Calendar,
     items: [
-      { href: "/dashboard/calendar", label: "Master Calendar", icon: Calendar },
-      { href: "/dashboard/availability", label: "Availability", icon: Clock },
+      { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
     ],
   },
   {
@@ -133,9 +116,7 @@ const navSections: NavSection[] = [
       { href: "/dashboard/bookings", label: "Bookings", icon: Calendar },
       { href: "/dashboard/tasks", label: "Tasks", icon: CheckSquare },
       { href: "/dashboard/studios", label: "Studios", icon: Building2 },
-      { href: "/dashboard/services", label: "Services", icon: Music2 },
       { href: "/dashboard/inventory", label: "Inventory", icon: Package },
-      { href: "/dashboard/work-orders", label: "Work Orders", icon: FileText },
     ],
   },
   {
@@ -144,9 +125,7 @@ const navSections: NavSection[] = [
     expandIcon: DollarSign,
     items: [
       { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
-      { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
       { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
-      { href: "/dashboard/expenses", label: "Expenses", icon: DollarSign },
     ],
   },
   {
@@ -155,8 +134,7 @@ const navSections: NavSection[] = [
     expandIcon: Mail,
     items: [
       { href: "/dashboard/marketing", label: "Marketing", icon: Mail },
-      { href: "/dashboard/leads", label: "Leads", icon: Users },
-      { href: "/dashboard/clients", label: "Clients", icon: Users },
+      { href: "/dashboard/clients", label: "Clients & Leads", icon: Users },
       { href: "/dashboard/teams", label: "Teams", icon: Users },
     ],
   },
