@@ -122,19 +122,19 @@ export default function ClientsPage() {
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
 
   useEffect(() => {
-    fetch("/api/clients").then((r) => (r.ok ? r.json() : [])).then((data) => setClientList(data.map((c: any) => ({ ...c, status: c.status.toLowerCase() }))))
+    fetch("/api/clients").then((r) => (r.ok ? r.json() : [])).then((data) => setClientList(data.map((c: any) => ({ ...c, status: (c.status || 'pending').toLowerCase() }))))
     fetch("/api/bookings").then((r) => (r.ok ? r.json() : [])).then(setBookings)
   }, [])
 
   const filteredClients = clientList.filter(
     (client) =>
-      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      client.email.toLowerCase().includes(searchQuery.toLowerCase())
+      (client.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.label || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.email || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const activeClients = clientList.filter((c) => c.status === "active").length
-  const totalBudget = clientList.reduce((acc, c) => acc + c.budget, 0)
+  const totalBudget = clientList.reduce((acc, c) => acc + (c.budget || 0), 0)
 
   // ── Add handlers ──
   function openAddModal() {
