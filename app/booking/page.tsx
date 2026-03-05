@@ -1053,15 +1053,14 @@ export default function BookingPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center">
             <Image
               src="/Platinum Sound logo with 3D effect.png"
-              alt="Platinum Sound"
-              width={60}
-              height={40}
-              className="h-10 w-auto"
+              alt="Platinum Sound Studios"
+              width={150}
+              height={100}
+              className="h-20 w-auto"
             />
-            <span className="font-bold text-lg hidden sm:inline tracking-tight">PLATINUM<br className="hidden sm:block" /><span className="text-primary">SOUND</span></span>
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:inline">Theme</span>
