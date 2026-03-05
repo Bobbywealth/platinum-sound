@@ -177,19 +177,38 @@ export default function TeamsPage() {
     setAddOpen(true)
   }
 
-  function handleAddSubmit() {
+  async function handleAddSubmit() {
     if (!addForm.name.trim() || !addForm.email.trim()) return
-    setMembers((prev) => [
-      ...prev,
-      {
-        id: Date.now().toString(),
-        name: addForm.name.trim(),
-        email: addForm.email.trim(),
-        phone: addForm.phone.trim(),
-        role: addForm.role,
-      },
-    ])
-    setAddOpen(false)
+    
+    try {
+      const res = await fetch('/api/setup-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: addForm.email.trim(),
+          name: addForm.name.trim(),
+          phone: addForm.phone.trim(),
+          role: addForm.role,
+          password: 'password123', // Default password
+        }),
+      })
+      
+      if (res.ok) {
+        // Refresh the members list
+        const settingsRes = await fetch('/api/settings')
+        if (settingsRes.ok) {
+          const data = await settingsRes.json()
+          setMembers(data.team || [])
+        }
+        setAddOpen(false)
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to add member')
+      }
+    } catch (error) {
+      console.error('Error adding member:', error)
+      alert('Failed to add member')
+    }
   }
 
   function openEditModal(member: TeamMember) {
@@ -198,21 +217,66 @@ export default function TeamsPage() {
     setEditOpen(true)
   }
 
-  function handleEditSubmit() {
+  async function handleEditSubmit() {
     if (!editingMember || !editForm.name.trim() || !editForm.email.trim()) return
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === editingMember.id
-          ? { ...m, name: editForm.name.trim(), email: editForm.email.trim(), phone: editForm.phone.trim(), role: editForm.role }
-          : m
-      )
-    )
-    setEditOpen(false)
-    setEditingMember(null)
+    
+    try {
+      const res = await fetch('/api/setup-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: editingMember.email,
+          name: editForm.name.trim(),
+          phone: editForm.phone.trim(),
+          role: editForm.role,
+          password: 'password123', // Keep existing password
+        }),
+      })
+      
+      if (res.ok) {
+        // Refresh the members list
+        const settingsRes = await fetch('/api/settings')
+        if (settingsRes.ok) {
+          const data = await settingsRes.json()
+          setMembers(data.team || [])
+        }
+        setEditOpen(false)
+        setEditingMember(null)
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to update member')
+      }
+    } catch (error) {
+      console.error('Error updating member:', error)
+      alert('Failed to update member')
+    }
   }
 
-  function handleDelete(id: string) {
-    setMembers((prev) => prev.filter((m) => m.id !== id))
+  async function handleDelete(id: string) {
+    const member = members.find(m => m.id === id)
+    if (!member) return
+    
+    if (!confirm(`Are you sure you want to delete ${member.name}?`)) return
+    
+    try {
+      const res = await fetch(`/api/setup-admin?email=${encodeURIComponent(member.email)}`, {
+        method: 'DELETE',
+      })
+      
+      if (res.ok) {
+        // Refresh the members list
+        const settingsRes = await fetch('/api/settings')
+        if (settingsRes.ok) {
+          const data = await settingsRes.json()
+          setMembers(data.team || [])
+        }
+      } else {
+        alert('Failed to delete member')
+      }
+    } catch (error) {
+      console.error('Error deleting member:', error)
+      alert('Failed to delete member')
+    }
   }
 
   function togglePageAccess(role: RoleKey, href: string) {

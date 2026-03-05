@@ -14,6 +14,12 @@ const customJestConfig = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[jt]s?(x)',
   ],
+  // Exclude Playwright tests from Jest - run with `npx playwright test` instead
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/tests/',
+    '/.next/',
+  ],
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
     'components/**/*.{js,jsx,ts,tsx}',

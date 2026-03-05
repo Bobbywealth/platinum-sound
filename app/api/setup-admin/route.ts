@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient, Role } from "@prisma/client"
 import { hash } from "bcryptjs"
 
 const prisma = new PrismaClient()
 
 // This is a one-time setup route - should be deleted after use
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { action } = await request.json()
+    const body = await request.json()
+    const { action } = body
 
     if (action === "seed-all") {
       // Create all staff users
@@ -59,8 +60,8 @@ export async function POST(request: Request) {
       })
     }
 
-    // Single user creation
-    const { email, password, name } = await request.json()
+    // Create or update user with role
+    const { email, password, name, role } = body
 
     if (!email || !password) {
       return NextResponse.json(
@@ -75,10 +76,21 @@ export async function POST(request: Request) {
     })
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "User already exists" },
-        { status: 400 }
-      )
+      // Update existing user
+      const hashedPassword = await hash(password, 12)
+      const user = await prisma.user.update({
+        where: { email },
+        data: {
+          name: name || existingUser.name,
+          password: hashedPassword,
+          role: role || existingUser.role,
+        },
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: `User ${user.email} updated successfully`,
+      })
     }
 
     // Create the user
@@ -88,7 +100,7 @@ export async function POST(request: Request) {
         email,
         name: name || "User",
         password: hashedPassword,
-        role: Role.ENGINEER,
+        role: role || Role.ENGINEER,
       },
     })
 
@@ -100,6 +112,38 @@ export async function POST(request: Request) {
     console.error("Error creating user:", error)
     return NextResponse.json(
       { error: "Failed to create user" },
+      { status: 500 }
+    )
+  } finally {
+    await prisma.$disconnect()
+  }
+}
+
+// DELETE /api/setup-admin - Delete a user
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const email = searchParams.get("email")
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email required" },
+        { status: 400 }
+      )
+    }
+
+    await prisma.user.delete({
+      where: { email },
+    })
+
+    return NextResponse.json({
+      success: true,
+      message: `User ${email} deleted successfully`,
+    })
+  } catch (error) {
+    console.error("Error deleting user:", error)
+    return NextResponse.json(
+      { error: "Failed to delete user" },
       { status: 500 }
     )
   } finally {

@@ -235,10 +235,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
   const router = useRouter()
   const { data: session } = useSession()
   const { previewRole } = useRolePreview()
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    "CALENDAR": true,
-    "FINANCE": true,
-  })
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({})
 
   const effectiveRole: Role = (previewRole ?? session?.user?.role ?? "ADMIN") as Role
 
