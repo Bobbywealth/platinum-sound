@@ -21,6 +21,7 @@ export type Permission =
   | 'create_work_orders'
   | 'sign_work_orders'
   | 'manage_email_settings'
+  | 'manage_reports'
 
 // Permission matrix by role
 export const rolePermissions: Record<Role, Permission[]> = {
@@ -42,6 +43,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
     'create_work_orders',
     'sign_work_orders',
     'manage_email_settings',
+    'manage_reports',
   ],
   MANAGER: [
     'view_own_profile',
@@ -57,6 +59,7 @@ export const rolePermissions: Record<Role, Permission[]> = {
     'manage_inventory',
     'create_work_orders',
     'sign_work_orders',
+    'manage_reports',
   ],
   BOOKING_AGENT: [
     'view_own_profile',

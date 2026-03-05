@@ -646,6 +646,27 @@ model Report {
   generatedBy String
 }
 
+model ScheduledReport {
+  id            String              @id @default(cuid())
+  name          String
+  reportType    ReportType
+  period        ReportPeriod
+  frequency     ScheduleFrequency
+  recipients    String[]  // Array of email addresses
+  enabled       Boolean             @default(true)
+  lastSentAt    DateTime?
+  nextSendAt    DateTime
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  createdBy     String
+}
+
+enum ScheduleFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
 model EmailNotificationSetting {
   id        String    @id @default(cuid())
   role      Role

@@ -104,12 +104,18 @@ const navSections: NavSection[] = [
     label: "MAIN",
     items: [{ href: "/dashboard", label: "Overview", icon: LayoutDashboard }],
   },
+  // DASHBOARD section
   {
-    label: "CALENDAR",
-    href: "/dashboard/calendar",
-    icon: Calendar,
+    label: "DASHBOARD",
+    expandable: true,
+    expandIcon: LayoutDashboard,
+    items: [
+      { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
+      { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
+    ],
   },
   {
+    label: "OPERATIONS",
     label: "OPERATIONS",
     expandable: true,
     expandIcon: Building2,
