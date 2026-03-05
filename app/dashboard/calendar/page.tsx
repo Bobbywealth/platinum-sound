@@ -127,28 +127,32 @@ export default function CalendarPage() {
   }))
   
   // Format tasks with due dates
-  const formattedTasks = tasks
-    .filter(t => t.dueDate)
-    .map(t => ({
-      id: t.id,
-      title: t.title,
-      date: new Date(t.dueDate!),
-      type: 'task' as const,
-      status: t.status,
-      priority: t.priority,
-      assignee: t.assignee,
-    }))
+  const formattedTasks = Array.isArray(tasks)
+    ? tasks
+        .filter(t => t.dueDate)
+        .map(t => ({
+          id: t.id,
+          title: t.title,
+          date: new Date(t.dueDate!),
+          type: 'task' as const,
+          status: t.status,
+          priority: t.priority,
+          assignee: t.assignee,
+        }))
+    : []
   
   // Format work orders (use createdAt as the date)
-  const formattedWorkOrders = workOrders.map(wo => ({
-    id: wo.id,
-    title: wo.title,
-    date: new Date(wo.createdAt),
-    type: 'work-order' as const,
-    status: wo.status,
-    priority: wo.priority,
-    assignee: wo.assignedEngineer?.name,
-  }))
+  const formattedWorkOrders = Array.isArray(workOrders)
+    ? workOrders.map(wo => ({
+        id: wo.id,
+        title: wo.title,
+        date: new Date(wo.createdAt),
+        type: 'work-order' as const,
+        status: wo.status,
+        priority: wo.priority,
+        assignee: wo.assignedEngineer?.name,
+      }))
+    : []
 
   // Filter for personal calendar (non-admin/non-manager users)
   const isAdminOrManager = currentUser?.role === 'ADMIN' || currentUser?.role === 'MANAGER'
