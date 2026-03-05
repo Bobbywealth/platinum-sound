@@ -91,8 +91,6 @@ const rolePageAccess: Record<Role, string[]> = {
   ],
   MARKETING: [
     "/dashboard/marketing",
-    "/dashboard/marketing/email",
-    "/dashboard/marketing/sms",
     "/dashboard/analytics",
   ],
   FRONT_DESK: [
@@ -156,9 +154,7 @@ const navSections: NavSection[] = [
     expandable: true,
     expandIcon: Mail,
     items: [
-      { href: "/dashboard/marketing", label: "Marketing Overview", icon: Mail },
-      { href: "/dashboard/marketing/email", label: "Email Campaigns", icon: Mail },
-      { href: "/dashboard/marketing/sms", label: "SMS Campaigns", icon: Mail },
+      { href: "/dashboard/marketing", label: "Marketing", icon: Mail },
       { href: "/dashboard/leads", label: "Leads", icon: Users },
       { href: "/dashboard/clients", label: "Clients", icon: Users },
       { href: "/dashboard/teams", label: "Teams", icon: Users },
