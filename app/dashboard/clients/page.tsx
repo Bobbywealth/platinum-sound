@@ -478,8 +478,8 @@ export default function ClientsPage() {
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Company</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">City</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">First Visit</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Transactions</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Lifetime Spend</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Txns</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Spend</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Status</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Actions</th>
                 </tr>
