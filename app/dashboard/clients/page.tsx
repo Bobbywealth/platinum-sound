@@ -258,7 +258,7 @@ export default function ClientsPage() {
   )
 
   const activeClients = clientList.filter((c) => c.status === "active").length
-  const totalBudget = clientList.reduce((acc, c) => acc + (c.budget || 0), 0)
+  const totalLifetimeSpend = clientList.reduce((acc, c) => acc + (c.lifetimeSpend || 0), 0)
 
   // ── Add handlers ──
   function openAddModal() {
@@ -428,10 +428,10 @@ export default function ClientsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
+            <CardTitle className="text-sm font-medium">Lifetime Spend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalBudget)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalLifetimeSpend)}</div>
           </CardContent>
         </Card>
       </div>
@@ -441,7 +441,7 @@ export default function ClientsPage() {
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search clients by name, label, or email..."
+          placeholder="Search clients by name, company, or email..."
           className="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
