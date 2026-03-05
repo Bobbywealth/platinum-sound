@@ -44,7 +44,7 @@ interface NavSection {
 
 // Which pages each role can access. ADMIN sees everything.
 const rolePageAccess: Record<Role, string[]> = {
-  ADMIN: ["*"],
+  ADMIN: ["*"], // Admin sees all pages
   MANAGER: [
     "/dashboard",
     "/dashboard/calendar",
@@ -64,6 +64,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard/clients",
     "/dashboard/teams",
     "/dashboard/settings",
+    "/dashboard/staff",
   ],
   BOOKING_AGENT: [
     "/dashboard",
@@ -94,6 +95,8 @@ const rolePageAccess: Record<Role, string[]> = {
   MARKETING: [
     "/dashboard",
     "/dashboard/marketing",
+    "/dashboard/marketing/email",
+    "/dashboard/marketing/sms",
     "/dashboard/analytics",
   ],
   FRONT_DESK: [
