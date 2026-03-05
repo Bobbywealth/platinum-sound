@@ -646,18 +646,26 @@ export default function ClientsPage() {
         onOpenChange={setImportOpen}
         onImported={(rows) => {
           const importedClients: Client[] = rows
-            .filter((row) => row.name.trim())
-            .map((row) => ({
-              id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-              name: row.name.trim(),
-              email: row.email?.trim() || "",
-              phone: row.phone?.trim() || "",
-              label: row.genre?.trim() || "—",
-              project: row.notes?.trim() || "—",
-              budget: Number(row.totalRevenue) || 0,
-              status: row.status?.toLowerCase() === "active" ? "active" : "pending",
-              createdAt: new Date().toISOString().split("T")[0],
-            }))
+            .filter((row) => (row.name || row.firstName || '').trim())
+            .map((row) => {
+              const nameParts = (row.name || '').trim().split(' ')
+              const firstName = row.firstName || nameParts[0] || ''
+              const lastName = row.lastName || nameParts.slice(1).join(' ') || ''
+              return {
+                id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                email: row.email?.trim() || "",
+                phone: row.phone?.trim() || "",
+                companyName: row.companyName?.trim() || row.genre?.trim() || "",
+                address: row.address?.trim() || "",
+                city: row.city?.trim() || "",
+                notes: row.notes?.trim() || "",
+                firstVisit: row.firstVisit || null,
+                status: row.status?.toLowerCase() === "active" ? "active" as const : "pending" as const,
+                createdAt: new Date().toISOString().split("T")[0],
+              }
+            })
 
           if (importedClients.length) {
             setClientList((prev) => [...importedClients, ...prev])
@@ -693,7 +701,7 @@ export default function ClientsPage() {
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Client</DialogTitle>
-            <DialogDescription>Update details for {editingClient?.name}</DialogDescription>
+            <DialogDescription>Update details for {editingClient?.firstName + ' ' + editingClient?.lastName}</DialogDescription>
           </DialogHeader>
           <ClientFormFields form={editForm} setForm={setEditForm} />
           <DialogFooter>
@@ -717,12 +725,12 @@ export default function ClientsPage() {
               <DialogHeader>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg flex-shrink-0">
-                    {getInitials(detailClient.name)}
+                    {getInitials(detailClient.firstName + ' ' + detailClient.lastName)}
                   </div>
                   <div>
-                    <DialogTitle className="text-xl">{detailClient.name}</DialogTitle>
+                    <DialogTitle className="text-xl">{detailClient.firstName + ' ' + detailClient.lastName}</DialogTitle>
                     <DialogDescription className="mt-0.5">
-                      {detailClient.label}
+                      {detailClient.companyName || '—'}
                     </DialogDescription>
                   </div>
                 </div>
@@ -758,12 +766,12 @@ export default function ClientsPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border p-3">
                       <p className="text-xs text-muted-foreground">Project</p>
-                      <p className="font-medium mt-0.5">{detailClient.project}</p>
+                      <p className="font-medium mt-0.5">{detailClient.notes || '—'}</p>
                     </div>
                     <div className="rounded-lg border p-3">
                       <p className="text-xs text-muted-foreground">Budget</p>
                       <p className="font-medium text-primary mt-0.5">
-                        {detailClient.budget > 0 ? formatCurrency(detailClient.budget) : "—"}
+                        {detailClient.lifetimeSpend || 0 > 0 ? formatCurrency(detailClient.lifetimeSpend || 0) : "—"}
                       </p>
                     </div>
                     <div className="rounded-lg border p-3">
@@ -849,7 +857,7 @@ export default function ClientsPage() {
             <DialogTitle>Delete Client</DialogTitle>
             <DialogDescription>
               Are you sure you want to remove{" "}
-              <span className="font-semibold text-foreground">{deletingClient?.name}</span> from
+              <span className="font-semibold text-foreground">{deletingClient?.firstName + ' ' + deletingClient?.lastName}</span> from
               your roster? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
