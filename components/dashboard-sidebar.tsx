@@ -105,6 +105,8 @@ const navSections: NavSection[] = [
   },
   {
     label: "CALENDAR",
+    expandable: true,
+    expandIcon: Calendar,
     items: [
       { href: "/dashboard/calendar", label: "Calendar", icon: Calendar },
     ],
@@ -140,7 +142,7 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    label: "SETTINGS",
+    label: "ACCOUNT",
     items: [{ href: "/dashboard/settings", label: "Settings", icon: Settings }],
   },
 ]
