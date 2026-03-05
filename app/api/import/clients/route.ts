@@ -6,12 +6,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 type ParsedRow = {
-  name: string
+  firstName: string
+  lastName: string
   email?: string
   phone?: string
-  genre?: string
-  totalRevenue?: string
+  companyName?: string
+  address?: string
+  city?: string
   notes?: string
+  firstVisit?: string
   status?: string
 }
 
@@ -25,14 +28,23 @@ function mapRow(row: Record<string, unknown>): ParsedRow {
     return acc
   }, {})
 
+  // Try to find first/last name from "name" field or separate columns
+  const fullName = normalized.name || normalized.fullname || ''
+  const nameParts = fullName.split(' ')
+  const firstName = normalized.firstname || nameParts[0] || ''
+  const lastName = normalized.lastname || nameParts.slice(1).join(' ') || ''
+
   return {
-    name: normalized.name ?? '',
+    firstName,
+    lastName,
     email: normalized.email,
     phone: normalized.phone,
-    genre: normalized.genre,
-    totalRevenue: normalized.totalrevenue,
-    notes: normalized.notes,
-    status: normalized.status,
+    companyName: normalized.companyname || normalized.company || normalized.label || '',
+    address: normalized.address || '',
+    city: normalized.city || '',
+    notes: normalized.notes || normalized.memo || '',
+    firstVisit: normalized.firstvisit || normalized.firstvisitdate || '',
+    status: normalized.status || 'active',
   }
 }
 
@@ -44,10 +56,10 @@ function parseStatus(status?: string): ClientStatus {
   return ClientStatus.ACTIVE
 }
 
-function parseRevenue(value?: string): number | null {
+function parseDate(value?: string): Date | null {
   if (!value) return null
-  const parsed = Number(value.replace(/[^0-9.-]/g, ''))
-  return Number.isFinite(parsed) ? parsed : null
+  const parsed = new Date(value)
+  return isNaN(parsed.getTime()) ? null : parsed
 }
 
 async function parseFile(file: File): Promise<ParsedRow[]> {
@@ -89,15 +101,16 @@ export async function POST(request: NextRequest) {
 
     for (const [index, row] of rows.entries()) {
       const lineNumber = index + 2
-      const name = row.name?.trim()
+      const firstName = row.firstName?.trim()
+      const lastName = row.lastName?.trim()
 
-      if (!name) {
-        errors.push(`Row ${lineNumber}: Name is required.`)
+      if (!firstName || !lastName) {
+        errors.push(`Row ${lineNumber}: First name and Last name are required.`)
         continue
       }
 
       const email = row.email?.trim().toLowerCase() || `imported-${randomUUID()}@no-email.local`
-      const revenue = parseRevenue(row.totalRevenue)
+      const firstVisit = parseDate(row.firstVisit)
 
       try {
         const existingClient = row.email?.trim()
@@ -108,21 +121,29 @@ export async function POST(request: NextRequest) {
           ? await prisma.client.update({
               where: { id: existingClient.id },
               data: {
-                name,
+                firstName,
+                lastName,
                 email,
                 phone: row.phone?.trim() || null,
-                genre: row.genre?.trim() || null,
+                companyName: row.companyName?.trim() || null,
+                address: row.address?.trim() || null,
+                city: row.city?.trim() || null,
                 notes: row.notes?.trim() || null,
+                firstVisit,
                 status: parseStatus(row.status),
               },
             })
           : await prisma.client.create({
               data: {
-                name,
+                firstName,
+                lastName,
                 email,
                 phone: row.phone?.trim() || null,
-                genre: row.genre?.trim() || null,
+                companyName: row.companyName?.trim() || null,
+                address: row.address?.trim() || null,
+                city: row.city?.trim() || null,
                 notes: row.notes?.trim() || null,
+                firstVisit,
                 status: parseStatus(row.status),
               },
             })
@@ -131,19 +152,6 @@ export async function POST(request: NextRequest) {
           updated += 1
         } else {
           imported += 1
-        }
-
-        if (revenue !== null) {
-          await prisma.clientRevenue.upsert({
-            where: { clientId: client.id },
-            create: {
-              clientId: client.id,
-              totalRevenue: revenue,
-            },
-            update: {
-              totalRevenue: revenue,
-            },
-          })
         }
       } catch (rowError) {
         const message = rowError instanceof Error ? rowError.message : 'Unexpected error'

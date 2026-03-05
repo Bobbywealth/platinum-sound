@@ -16,12 +16,15 @@ import {
 import { Input } from "@/components/ui/input"
 
 type ImportRow = {
-  name: string
+  firstName: string
+  lastName: string
   email?: string
   phone?: string
-  genre?: string
-  totalRevenue?: string
+  companyName?: string
+  address?: string
+  city?: string
   notes?: string
+  firstVisit?: string
   status?: string
 }
 
@@ -42,14 +45,23 @@ function mapRow(row: Record<string, unknown>): ImportRow {
     return acc
   }, {})
 
+  // Try to find first/last name from "name" field or separate columns
+  const fullName = normalized.name || normalized.fullname || ""
+  const nameParts = fullName.split(" ")
+  const firstName = normalized.firstname || nameParts[0] || ""
+  const lastName = normalized.lastname || nameParts.slice(1).join(" ") || ""
+
   return {
-    name: normalized.name ?? "",
+    firstName,
+    lastName,
     email: normalized.email,
     phone: normalized.phone,
-    genre: normalized.genre,
-    totalRevenue: normalized.totalrevenue,
-    notes: normalized.notes,
-    status: normalized.status,
+    companyName: normalized.companyname || normalized.company || normalized.label || "",
+    address: normalized.address || "",
+    city: normalized.city || "",
+    notes: normalized.notes || normalized.memo || "",
+    firstVisit: normalized.firstvisit || normalized.firstvisitdate || "",
+    status: normalized.status || "active",
   }
 }
 
@@ -192,22 +204,24 @@ export function ImportClientsDialog({
               <table className="w-full text-sm">
                 <thead className="bg-muted/50">
                   <tr>
-                    <th className="p-2 text-left">Name</th>
+                    <th className="p-2 text-left">First Name</th>
+                    <th className="p-2 text-left">Last Name</th>
                     <th className="p-2 text-left">Email</th>
                     <th className="p-2 text-left">Phone</th>
-                    <th className="p-2 text-left">Genre</th>
-                    <th className="p-2 text-left">Total Revenue</th>
+                    <th className="p-2 text-left">Company</th>
+                    <th className="p-2 text-left">City</th>
                     <th className="p-2 text-left">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {previewRows.map((row, index) => (
-                    <tr key={`${row.email ?? row.name}-${index}`} className="border-t">
-                      <td className="p-2">{row.name || "—"}</td>
+                    <tr key={`${row.email ?? row.firstName}-${index}`} className="border-t">
+                      <td className="p-2">{row.firstName || "—"}</td>
+                      <td className="p-2">{row.lastName || "—"}</td>
                       <td className="p-2">{row.email || "—"}</td>
                       <td className="p-2">{row.phone || "—"}</td>
-                      <td className="p-2">{row.genre || "—"}</td>
-                      <td className="p-2">{row.totalRevenue || "—"}</td>
+                      <td className="p-2">{row.companyName || "—"}</td>
+                      <td className="p-2">{row.city || "—"}</td>
                       <td className="p-2">{row.status || "—"}</td>
                     </tr>
                   ))}
