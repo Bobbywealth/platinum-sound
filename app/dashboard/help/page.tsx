@@ -47,7 +47,20 @@ const helpTopics: HelpTopic[] = [
 1. Log in with your credentials
 2. Your role determines what you can see and do
 3. Use the sidebar to navigate between sections
-4. The dashboard shows an overview of your responsibilities`
+4. The dashboard shows an overview of your responsibilities
+
+**Navigation:**
+- Use the sidebar on the left to access different sections
+- Click on any section to expand its sub-menus
+- Use the search bar to quickly find pages
+- Your user profile is accessible from the top right
+
+**Key Concepts:**
+- Studios: Physical recording spaces with different equipment
+- Engineers: Audio professionals who operate the equipment
+- Bookings: Reserved time slots for recording sessions
+- Tasks: Work items that need to be completed
+- Work Orders: Maintenance or equipment requests`
   },
   {
     id: "roles",
@@ -57,13 +70,347 @@ const helpTopics: HelpTopic[] = [
     content: `Your access level is determined by your role:
 
 **Admin** - Full access to everything
+- Manage all bookings, clients, and team members
+- Configure system settings and user permissions
+- View all reports and financial data
+- Manage studios, services, and pricing
+- Access marketing tools and campaigns
+- Create and manage other users
+
 **Manager** - Manage bookings, staff, reports, and studio operations
-**Booking Agent** - Create and manage bookings, view calendar
-**Engineer** - Update availability, manage sessions, apply discounts
-**Intern** - Inventory sign-offs, work order signing
-**Finance** - View invoices, expenses, and financial reports
-**Marketing** - Email/SMS campaigns and client communications
-**Front Desk** - View calendar and bookings, assist with check-in`
+- Create and manage bookings
+- View reports and analytics
+- Manage inventory and work orders
+- Assign tasks to team members
+- Handle client communications
+- Configure studio settings
+
+**Booking Agent** - Create and manage bookings
+- Create new bookings for clients
+- View and manage the calendar
+- Handle client inquiries
+- Apply discounts within limits
+- View client history
+
+**Engineer** - Manage sessions and availability
+- Update personal availability
+- View assigned bookings
+- Apply discounts to sessions
+- Sign work orders
+- Update session notes
+
+**Intern** - Limited access
+- View assigned tasks
+- Sign off on inventory
+- Sign work orders`
+  },
+  {
+    id: "deep-dive-bookings",
+    title: "Booking Deep Dive",
+    category: "Training",
+    icon: Calendar,
+    content: `This comprehensive guide covers the entire booking lifecycle.
+
+**Step 1: Client Selection**
+- Search for existing clients by name, email, or phone
+- Create a new client if needed (requires name and contact info)
+- View client history, past bookings, and notes
+- Check for any special requirements or preferences
+
+**Step 2: Studio Selection**
+- Studio A: Large format, ideal for full bands
+- Studio B: Mid-size, perfect for small groups
+- Studio C: Intimate, great for voiceover/solo artists
+- Each studio has different hourly rates and equipment
+
+**Step 3: Date & Time**
+- Check real-time availability on the calendar
+- Buffer time is automatically added between sessions
+- Multi-day bookings can be created for albums/projects
+- Recurring bookings supported for regular clients
+
+**Step 4: Session Type**
+- Tracking: Basic recording with engineer
+- Mixing: Post-production audio mixing
+- Mastering: Final audio polishing
+- Voiceover: Voice recording sessions
+- Podcast: Recording for podcasts
+- Custom: Special session types
+
+**Step 5: Engineer Assignment**
+- Select from available engineers
+- Consider engineer specialties and experience
+- Check engineer availability for the time slot
+- Engineer rates affect total price
+
+**Step 6: Pricing & Payment**
+- Base studio rate + engineer fee + add-ons
+- Apply discounts if authorized
+- Collect deposit or full payment
+- Generate invoice automatically
+
+**Step 7: Confirmation**
+- Send confirmation email to client
+- Add session notes or special instructions
+- Create tasks for preparation if needed
+- Set reminders for the session day`
+  },
+  {
+    id: "deep-dive-checkin",
+    title: "Check-In Process Deep Dive",
+    category: "Training",
+    icon: CheckSquare,
+    content: `The check-in process ensures smooth session starts and accurate tracking.
+
+**Pre-Session Preparation (Before Client Arrives)**
+1. Review the day's bookings in the calendar
+2. Check if any special equipment is needed
+3. Verify engineer availability
+4. Ensure studio is clean and ready
+5. Prepare any paperwork or contracts
+
+**Upon Client Arrival**
+1. Greet client and verify identity
+2. Confirm booking details (studio, time, rate)
+3. Collect any outstanding payments
+4. Review any special requests
+5. Get client signature on release form if needed
+
+**During Check-In**
+1. Log into the system
+2. Search for the booking
+3. Click "Check In" button
+4. Record any changes or notes
+5. Assign specific room if not pre-assigned
+6. Note equipment rental or additional services
+
+**Post-Check-In**
+1. Escort client to studio
+2. Brief engineer on session goals
+3. Ensure all equipment is working
+4. Set up any additional requests
+5. Note session start time
+
+**Common Check-In Issues**
+- Client not found: Search by name or booking ID
+- Payment issues: Contact finance team
+- Equipment problems: Create work order
+- Schedule conflicts: Contact manager immediately
+
+**Best Practices**
+- Check-in 15 minutes before session start
+- Verify payment before starting session
+- Document any issues immediately
+- Communicate any delays to all parties`
+  },
+  {
+    id: "deep-dive-inventory",
+    title: "Inventory Management Training",
+    category: "Training",
+    icon: Package,
+    content: `Complete guide to managing studio inventory.
+
+**Inventory Categories**
+- Microphones: Various types for different applications
+- Instruments: Guitars, keyboards, drums
+- Cables & Connectors: All audio connections
+- Accessories: Stands, pop filters, headphones
+- Consumables: Tape, markers, etc.
+
+**Adding Inventory**
+1. Navigate to Inventory in the sidebar
+2. Click "Add Item" button
+3. Fill in details:
+   - Name and description
+   - Category
+   - Serial number (for valuable items)
+   - Purchase date and cost
+   - Current condition
+   - Assigned location/studio
+4. Upload photo if available
+5. Save item
+
+**Checking In/Out Equipment**
+- Sign-out: Record who has the item, expected return
+- Sign-off: Verify item condition on return
+- Document any damage or issues
+- Update item status accordingly
+
+**Inventory Audits**
+- Schedule regular audits (monthly recommended)
+- Physical count vs. system records
+- Check condition of all items
+- Report missing or damaged items
+- Update quantities as needed
+
+**Low Stock Alerts**
+- Set minimum quantity thresholds
+- Receive notifications when low
+- Create purchase requests
+- Track supplier orders
+
+**Maintenance & Repairs**
+- Create work order for repairs
+- Track repair costs
+- Document maintenance history
+- Schedule preventive maintenance`
+  },
+  {
+    id: "deep-dive-reports",
+    title: "Reports & Analytics Training",
+    category: "Training",
+    icon: BarChart3,
+    content: `Mastering reports to understand your business.
+
+**Available Reports**
+- Daily Summary: End-of-day overview
+- Weekly Session Log: Week's activities
+- Monthly Summary: Comprehensive monthly view
+- Revenue Reports: Income and trends
+- Utilization Reports: Studio and engineer usage
+
+**Generating Reports**
+1. Navigate to Reports section
+2. Select report type
+3. Choose date range
+4. Apply filters (studio, engineer, etc.)
+5. Click Generate
+6. Export or print as needed
+
+**Understanding Metrics**
+- Total Revenue: Sum of all payments received
+- Session Count: Number of bookings
+- Average Session Value: Revenue / Sessions
+- Utilization Rate: Hours booked / Hours available
+- No-show Rate: Missed sessions / Total bookings
+- Cancellation Rate: Cancelled / Total bookings
+
+**Scheduling Automated Reports**
+1. Click "Schedule Report"
+2. Name your schedule
+3. Select report type
+4. Choose frequency (daily/weekly/monthly)
+5. Add email recipients
+6. Set enabled to true
+7. Reports will be sent automatically
+
+**Export Options**
+- PDF: For printing and sharing
+- Excel: For further analysis
+- CSV: For data processing
+
+**Best Practices**
+- Review reports daily for operations
+- Weekly review for trends
+- Monthly for strategic planning
+- Compare periods for insights`
+  },
+  {
+    id: "deep-dive-clients",
+    title: "Client Management Training",
+    category: "Training",
+    icon: Users,
+    content: `Building and maintaining client relationships.
+
+**Client Profiles**
+Each client record contains:
+- Contact information
+- Booking history
+- Payment history
+- Preferences and notes
+- Referral source
+- Lifetime value
+
+**Adding New Clients**
+1. Go to Clients section
+2. Click "Add Client"
+3. Enter required info:
+   - First and last name
+   - Email address
+   - Phone number
+4. Add optional details:
+   - Company/organization
+   - Preferred studio
+   - Preferred engineer
+   - Notes about preferences
+5. Save client
+
+**Managing Client Data**
+- Keep contact info updated
+- Record preferences after each session
+- Note any special requirements
+- Track communication history
+- Update status (active, lead, inactive)
+
+**Client Communication**
+- Send booking confirmations
+- Follow-up after sessions
+- Birthday/holiday greetings
+- Special offers for loyal clients
+- Newsletter for updates
+
+**Handling Leads**
+- Track new inquiries promptly
+- Note source of lead
+- Follow up within 24 hours
+- Convert to client when booked
+- Keep notes on conversations
+
+**Client Retention**
+- Offer loyalty discounts
+- Remember preferences
+- Provide excellent service
+- Request referrals
+- Handle issues professionally`
+  },
+  {
+    id: "deep-dive-workflow",
+    title: "Daily Workflow Best Practices",
+    category: "Training",
+    icon: Clock,
+    content: `Optimizing your daily operations.
+
+**Morning Routine (Start of Day)**
+1. Check dashboard for daily overview
+2. Review upcoming bookings
+3. Check engineer availability
+4. Verify studio readiness
+5. Address any issues from previous day
+
+**During the Day**
+- Process check-ins promptly
+- Monitor booking flow
+- Handle walk-ins if possible
+- Address any issues immediately
+- Keep client communications timely
+
+**End of Day**
+- Review completed sessions
+- Send follow-up communications
+- Generate daily report
+- Prepare for next day
+- Address any pending tasks
+
+**Task Management**
+- Check task list first thing
+- Prioritize by urgency
+- Complete and mark done
+- Delegate if needed
+- Review overdue items
+
+**Work Orders**
+- Review incoming work orders
+- Prioritize by urgency
+- Assign to appropriate staff
+- Track progress
+- Complete and document
+
+**Communication**
+- Respond to messages quickly
+- Keep notes in system
+- Update client statuses
+- Coordinate with team
+- Escalate issues properly`
   },
 
   // Calendar & Scheduling
@@ -452,7 +799,7 @@ const helpTopics: HelpTopic[] = [
   }
 ]
 
-const categories = ["All", "Basics", "Scheduling", "Bookings", "Operations", "Finance", "Clients", "Marketing", "Settings"]
+const categories = ["All", "Basics", "Training", "Scheduling", "Bookings", "Operations", "Finance", "Clients", "Marketing", "Settings"]
 
 export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState("")
