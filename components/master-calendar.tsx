@@ -50,6 +50,18 @@ interface MasterCalendarProps {
   isMasterCalendar?: boolean
   onDateSelect?: (date: Date) => void
   onBookingSelect?: (booking: Booking) => void
+  availability?: Availability[]
+}
+
+interface Availability {
+  id: string
+  engineerId: string
+  date: string
+  status: string
+  engineer?: {
+    id: string
+    name: string
+  }
 }
 
 export function MasterCalendar({
@@ -60,6 +72,7 @@ export function MasterCalendar({
   isMasterCalendar = true,
   onDateSelect,
   onBookingSelect,
+  availability = [],
 }: MasterCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'month' | 'week'>('month')
@@ -90,6 +103,11 @@ export function MasterCalendar({
   // Get bookings for a specific day
   const getBookingsForDay = (date: Date) => {
     return filteredBookings.filter(booking => isSameDay(new Date(booking.date), date))
+  }
+
+  // Get engineer availability for a specific day
+  const getAvailabilityForDay = (date: Date) => {
+    return availability?.filter(a => isSameDay(new Date(a.date), date)) || []
   }
 
   // Navigation handlers
@@ -232,6 +250,7 @@ export function MasterCalendar({
           {/* Calendar Days */}
           {calendarDays.map((day, index) => {
             const dayBookings = getBookingsForDay(day)
+            const dayAvailability = getAvailabilityForDay(day)
             const isCurrentMonth = isSameMonth(day, currentDate)
             const isTodayDate = isToday(day)
             
@@ -267,6 +286,22 @@ export function MasterCalendar({
                   {dayBookings.length > 3 && (
                     <div className="text-xs text-muted-foreground text-center">
                       +{dayBookings.length - 3} more
+                    </div>
+                  )}
+                  {/* Show unavailable engineers */}
+                  {dayAvailability.length > 0 && (
+                    <div className="mt-1 space-y-0.5">
+                      {dayAvailability.slice(0, 2).map(a => (
+                        <div key={a.id} className="text-[10px] px-1 py-0.5 rounded bg-red-100 text-red-700 truncate flex items-center gap-1">
+                          <Users className="h-2 w-2" />
+                          {a.engineer?.name || 'Engineer'}: {a.status}
+                        </div>
+                      ))}
+                      {dayAvailability.length > 2 && (
+                        <div className="text-[10px] text-muted-foreground">
+                          +{dayAvailability.length - 2} more unavailable
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

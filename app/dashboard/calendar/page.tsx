@@ -58,6 +58,17 @@ interface User {
   role: string
 }
 
+interface Availability {
+  id: string
+  engineerId: string
+  date: string
+  status: string
+  engineer?: {
+    id: string
+    name: string
+  }
+}
+
 export default function CalendarPage() {
   // For now, we'll use a simpler approach without route params
   // The master calendar functionality can be extended later
@@ -67,6 +78,7 @@ export default function CalendarPage() {
   const [engineers, setEngineers] = useState<Engineer[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
+  const [availability, setAvailability] = useState<Availability[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -91,6 +103,7 @@ export default function CalendarPage() {
           fetch('/api/bookings').then(r => r.ok ? r.json() : []),
           fetch('/api/rooms').then(r => r.ok ? r.json() : []),
           fetch('/api/engineers').then(r => r.ok ? r.json() : []),
+          fetch('/api/availability').then(r => r.ok ? r.json() : []),
         ]
         
         // Only fetch tasks and work orders for master calendar
@@ -107,9 +120,13 @@ export default function CalendarPage() {
         setRooms(results[1] || [])
         setEngineers(results[2] || [])
         
-        if (isMasterCalendar && results[3]) {
+        if (isMasterCalendar && results[4]) {
           setTasks(results[3] || [])
           setWorkOrders(results[4] || [])
+        }
+        // Set availability
+        if (results[3]) {
+          setAvailability(results[3] || [])
         }
       } catch (error) {
         console.error('Error fetching calendar data:', error)
@@ -193,6 +210,7 @@ export default function CalendarPage() {
         engineers={engineers}
         tasks={showMasterCalendar ? [...personalTasks, ...formattedWorkOrders] : personalTasks}
         isMasterCalendar={showMasterCalendar}
+        availability={availability}
       />
 
       <Card>
