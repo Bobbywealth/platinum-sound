@@ -280,9 +280,9 @@ export default function Home() {
             <h3 className="text-2xl font-bold mb-8 text-center">Management</h3>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { name: "Lisa Hershfield", role: "General Manager" },
-                { name: "Jasmine Hunt", role: "Manager" },
-                { name: "Spice", role: "Booking Manager" },
+                { name: "Lisa", role: "Manager" },
+                { name: "Spice", role: "Manager" },
+                { name: "Marshall", role: "Studio Tech" },
                 { name: "Gary Valentino", role: "CFO Manager" },
               ].map((member, i) => (
                 <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
@@ -302,49 +302,59 @@ export default function Home() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 {
-                  name: "Serge \"Surgical\" Tsai",
+                  name: "Serge",
                   role: "Chief Engineer",
                   bio: "Grammy-winning, multi-platinum recording and mix engineer with over 20 years of experience. Based in NYC since 1989, Serge is Chief Engineer at Platinum Sound, working with artists like Shakira, Kanye West, Justin Bieber, and Client E. His credits include Grammy-winning albums, an Oscar-nominated soundtrack, and collabs with Aretha Franklin and Carlos Santana. Known for his \"Sonic Air Bending\" techniques, he also mentors upcoming engineers and artists."
                 },
                 {
-                  name: "Devonne \"Knice\" Knights",
-                  role: "Recording & Immersive Mixing Engineer",
+                  name: "Julian",
+                  role: "Staff Engineer",
+                  bio: "Talented staff engineer at Platinum Sound Studios with expertise in recording and mixing. Committed to delivering exceptional audio quality for every session."
+                },
+                {
+                  name: "Jack",
+                  role: "Staff Engineer",
+                  bio: "Skilled staff engineer known for his precision and dedication to achieving the perfect sound. Brings technical expertise and creativity to every project."
+                },
+                {
+                  name: "Solon",
+                  role: "Staff Engineer",
+                  bio: "Experienced staff engineer specializing in recording and production. Works closely with artists to bring their creative vision to life."
+                },
+                {
+                  name: "Knice",
+                  role: "Senior Engineer",
                   bio: "Recording and Immersive Mixing engineer from Brooklyn, New York. Knice graduated from SAE with a 4.0 and went on to work up the ranks at Platinum Sound Studios as a recording engineer, ultimately joining the Senior Engineer Staff. Has worked with French Montana, Brandy, Miguel, EST Gee, Lola Brooke, Desiigner, Rich The Kid, and many more label and local artists."
                 },
                 {
-                  name: "Zel Omar Campbell",
-                  role: "Recording Engineer",
-                  bio: "Multi-platinum recording engineer from the Bronx, began his music journey at 13 under Public Enemy's DJ Johnny Juice. After earning a bachelor's in recording arts from Full Sail University, he joined Platinum Sound in 2017. Has worked with top artists like Rich The Kid, Mariah Carey, and Jadakiss."
-                },
-                {
-                  name: "Julian \"Finesse\" Wright",
-                  role: "Producer & Recording Engineer",
-                  bio: "Producer and recording engineer with a background in live sound and a degree from SUNY Purchase College. Furthered his education at SAE NY and has since worked with artists like Wyclef Jean, KRS-ONE, and Dionne Warwick."
-                },
-                {
-                  name: "Darren \"The Clinic\" Blanckensee",
-                  role: "Recording & Dolby Atmos Engineer",
-                  bio: "South African recording hop, R&B engineer specializing in hip, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
-                },
-                {
-                  name: "Rene \"DeZ BuDdha\" Desrivieres",
-                  role: "Recording & Mixing Engineer",
+                  name: "Rene",
+                  role: "Senior Engineer",
                   bio: "Brooklyn-born recording and mixing engineer, joined Platinum Sound in 2015 and has worked with top artists like Wyclef Jean and Mary J. Blige. Known for his exceptional quality, he also mentors the next generation of audio engineers. Recently expanded into Dolby Atmos Surround Sound, earning credits with artists like French Montana."
                 },
                 {
-                  name: "Chris \"Apex\" Valerio",
-                  role: "Audio Engineer & Producer",
+                  name: "Darren",
+                  role: "Senior Engineer",
+                  bio: "South African recording hop, R&B engineer specializing in hip, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
+                },
+                {
+                  name: "Kyle",
+                  role: "Engineer",
+                  bio: "Dedicated engineer at Platinum Sound committed to delivering high-quality recordings. Brings technical expertise and a passion for music to every session."
+                },
+                {
+                  name: "Jacob",
+                  role: "Engineer",
+                  bio: "Talented engineer with a keen ear for detail. Works diligently to capture the best possible sound for all artists."
+                },
+                {
+                  name: "Rohan",
+                  role: "Engineer",
+                  bio: "Skilled engineer specializing in recording and mixing. Committed to helping artists achieve their sonic goals."
+                },
+                {
+                  name: "Chris",
+                  role: "Engineer",
                   bio: "Brooklyn-born Audio Engineer and Producer, developed his craft at LaGuardia Community College. Has worked with top artists like Nas, Wyclef Jean, Maino, Jim Jones, Homixide Gang, and Asian Doll, reflecting his commitment and influence in the music industry."
-                },
-                {
-                  name: "Suzi",
-                  role: "Audio Engineer & Singer-Songwriter",
-                  bio: "Versatile audio engineer and singer-songwriter who brings a unique creative perspective to Platinum Sound. As an artist-turned-engineer, has amassed over 300 million streams worldwide. Has collaborated with top talent including Fetty Wap, Tory Lanez, French Montana, Lil' Kim, Dascha Polanco, Kiko El Crazy, and many others."
-                },
-                {
-                  name: "Jack \"Smack\" Vayo",
-                  role: "Audio Engineer",
-                  bio: "Skilled audio engineer renowned for his precision and speed. Raised in Florida, began building his own studio straight out of high school. After refining skills at SAE Institute of New York, his exceptional ear for detail has led to collaborations with top artists including Fivio Foreign, Wyclef Jean, Scorey, Nino Paid, Capella Grey, and Rondodasosa."
                 },
               ].map((member, i) => (
                 <div key={i} className="p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
