@@ -36,14 +36,19 @@ import {
 
 interface Client {
   id: string
-  name: string
+  firstName: string
+  lastName: string
   email: string
   phone: string
-  label: string
-  project: string
-  budget: number
+  companyName: string
+  address: string
+  city: string
+  notes: string
+  firstVisit: string | null
   status: "active" | "pending" | "completed"
   createdAt: string
+  transactionCount?: number
+  lifetimeSpend?: number
 }
 
 interface BookingRef {
@@ -85,12 +90,15 @@ function StatusBadge({ status }: { status: Client["status"] }) {
 // ─── empty form shapes ─────────────────────────────────────────────────────────
 
 const emptyClientForm = {
-  name: "",
+  firstName: "",
+  lastName: "",
   email: "",
   phone: "",
-  label: "",
-  project: "",
-  budget: "",
+  companyName: "",
+  address: "",
+  city: "",
+  notes: "",
+  firstVisit: "",
   status: "active" as Client["status"],
 }
 
@@ -103,14 +111,25 @@ type ClientFormProps = {
 function ClientFormFields({ form, setForm }: ClientFormProps) {
   return (
     <div className="grid gap-4 py-4">
-      <div className="grid gap-2">
-        <Label htmlFor="cl-name">Client Name <span className="text-destructive">*</span></Label>
-        <Input
-          id="cl-name"
-          placeholder="Enter client name"
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="cl-firstName">First Name <span className="text-destructive">*</span></Label>
+          <Input
+            id="cl-firstName"
+            placeholder="First name"
+            value={form.firstName}
+            onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="cl-lastName">Last Name <span className="text-destructive">*</span></Label>
+          <Input
+            id="cl-lastName"
+            placeholder="Last name"
+            value={form.lastName}
+            onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))}
+          />
+        </div>
       </div>
       <div className="grid gap-2">
         <Label htmlFor="cl-email">Email</Label>
@@ -132,32 +151,48 @@ function ClientFormFields({ form, setForm }: ClientFormProps) {
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="cl-label">Label / Company</Label>
+        <Label htmlFor="cl-companyName">Company Name</Label>
         <Input
-          id="cl-label"
-          placeholder="Record label or company"
-          value={form.label}
-          onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
+          id="cl-companyName"
+          placeholder="Company or record label"
+          value={form.companyName}
+          onChange={(e) => setForm((f) => ({ ...f, companyName: e.target.value }))}
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="cl-project">Project</Label>
+        <Label htmlFor="cl-address">Address</Label>
         <Input
-          id="cl-project"
-          placeholder="Current project"
-          value={form.project}
-          onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))}
+          id="cl-address"
+          placeholder="Street address"
+          value={form.address}
+          onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
         />
       </div>
       <div className="grid gap-2">
-        <Label htmlFor="cl-budget">Budget ($)</Label>
+        <Label htmlFor="cl-city">City</Label>
         <Input
-          id="cl-budget"
-          type="number"
-          min="0"
-          placeholder="Project budget"
-          value={form.budget}
-          onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))}
+          id="cl-city"
+          placeholder="City"
+          value={form.city}
+          onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-firstVisit">First Visit</Label>
+        <Input
+          id="cl-firstVisit"
+          type="date"
+          value={form.firstVisit}
+          onChange={(e) => setForm((f) => ({ ...f, firstVisit: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-notes">Memo</Label>
+        <Input
+          id="cl-notes"
+          placeholder="Notes or memo"
+          value={form.notes}
+          onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
         />
       </div>
       <div className="grid gap-2">
@@ -216,8 +251,9 @@ export default function ClientsPage() {
 
   const filteredClients = clientList.filter(
     (client) =>
-      (client.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.label || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.lastName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (client.companyName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       (client.email || '').toLowerCase().includes(searchQuery.toLowerCase())
   )
 
@@ -231,19 +267,22 @@ export default function ClientsPage() {
   }
 
   async function handleAddSubmit() {
-    if (!addForm.name.trim()) return
+    if (!addForm.firstName.trim() || !addForm.lastName.trim()) return
     
     try {
       const response = await fetch('/api/clients', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: addForm.name.trim(),
+          firstName: addForm.firstName.trim(),
+          lastName: addForm.lastName.trim(),
           email: addForm.email.trim(),
           phone: addForm.phone.trim(),
-          label: addForm.label.trim(),
-          project: addForm.project.trim(),
-          budget: parseFloat(addForm.budget) || 0,
+          companyName: addForm.companyName.trim(),
+          address: addForm.address.trim(),
+          city: addForm.city.trim(),
+          notes: addForm.notes.trim(),
+          firstVisit: addForm.firstVisit || null,
           status: addForm.status,
         }),
       })
@@ -263,31 +302,37 @@ export default function ClientsPage() {
   function openEditModal(client: Client) {
     setEditingClient(client)
     setEditForm({
-      name: client.name,
+      firstName: client.firstName,
+      lastName: client.lastName,
       email: client.email,
       phone: client.phone,
-      label: client.label,
-      project: client.project,
-      budget: client.budget > 0 ? client.budget.toString() : "",
+      companyName: client.companyName,
+      address: client.address,
+      city: client.city,
+      notes: client.notes,
+      firstVisit: client.firstVisit || "",
       status: client.status,
     })
     setEditOpen(true)
   }
 
   async function handleEditSubmit() {
-    if (!editingClient || !editForm.name.trim()) return
+    if (!editingClient || !editForm.firstName.trim() || !editForm.lastName.trim()) return
     
     try {
       const response = await fetch(`/api/clients?ids=${editingClient.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: editForm.name.trim(),
+          firstName: editForm.firstName.trim(),
+          lastName: editForm.lastName.trim(),
           email: editForm.email.trim(),
           phone: editForm.phone.trim(),
-          label: editForm.label.trim(),
-          project: editForm.project.trim(),
-          budget: parseFloat(editForm.budget) || 0,
+          companyName: editForm.companyName.trim(),
+          address: editForm.address.trim(),
+          city: editForm.city.trim(),
+          notes: editForm.notes.trim(),
+          firstVisit: editForm.firstVisit || null,
           status: editForm.status,
         }),
       })
@@ -410,10 +455,14 @@ export default function ClientsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Client</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Label / Company</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Project</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Budget</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Name</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Email</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Phone</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Company</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">City</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">First Visit</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Transactions</th>
+                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Lifetime Spend</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Status</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Actions</th>
                 </tr>
@@ -424,24 +473,28 @@ export default function ClientsPage() {
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
-                          {getInitials(client.name)}
+                          {getInitials(client.firstName + ' ' + client.lastName)}
                         </div>
-                        <div>
-                          {/* BUG #8 fix: clicking the name opens the detail modal */}
-                          <button
-                            className="font-medium hover:underline hover:text-primary transition-colors text-left"
-                            onClick={() => openDetailModal(client)}
-                          >
-                            {client.name}
-                          </button>
-                          <div className="text-sm text-muted-foreground">{client.email}</div>
-                        </div>
+                        <button
+                          className="font-medium hover:underline hover:text-primary transition-colors text-left"
+                          onClick={() => openDetailModal(client)}
+                        >
+                          {client.firstName} {client.lastName}
+                        </button>
                       </div>
                     </td>
-                    <td className="p-4 text-muted-foreground">{client.label}</td>
-                    <td className="p-4">{client.project}</td>
+                    <td className="p-4 text-muted-foreground">{client.email}</td>
+                    <td className="p-4 text-muted-foreground">{client.phone || '—'}</td>
+                    <td className="p-4">{client.companyName || '—'}</td>
+                    <td className="p-4 text-muted-foreground">{client.city || '—'}</td>
+                    <td className="p-4 text-muted-foreground">
+                      {client.firstVisit ? new Date(client.firstVisit).toLocaleDateString() : '—'}
+                    </td>
                     <td className="p-4 text-primary font-medium">
-                      {client.budget > 0 ? formatCurrency(client.budget) : "—"}
+                      {client.transactionCount || 0}
+                    </td>
+                    <td className="p-4 text-primary font-medium">
+                      {formatCurrency(client.lifetimeSpend || 0)}
                     </td>
                     <td className="p-4">
                       <StatusBadge status={client.status} />
@@ -458,7 +511,6 @@ export default function ClientsPage() {
                             <Phone className="h-4 w-4" />
                           </a>
                         </Button>
-                        {/* BUG #7 fix: three-dots dropdown */}
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button variant="ghost" size="icon">
@@ -628,7 +680,7 @@ export default function ClientsPage() {
             <Button variant="outline" onClick={() => setAddOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleAddSubmit} disabled={!addForm.name.trim()}>
+            <Button onClick={handleAddSubmit} disabled={!addForm.firstName.trim() || !addForm.lastName.trim()}>
               Add Client
             </Button>
           </DialogFooter>
@@ -649,7 +701,7 @@ export default function ClientsPage() {
             <Button variant="outline" onClick={() => setEditOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditSubmit} disabled={!editForm.name.trim()}>
+            <Button onClick={handleEditSubmit} disabled={!editForm.firstName.trim() || !editForm.lastName.trim()}>
               Save Changes
             </Button>
           </DialogFooter>

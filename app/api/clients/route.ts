@@ -8,9 +8,20 @@ export async function GET() {
   try {
     const clients = await prisma.client.findMany({
       orderBy: { createdAt: 'desc' },
+      include: {
+        bookings: true,
+        invoices: true,
+      },
     })
 
-    return NextResponse.json(clients)
+    // Calculate transaction count and lifetime spend for each client
+    const clientsWithStats = clients.map(client => ({
+      ...client,
+      transactionCount: client.bookings.length + client.invoices.length,
+      lifetimeSpend: client.invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0),
+    }))
+
+    return NextResponse.json(clientsWithStats)
   } catch (error) {
     console.error('Error fetching clients:', error)
     return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 })
@@ -23,12 +34,15 @@ export async function POST(request: NextRequest) {
 
     const client = await prisma.client.create({
       data: {
-        name: body.name,
+        firstName: body.firstName,
+        lastName: body.lastName,
         email: body.email,
         phone: body.phone,
-        label: body.label,
-        project: body.project,
-        budget: body.budget ? Number(body.budget) : null,
+        companyName: body.companyName,
+        address: body.address,
+        city: body.city,
+        notes: body.notes,
+        firstVisit: body.firstVisit ? new Date(body.firstVisit) : null,
         status: (body.status?.toUpperCase() as ClientStatus) || ClientStatus.ACTIVE,
       },
     })
@@ -37,5 +51,37 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating client:', error)
     return NextResponse.json({ error: 'Failed to create client' }, { status: 500 })
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { ids, ...data } = body
+
+    if (!ids) {
+      return NextResponse.json({ error: 'Client ID required' }, { status: 400 })
+    }
+
+    const client = await prisma.client.update({
+      where: { id: ids },
+      data: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        companyName: data.companyName,
+        address: data.address,
+        city: data.city,
+        notes: data.notes,
+        firstVisit: data.firstVisit ? new Date(data.firstVisit) : null,
+        status: (data.status?.toUpperCase() as ClientStatus) || ClientStatus.ACTIVE,
+      },
+    })
+
+    return NextResponse.json(client)
+  } catch (error) {
+    console.error('Error updating client:', error)
+    return NextResponse.json({ error: 'Failed to update client' }, { status: 500 })
   }
 }
