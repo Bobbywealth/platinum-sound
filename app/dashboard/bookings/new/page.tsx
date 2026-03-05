@@ -231,7 +231,6 @@ export default function NewBookingPage() {
                     <SelectValue placeholder="Select an engineer (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Engineer</SelectItem>
                     {engineers.map((engineer) => (
                       <SelectItem key={engineer.id} value={engineer.name || engineer.id}>
                         {engineer.name}

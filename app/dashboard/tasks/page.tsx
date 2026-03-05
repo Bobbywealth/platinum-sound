@@ -279,7 +279,6 @@ export default function TasksPage() {
                         <SelectValue placeholder="Select team member" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
                         {teamMembers.map((member) => (
                           <SelectItem key={member.id} value={member.name}>
                             {member.name}
@@ -409,7 +408,6 @@ export default function TasksPage() {
                       <SelectValue placeholder="Select team member" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Unassigned</SelectItem>
                       {teamMembers.map((member) => (
                         <SelectItem key={member.id} value={member.name}>
                           {member.name}
