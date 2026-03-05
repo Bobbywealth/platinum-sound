@@ -9,6 +9,7 @@ import {
     ChevronDown,
     DollarSign,
     FileText,
+    HelpCircle,
     LayoutDashboard,
     LogOut,
     Mail,
@@ -143,7 +144,10 @@ const navSections: NavSection[] = [
   },
   {
     label: "ACCOUNT",
-    items: [{ href: "/dashboard/settings", label: "Settings", icon: Settings }],
+    items: [
+      { href: "/dashboard/help", label: "Help", icon: HelpCircle },
+      { href: "/dashboard/settings", label: "Settings", icon: Settings },
+    ],
   },
 ]
 
