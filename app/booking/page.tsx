@@ -34,7 +34,7 @@ const ReferralDropdown = dynamic(() => import("@/components/referral-dropdown").
 })
 
 // Icons - only import what's needed
-import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, AlertCircle } from "lucide-react"
+import { Calendar, Check, ChevronLeft, ChevronRight, Clock, Mail, Music, Phone, User, Wallet, Globe, MapPin, Mic, AlertCircle, ArrowRight, ArrowLeft } from "lucide-react"
 
 const timeSlots = [
   "11:00 AM - 12:00 PM",
@@ -109,10 +109,10 @@ const to24Hour = (timeStr: string): string => {
   let hours = parseInt(match[1])
   const minutes = match[2]
   const meridiem = match[3].toUpperCase()
-  
+
   if (meridiem === "PM" && hours !== 12) hours += 12
   if (meridiem === "AM" && hours === 12) hours = 0
-  
+
   return `${hours.toString().padStart(2, "0")}:${minutes}`
 }
 
@@ -133,7 +133,7 @@ export default function BookingPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState<number[]>([1])
-  
+
   // New state for enhanced features
   const [authorization, setAuthorization] = useState<{
     signatureType: 'DIGITAL_SIGNATURE' | 'CHECKBOX_ACKNOWLEDGMENT'
@@ -170,11 +170,11 @@ export default function BookingPage() {
   // Updated steps with new flow
   const steps = [
     { number: 1, label: "Your Info", icon: User },
-    { number: 2, label: "Date", shortLabel: "Date", icon: Calendar },
-    { number: 3, label: "Session Mode", shortLabel: "Mode", icon: Globe },
-    { number: 4, label: "Session Type", shortLabel: "Type", icon: Music },
-    { number: 5, label: "Room(s)", shortLabel: "Room", icon: MapPin },
-    { number: 6, label: "Time", shortLabel: "Time", icon: Clock },
+    { number: 2, label: "Session Type", shortLabel: "Type", icon: Globe },
+    { number: 3, label: "Studio Room", shortLabel: "Room", icon: MapPin },
+    { number: 4, label: "Date & Time", shortLabel: "Date", icon: Calendar },
+    { number: 5, label: "Session Details", shortLabel: "Details", icon: Music },
+    { number: 6, label: "Time Slots", shortLabel: "Time", icon: Clock },
     { number: 7, label: "Add-Ons", shortLabel: "Add-ons", icon: Mic },
     { number: 8, label: "Authorization", shortLabel: "Auth", icon: Check },
     { number: 9, label: "Review", shortLabel: "Review", icon: Wallet },
@@ -182,7 +182,7 @@ export default function BookingPage() {
 
   const totalSteps = steps.length
   const progressPercent = Math.round((currentStep / totalSteps) * 100)
-  
+
   // Memoize formatted date to avoid recalculating on every render
   const formattedDate = useMemo(() => {
     if (!selectedDate) return "Not set"
@@ -193,18 +193,18 @@ export default function BookingPage() {
       day: "numeric",
     })
   }, [selectedDate])
-      
+
   // Memoize formatted time range
   const formattedTime = useMemo(() => {
     if (selectedTimeSlots.length === 0) return "Not set"
     return getFormattedTimeRange(selectedTimeSlots)
   }, [selectedTimeSlots])
-  
+
   // Memoize pricing calculations to avoid recalculating on every render
   const studioRate = useMemo(() => {
     return selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
   }, [selectedStudio])
-  
+
   const duration = useMemo(() => getDuration(selectedTimeSlots), [selectedTimeSlots])
   const basePrice = useMemo(() => studioRate * duration, [studioRate, duration])
   const micAddOnPrice = useMemo(() => micSelection.reduce((sum, m) => sum + m.price, 0), [micSelection])
@@ -292,19 +292,19 @@ export default function BookingPage() {
 
   const canProceed = useCallback(() => {
     switch (currentStep) {
-      case 1: 
-        return clientName.trim().length > 0 && 
-               clientEmail.trim().length > 0 && 
+      case 1:
+        return clientName.trim().length > 0 &&
+               clientEmail.trim().length > 0 &&
                clientPhone.trim().length > 0 &&
                !phoneError
-      case 2: 
-        return selectedDate !== null
-      case 3:
+      case 2:
         return sessionMode !== null
-      case 4:
-        return sessionType !== null && paymentOption !== null
-      case 5:
+      case 3:
         return selectedStudio !== null || sessionMode === "Online"
+      case 4:
+        return selectedDate !== null
+      case 5:
+        return sessionType !== null && paymentOption !== null
       case 6:
         return selectedTimeSlots.length > 0 && areSlotsConsecutive(selectedTimeSlots)
       case 7:
@@ -327,7 +327,7 @@ export default function BookingPage() {
       const staffPhones = ["+1 (212) 265-6060", "+1 (212) 265-6061", "+1 (212) 265-6062"]
       const normalizedPhone = clientPhone.replace(/\D/g, "")
       const isStaffPhone = staffPhones.some(sp => sp.replace(/\D/g, "") === normalizedPhone)
-      
+
       if (isStaffPhone) {
         setPhoneError("This phone number matches a staff member. Please use a different number.")
       } else {
@@ -358,7 +358,7 @@ export default function BookingPage() {
     return new Date(year, month, 1).getDay()
   }, [currentMonth])
 
-  const days = useMemo(() => 
+  const days = useMemo(() =>
     Array.from({ length: daysInMonth }, (_, i) => i + 1),
     [daysInMonth]
   )
@@ -397,7 +397,7 @@ export default function BookingPage() {
 
     const timeRange = getFormattedTimeRange(selectedTimeSlots)
     const [startTimeDisplay, endTimeDisplay] = timeRange.split(" - ")
-    
+
     const bookingData = {
       clientName,
       clientEmail,
@@ -436,7 +436,7 @@ export default function BookingPage() {
           title: "Booking Request Submitted!",
           description: "A member of our team will reach out to you shortly.",
         })
-        
+
         // Reset form
         setClientName("")
         setClientEmail("")
@@ -483,66 +483,60 @@ export default function BookingPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                <User className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Let's get to know you</h2>
-              <p className="text-muted-foreground">Enter your contact information to get started</p>
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium">Full Name <span className="text-primary">*</span></Label>
+              <Input
+                id="name"
+                placeholder="Your name"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="h-12 bg-background border-border"
+              />
             </div>
-            
-            <div className="space-y-5 max-w-md mx-auto">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">Email Address <span className="text-primary">*</span></Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="name"
-                  placeholder="Your name"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="text-lg py-6"
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  className="pl-10 h-12 bg-background border-border"
                 />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email Address *</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={clientEmail}
-                    onChange={(e) => setClientEmail(e.target.value)}
-                    className="pl-10 py-6"
-                  />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium">Phone Number <span className="text-primary">*</span></Label>
+              <div className="flex gap-2">
+                <div className="flex items-center gap-1.5 px-3 h-12 rounded-md border border-border bg-background text-sm text-muted-foreground shrink-0">
+                  <Phone className="h-4 w-4" />
+                  <span>+1</span>
                 </div>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  className={`h-12 bg-background border-border ${phoneError ? 'border-red-500' : ''}`}
+                />
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-medium">Phone Number *</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    value={clientPhone}
-                    onChange={(e) => setClientPhone(e.target.value)}
-                    className={`pl-10 py-6 ${phoneError ? 'border-red-500' : ''}`}
-                  />
-                </div>
-                {phoneError && (
-                  <p className="text-sm text-red-500 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4" />
-                    {phoneError}
-                  </p>
-                )}
-              </div>
-              
-              <div className="pt-2">
-                <ReferralDropdown onSelectionChange={setReferral} />
-              </div>
+              {phoneError && (
+                <p className="text-sm text-red-500 flex items-center gap-1">
+                  <AlertCircle className="h-4 w-4" />
+                  {phoneError}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Referral Source <span className="text-muted-foreground font-normal">(optional dropdown)</span></Label>
+              <ReferralDropdown onSelectionChange={setReferral} />
             </div>
           </div>
         )
@@ -550,102 +544,27 @@ export default function BookingPage() {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                <Calendar className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Select a Date</h2>
-              <p className="text-muted-foreground">Choose your preferred session date</p>
-            </div>
-
-            <Card className="max-w-md mx-auto">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <Button variant="ghost" size="icon" onClick={prevMonth}>
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-                  <span className="font-semibold">
-                    {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-                  </span>
-                  <Button variant="ghost" size="icon" onClick={nextMonth}>
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                <ResponsiveCalendarGrid
-                  weekdayHeader={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                    <div key={day} className="text-xs text-muted-foreground py-2 text-center font-medium">
-                      <span className="sm:hidden">{day[0]}</span>
-                      <span className="hidden sm:inline">{day}</span>
-                    </div>
-                  ))}
-                >
-                  {Array.from({ length: firstDay }).map((_, i) => (
-                    <div key={`empty-${i}`} className="aspect-square" />
-                  ))}
-                  {days.map((day) => {
-                    const isSelected =
-                      selectedDate &&
-                      selectedDate.getDate() === day &&
-                      selectedDate.getMonth() === currentMonth.getMonth() &&
-                      selectedDate.getFullYear() === currentMonth.getFullYear()
-                    const isAvailable = isDateAvailable(day)
-
-                    return (
-                      <button
-                        key={day}
-                        type="button"
-                        disabled={!isAvailable}
-                        onClick={() => {
-                          if (isAvailable) {
-                            setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
-                          }
-                        }}
-                        className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${
-                          isSelected 
-                            ? "bg-primary text-primary-foreground font-semibold shadow-md" 
-                            : isAvailable 
-                            ? "hover:bg-primary/10 cursor-pointer" 
-                            : "text-muted-foreground/30 cursor-not-allowed"
-                        }`}
-                      >
-                        {day}
-                      </button>
-                    )
-                  })}
-                </ResponsiveCalendarGrid>
-              </CardContent>
-            </Card>
-          </div>
-        )
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                <Globe className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Session Mode</h2>
-              <p className="text-muted-foreground">Will this be an online or in-person session?</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Session Mode</h2>
+              <p className="text-sm text-muted-foreground">Will this be an online or in-person session?</p>
             </div>
 
             <div className="grid gap-4 max-w-lg mx-auto">
               <button
                 type="button"
                 onClick={() => setSessionMode("In-Person")}
-                className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   sessionMode === "In-Person"
                     ? "border-primary bg-primary/5 shadow-md"
-                    : "border-muted hover:border-muted-foreground/50"
+                    : "border-border hover:border-muted-foreground/50"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full ${sessionMode === "In-Person" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                    <MapPin className="h-6 w-6" />
+                    <MapPin className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">In-Person Session</h3>
+                    <h3 className="font-semibold">In-Person Session</h3>
                     <p className="text-muted-foreground text-sm">
                       Visit our studio for a hands-on recording experience
                     </p>
@@ -656,18 +575,18 @@ export default function BookingPage() {
               <button
                 type="button"
                 onClick={() => setSessionMode("Online")}
-                className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
                   sessionMode === "Online"
                     ? "border-primary bg-primary/5 shadow-md"
-                    : "border-muted hover:border-muted-foreground/50"
+                    : "border-border hover:border-muted-foreground/50"
                 }`}
               >
                 <div className="flex items-center gap-4">
                   <div className={`p-3 rounded-full ${sessionMode === "Online" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                    <Globe className="h-6 w-6" />
+                    <Globe className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg">Online Session</h3>
+                    <h3 className="font-semibold">Online Session</h3>
                     <p className="text-muted-foreground text-sm">
                       Remote mixing and mastering for international artists
                     </p>
@@ -678,62 +597,186 @@ export default function BookingPage() {
           </div>
         )
 
-      case 4:
-        const services = sessionMode === "Online" ? onlineServices : inPersonServices
-        
+      case 3:
+        if (sessionMode === "Online") {
+          return (
+            <div className="space-y-6 text-center">
+              <div className="mb-2">
+                <h2 className="text-xl font-semibold mb-1">Online Session</h2>
+                <p className="text-sm text-muted-foreground">No studio selection needed for online sessions</p>
+              </div>
+              <div className="bg-muted/50 rounded-xl p-8 max-w-md mx-auto">
+                <Globe className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <p className="text-muted-foreground">
+                  Your session will be conducted remotely. We&apos;ll contact you with details after your booking is confirmed.
+                </p>
+              </div>
+            </div>
+          )
+        }
+
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-                <Music className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Session Details</h2>
-              <p className="text-muted-foreground">Select your service type and payment preference</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Select Studio</h2>
+              <p className="text-sm text-muted-foreground">Choose your preferred recording space</p>
             </div>
 
-            <div className="space-y-6 max-w-lg mx-auto">
-              <div className="space-y-3">
+            <div className="grid gap-3">
+              {studioOptions.map((studio) => (
+                <button
+                  key={studio.value}
+                  type="button"
+                  onClick={() => setSelectedStudio(studio.value)}
+                  className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                    selectedStudio === studio.value
+                      ? "border-primary bg-primary/5 shadow-md"
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold">{studio.value}</h3>
+                      <p className="text-muted-foreground text-sm">{studio.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-lg">${studio.rate}/hr</div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <p className="text-center text-xs text-muted-foreground">
+              Rooms may be swapped at any time. Pricing will reflect assigned room.
+            </p>
+          </div>
+        )
+
+      case 4:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Select a Date</h2>
+              <p className="text-sm text-muted-foreground">Choose your preferred session date</p>
+            </div>
+
+            <div className="max-w-md mx-auto bg-muted/30 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <span className="font-semibold text-sm">
+                  {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                </span>
+                <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8">
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <ResponsiveCalendarGrid
+                weekdayHeader={["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div key={day} className="text-xs text-muted-foreground py-2 text-center font-medium">
+                    <span className="sm:hidden">{day[0]}</span>
+                    <span className="hidden sm:inline">{day}</span>
+                  </div>
+                ))}
+              >
+                {Array.from({ length: firstDay }).map((_, i) => (
+                  <div key={`empty-${i}`} className="aspect-square" />
+                ))}
+                {days.map((day) => {
+                  const isSelected =
+                    selectedDate &&
+                    selectedDate.getDate() === day &&
+                    selectedDate.getMonth() === currentMonth.getMonth() &&
+                    selectedDate.getFullYear() === currentMonth.getFullYear()
+                  const isAvailable = isDateAvailable(day)
+
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      disabled={!isAvailable}
+                      onClick={() => {
+                        if (isAvailable) {
+                          setSelectedDate(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))
+                        }
+                      }}
+                      className={`aspect-square rounded-lg flex items-center justify-center text-sm transition-all ${
+                        isSelected
+                          ? "bg-primary text-primary-foreground font-semibold shadow-md"
+                          : isAvailable
+                          ? "hover:bg-primary/10 cursor-pointer"
+                          : "text-muted-foreground/30 cursor-not-allowed"
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  )
+                })}
+              </ResponsiveCalendarGrid>
+            </div>
+          </div>
+        )
+
+      case 5:
+        const services = sessionMode === "Online" ? onlineServices : inPersonServices
+
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Session Details</h2>
+              <p className="text-sm text-muted-foreground">Select your service type and payment preference</p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="space-y-2">
                 <Label className="text-sm font-medium">Service Type</Label>
-                {services.map((service) => (
-                  <button
-                    key={service.value}
-                    type="button"
-                    onClick={() => setSessionType(service.value)}
-                    className={`w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
-                      sessionType === service.value
-                        ? "border-primary bg-primary/5 shadow-md"
-                        : "border-muted hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <div className="font-medium">{service.value}</div>
-                    <div className="text-sm text-muted-foreground">{service.description}</div>
-                  </button>
-                ))}
+                <div className="space-y-2">
+                  {services.map((service) => (
+                    <button
+                      key={service.value}
+                      type="button"
+                      onClick={() => setSessionType(service.value)}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:shadow-sm ${
+                        sessionType === service.value
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-muted-foreground/50"
+                      }`}
+                    >
+                      <div className="font-medium text-sm">{service.value}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{service.description}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <Label className="text-sm font-medium">Payment Option</Label>
-                {paymentOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPaymentOption(option.value)}
-                    className={`w-full p-4 rounded-lg border-2 text-left transition-all hover:shadow-md ${
-                      paymentOption === option.value
-                        ? "border-primary bg-primary/5 shadow-md"
-                        : "border-muted hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <div className="font-medium">{option.value}</div>
-                    <div className="text-sm text-muted-foreground">{option.description}</div>
-                  </button>
-                ))}
+                <div className="space-y-2">
+                  {paymentOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setPaymentOption(option.value)}
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:shadow-sm ${
+                        paymentOption === option.value
+                          ? "border-primary bg-primary/5"
+                          : "border-border hover:border-muted-foreground/50"
+                      }`}
+                    >
+                      <div className="font-medium text-sm">{option.value}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{option.description}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="space-y-3">
-                <Label className="text-sm font-medium">Engineer Preference (Optional)</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Engineer Preference <span className="text-muted-foreground font-normal">(Optional)</span></Label>
                 <Select value={engineer || ""} onValueChange={setEngineer}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-12 bg-background">
                     <SelectValue placeholder="Select an engineer" />
                   </SelectTrigger>
                   <SelectContent>
@@ -749,88 +792,19 @@ export default function BookingPage() {
           </div>
         )
 
-      case 5:
-        if (sessionMode === "Online") {
-          return (
-            <div className="space-y-6 text-center">
-              <div className="text-center mb-6">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                  <Globe className="h-6 w-6 text-primary" />
-                </div>
-                <h2 className="text-2xl font-bold mb-2">Online Session</h2>
-                <p className="text-muted-foreground">No studio selection needed for online sessions</p>
-              </div>
-              <Card className="max-w-md mx-auto">
-                <CardContent className="p-6">
-                  <Globe className="h-12 w-12 mx-auto mb-4 text-primary" />
-                  <p className="text-muted-foreground">
-                    Your session will be conducted remotely. We'll contact you with details after your booking is confirmed.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          )
-        }
-
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                <MapPin className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Select Studio</h2>
-              <p className="text-muted-foreground">Choose your preferred recording space</p>
-            </div>
-
-            <div className="grid gap-4 max-w-2xl mx-auto">
-              {studioOptions.map((studio) => (
-                <button
-                  key={studio.value}
-                  type="button"
-                  onClick={() => setSelectedStudio(studio.value)}
-                  className={`p-6 rounded-xl border-2 text-left transition-all hover:shadow-md ${
-                    selectedStudio === studio.value
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-muted hover:border-muted-foreground/50"
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold text-lg">{studio.value}</h3>
-                      <p className="text-muted-foreground text-sm">{studio.description}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-lg">${studio.rate}/hr</div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            
-            <p className="text-center text-sm text-muted-foreground">
-              Rooms may be swapped at any time. Pricing will reflect assigned room.
-            </p>
-          </div>
-        )
-
       case 6:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                <Clock className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Select Time</h2>
-              <p className="text-muted-foreground">Choose your session time slot(s)</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Select Time</h2>
+              <p className="text-sm text-muted-foreground">Choose your session time slot(s)</p>
             </div>
 
-            <div className="max-w-2xl mx-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {timeSlots.map((slot) => {
                   const isSelected = selectedTimeSlots.includes(slot)
-                  const selectedIndex = selectedTimeSlots.indexOf(slot)
-                  const slotIndex = timeSlots.indexOf(slot)
-                  
+
                   // Check if selecting this slot would break consecutiveness
                   let wouldBreakConsecutive = false
                   if (selectedTimeSlots.length > 0 && !isSelected) {
@@ -870,12 +844,12 @@ export default function BookingPage() {
               </div>
 
               {selectedTimeSlots.length > 0 && (
-                <div className="mt-6 p-4 bg-primary/5 rounded-lg border">
-                  <div className="flex justify-between items-center">
+                <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/20">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="font-medium">Selected Time:</span>
                     <span className="font-semibold">{formattedTime}</span>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
+                  <div className="flex justify-between items-center mt-1 text-sm">
                     <span className="font-medium">Duration:</span>
                     <span className="font-semibold">{duration} hour(s)</span>
                   </div>
@@ -888,12 +862,9 @@ export default function BookingPage() {
       case 7:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                <Mic className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Add-Ons</h2>
-              <p className="text-muted-foreground">Enhance your session with premium options</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Add-Ons</h2>
+              <p className="text-sm text-muted-foreground">Enhance your session with premium options</p>
             </div>
 
             <div className="max-w-lg mx-auto">
@@ -908,12 +879,9 @@ export default function BookingPage() {
       case 8:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                <Check className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Authorization</h2>
-              <p className="text-muted-foreground">Please review and authorize your booking</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Authorization</h2>
+              <p className="text-sm text-muted-foreground">Please review and authorize your booking</p>
             </div>
 
             <div className="max-w-lg mx-auto">
@@ -934,152 +902,143 @@ export default function BookingPage() {
       case 9:
         return (
           <div className="space-y-6">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4 mx-auto">
-                <Wallet className="h-6 w-6 text-primary" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Review Your Booking</h2>
-              <p className="text-muted-foreground">Please confirm all details before submitting</p>
+            <div className="text-center mb-2">
+              <h2 className="text-xl font-semibold mb-1">Review Your Booking</h2>
+              <p className="text-sm text-muted-foreground">Please confirm all details before submitting</p>
             </div>
 
-            <Card className="max-w-lg mx-auto">
-              <CardContent className="p-4 sm:p-6 space-y-4">
-                <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2">
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Name</span>
-                    <p className="font-medium">{clientName}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Email</span>
-                    <p className="font-medium">{clientEmail}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Phone</span>
-                    <p className="font-medium">{clientPhone}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Mode</span>
-                    <p className="font-medium">{sessionMode}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Date</span>
-                    <p className="font-medium">{formattedDate}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Time</span>
-                    <p className="font-medium">{formattedTime}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Type</span>
-                    <p className="font-medium">{sessionType}</p>
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Studio</span>
-                    <p className="font-medium">{selectedStudio || "Online"}</p>
-                  </div>
-                  {engineer && engineer !== "No preference" && (
-                    <div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Engineer</span>
-                      <p className="font-medium">{engineer}</p>
-                    </div>
-                  )}
-                  {referral && (
-                    <div>
-                      <span className="text-xs text-muted-foreground uppercase tracking-wider">Referred By</span>
-                      <p className="font-medium">{referral.referrerName}</p>
-                    </div>
-                  )}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-4 sm:grid sm:grid-cols-2">
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Name</span>
+                  <p className="font-medium">{clientName}</p>
                 </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Email</span>
+                  <p className="font-medium">{clientEmail}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Phone</span>
+                  <p className="font-medium">{clientPhone}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Mode</span>
+                  <p className="font-medium">{sessionMode}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Date</span>
+                  <p className="font-medium">{formattedDate}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Time</span>
+                  <p className="font-medium">{formattedTime}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Session Type</span>
+                  <p className="font-medium">{sessionType}</p>
+                </div>
+                <div>
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">Studio</span>
+                  <p className="font-medium">{selectedStudio || "Online"}</p>
+                </div>
+                {engineer && engineer !== "No preference" && (
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Engineer</span>
+                    <p className="font-medium">{engineer}</p>
+                  </div>
+                )}
+                {referral && (
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">Referred By</span>
+                    <p className="font-medium">{referral.referrerName}</p>
+                  </div>
+                )}
+              </div>
 
-                <div className="border-t pt-4 space-y-2">
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Base Rate ({duration} hr × ${studioRate})</span>
+                  <span>${basePrice.toFixed(2)}</span>
+                </div>
+                {micAddOnPrice > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Base Rate ({duration} hr × ${studioRate})</span>
-                    <span>${basePrice.toFixed(2)}</span>
+                    <span className="text-muted-foreground">Mic Add-On</span>
+                    <span>${micAddOnPrice.toFixed(2)}</span>
                   </div>
-                  {micAddOnPrice > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Mic Add-On</span>
-                      <span>${micAddOnPrice.toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                    <span>Total</span>
-                    <span>${totalPrice.toFixed(2)}</span>
-                  </div>
-                  {depositAmount > 0 && (
-                    <div className="flex justify-between text-primary font-medium">
-                      <span>Due Now ({paymentOption})</span>
-                      <span>${depositAmount.toFixed(2)}</span>
-                    </div>
-                  )}
+                )}
+                <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                  <span>Total</span>
+                  <span>${totalPrice.toFixed(2)}</span>
                 </div>
+                {depositAmount > 0 && (
+                  <div className="flex justify-between text-primary font-medium">
+                    <span>Due Now ({paymentOption})</span>
+                    <span>${depositAmount.toFixed(2)}</span>
+                  </div>
+                )}
+              </div>
 
-                <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg flex items-center gap-2">
-                  <Check className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-green-800 dark:text-green-200">
-                    Authorization completed
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="bg-green-50 dark:bg-green-950/30 p-3 rounded-lg flex items-center gap-2">
+                <Check className="h-5 w-5 text-green-600" />
+                <span className="text-sm text-green-800 dark:text-green-200">
+                  Authorization completed
+                </span>
+              </div>
+            </div>
 
             {/* Stripe Payment Section */}
             {requiresStripePayment && (
-              <Card className="max-w-lg mx-auto mt-6">
-                <CardHeader>
-                  <CardTitle className="text-base">
-                    {paymentComplete ? "Payment Complete" : `Pay ${paymentOption === "Full payment" ? "in Full" : "50% Deposit"}`}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {paymentComplete ? (
-                    <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                      <Check className="h-6 w-6 text-green-600 shrink-0" />
-                      <div>
-                        <p className="font-medium text-green-800 dark:text-green-200">Payment Successful!</p>
-                        <p className="text-sm text-green-700 dark:text-green-300">
-                          ${stripeChargeAmount.toFixed(2)} charged. Click &quot;Submit Booking&quot; to complete your reservation.
-                        </p>
-                      </div>
+              <div className="mt-4 border rounded-xl p-5">
+                <h3 className="font-semibold text-sm mb-3">
+                  {paymentComplete ? "Payment Complete" : `Pay ${paymentOption === "Full payment" ? "in Full" : "50% Deposit"}`}
+                </h3>
+                {paymentComplete ? (
+                  <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                    <Check className="h-6 w-6 text-green-600 shrink-0" />
+                    <div>
+                      <p className="font-medium text-green-800 dark:text-green-200">Payment Successful!</p>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        ${stripeChargeAmount.toFixed(2)} charged. Click &quot;Submit Booking&quot; to complete your reservation.
+                      </p>
                     </div>
-                  ) : stripeError ? (
-                    <div className="space-y-3">
-                      <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg">
-                        <p className="text-sm text-red-700 dark:text-red-300">{stripeError}</p>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setStripeError(null)
-                          setStripeClientSecret(null)
-                        }}
-                      >
-                        Try Again
-                      </Button>
+                  </div>
+                ) : stripeError ? (
+                  <div className="space-y-3">
+                    <div className="p-4 bg-red-50 dark:bg-red-950/30 rounded-lg">
+                      <p className="text-sm text-red-700 dark:text-red-300">{stripeError}</p>
                     </div>
-                  ) : isFetchingIntent ? (
-                    <div className="flex items-center justify-center py-8 gap-3">
-                      <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                      <span className="text-sm text-muted-foreground">Initializing payment...</span>
-                    </div>
-                  ) : stripeClientSecret ? (
-                    <StripePaymentForm
-                      clientSecret={stripeClientSecret}
-                      amount={stripeChargeAmount}
-                      onPaymentSuccess={(intentId) => {
-                        setStripePaymentIntentId(intentId)
-                        setPaymentComplete(true)
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
                         setStripeError(null)
+                        setStripeClientSecret(null)
                       }}
-                      onPaymentError={(error) => {
-                        setStripeError(error)
-                      }}
-                    />
-                  ) : null}
-                </CardContent>
-              </Card>
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                ) : isFetchingIntent ? (
+                  <div className="flex items-center justify-center py-8 gap-3">
+                    <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                    <span className="text-sm text-muted-foreground">Initializing payment...</span>
+                  </div>
+                ) : stripeClientSecret ? (
+                  <StripePaymentForm
+                    clientSecret={stripeClientSecret}
+                    amount={stripeChargeAmount}
+                    onPaymentSuccess={(intentId) => {
+                      setStripePaymentIntentId(intentId)
+                      setPaymentComplete(true)
+                      setStripeError(null)
+                    }}
+                    onPaymentError={(error) => {
+                      setStripeError(error)
+                    }}
+                  />
+                ) : null}
+              </div>
             )}
           </div>
         )
@@ -1090,7 +1049,7 @@ export default function BookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
@@ -1102,66 +1061,77 @@ export default function BookingPage() {
               height={40}
               className="h-10 w-auto"
             />
-            <span className="font-bold text-xl hidden sm:inline">Platinum Sound</span>
+            <span className="font-bold text-lg hidden sm:inline tracking-tight">PLATINUM<br className="hidden sm:block" /><span className="text-primary">SOUND</span></span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden sm:inline">Theme</span>
             <ThemeToggle />
           </div>
         </div>
       </header>
 
-      {/* Progress Bar */}
-      <div className="border-b bg-background">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step {currentStep} of {totalSteps}</span>
-            <span className="text-sm font-medium">{progressPercent}% Complete</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden bg-neutral-900 dark:bg-neutral-950">
+        <div className="absolute inset-0">
+          <Image
+            src="/studio-hero.png"
+            alt=""
+            fill
+            className="object-cover opacity-30"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-900/60 via-neutral-900/80 to-neutral-900" />
+        </div>
+        <div className="relative mx-auto max-w-3xl px-4 py-12 sm:py-16 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+            Book Your Studio Session
+          </h1>
+          <p className="text-neutral-300 text-base sm:text-lg max-w-xl mx-auto">
+            Reserve your time at Platinum Sound Studios in just a few quick steps.
+          </p>
         </div>
       </div>
 
-      {/* Step Indicators */}
-      <div className="border-b bg-background/95 backdrop-blur overflow-x-auto snap-x snap-mandatory">
-        <div className="container py-3">
-          <div className="flex items-center gap-1 min-w-max">
+      {/* Step Progress Indicator */}
+      <div className="border-b bg-background">
+        <div className="mx-auto max-w-3xl px-4 py-6 overflow-x-auto">
+          <div className="flex items-center justify-between min-w-[600px]">
             {steps.map((step, index) => {
-              const Icon = step.icon
               const isActive = currentStep === step.number
               const isCompleted = visitedSteps.includes(step.number) && currentStep > step.number
               const isVisited = visitedSteps.includes(step.number)
 
               return (
-                <div key={step.number} className="flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => isVisited && setCurrentStep(step.number)}
-                    disabled={!isVisited}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : isCompleted
-                        ? "bg-primary/10 text-primary"
-                        : isVisited
-                        ? "bg-muted hover:bg-muted/80 cursor-pointer"
-                        : "text-muted-foreground/50"
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Icon className="h-4 w-4" />
-                    )}
-                    <span className="text-xs font-medium sm:hidden">{step.shortLabel ?? step.label}</span>
-                    <span className="text-sm font-medium hidden sm:inline">{step.label}</span>
-                  </button>
+                <div key={step.number} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={() => isVisited && setCurrentStep(step.number)}
+                      disabled={!isVisited}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-all border-2 ${
+                        isCompleted
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : isActive
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-muted-foreground/30 text-muted-foreground/50"
+                      } ${isVisited ? "cursor-pointer" : "cursor-default"}`}
+                    >
+                      {isCompleted ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        step.number
+                      )}
+                    </button>
+                    <span className={`mt-1.5 text-[10px] sm:text-xs font-medium whitespace-nowrap ${
+                      isActive ? "text-primary" : isCompleted ? "text-foreground" : "text-muted-foreground/60"
+                    }`}>
+                      {step.shortLabel ?? step.label}
+                    </span>
+                  </div>
                   {index < steps.length - 1 && (
-                    <ChevronRight className="h-4 w-4 mx-1 text-muted-foreground" />
+                    <div className={`flex-1 h-0.5 mx-1 mt-[-18px] rounded-full transition-colors ${
+                      isCompleted ? "bg-primary" : "bg-muted"
+                    }`} />
                   )}
                 </div>
               )
@@ -1170,162 +1140,125 @@ export default function BookingPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="container mx-auto px-4 sm:px-6 py-6">
-        <div className="lg:grid lg:grid-cols-3 lg:gap-8">
-          {/* Left Column - Form Steps */}
-          <div className="lg:col-span-2">
-            <div className="bg-card rounded-xl border shadow-sm">
-              <div className="p-6 sm:p-8">
-                <form onSubmit={handleSubmit}>
-                  {renderStepContent()}
+      {/* Main Content */}
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        {/* Form Card */}
+        <div className="bg-card rounded-2xl border shadow-sm">
+          <div className="p-6 sm:p-8">
+            <form onSubmit={handleSubmit}>
+              {renderStepContent()}
 
-                  {/* Navigation Buttons */}
-                  <div className="flex justify-between mt-8 pt-6 border-t gap-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={goToPrevStep}
-                      disabled={currentStep === 1}
-                      className="gap-2"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      <span className="hidden sm:inline">Back</span>
-                      <span className="sm:hidden">Prev</span>
-                    </Button>
-
-                    {currentStep < totalSteps ? (
-                      <Button
-                        type="button"
-                        onClick={goToNextStep}
-                        disabled={!canProceed()}
-                        className="gap-2"
-                      >
-                        <span className="hidden sm:inline">Continue</span>
-                        <span className="sm:hidden">Next</span>
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        disabled={!canProceed()}
-                        className="gap-2"
-                      >
-                        <Check className="h-4 w-4" />
-                        <span className="hidden sm:inline">
-                          {requiresStripePayment && !paymentComplete
-                            ? "Complete Payment Above"
-                            : "Submit Booking"}
-                        </span>
-                        <span className="sm:hidden">Submit</span>
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column - Booking Summary */}
-          <div className="hidden lg:block">
-            <div className="sticky top-24">
-              <div className="bg-card rounded-xl border shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4">Booking Summary</h3>
-                
-                <div className="space-y-3 text-sm">
-                  {clientName && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Name</span>
-                      <span className="font-medium truncate ml-4">{clientName}</span>
-                    </div>
-                  )}
-                  {clientEmail && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Email</span>
-                      <span className="font-medium truncate ml-4">{clientEmail}</span>
-                    </div>
-                  )}
-                  {selectedDate && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Date</span>
-                      <span className="font-medium">{selectedDate.toLocaleDateString()}</span>
-                    </div>
-                  )}
-                  {sessionMode && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Session</span>
-                      <span className="font-medium">{sessionMode}</span>
-                    </div>
-                  )}
-                  {sessionType && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Type</span>
-                      <span className="font-medium">{sessionType}</span>
-                    </div>
-                  )}
-                  {selectedStudio && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Studio</span>
-                      <span className="font-medium">{selectedStudio}</span>
-                    </div>
-                  )}
-                  {selectedTimeSlots.length > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Time</span>
-                      <span className="font-medium">{duration} hour(s)</span>
-                    </div>
-                  )}
-                </div>
-
-                {totalPrice > 0 && (
-                  <>
-                    <div className="border-t mt-4 pt-4 space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Base ({duration} hr × ${studioRate})</span>
-                        <span>${basePrice.toFixed(2)}</span>
-                      </div>
-                      {micAddOnPrice > 0 && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Add-ons</span>
-                          <span>${micAddOnPrice.toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                        <span>Total</span>
-                        <span>${totalPrice.toFixed(2)}</span>
-                      </div>
-                      {depositAmount > 0 && (
-                        <div className="flex justify-between text-primary font-medium">
-                          <span>Due Now</span>
-                          <span>${depositAmount.toFixed(2)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </>
+              {/* Continue / Submit Button */}
+              <div className="mt-8">
+                {currentStep < totalSteps ? (
+                  <Button
+                    type="button"
+                    onClick={goToNextStep}
+                    disabled={!canProceed()}
+                    className="w-full h-12 text-base font-semibold gap-2 rounded-xl"
+                  >
+                    Continue
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={!canProceed()}
+                    className="w-full h-12 text-base font-semibold gap-2 rounded-xl"
+                  >
+                    <Check className="h-4 w-4" />
+                    {requiresStripePayment && !paymentComplete
+                      ? "Complete Payment Above"
+                      : "Submit Booking"}
+                  </Button>
                 )}
-
-                {/* Progress indicator */}
-                <div className="mt-6 pt-4 border-t">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <div className="flex-1 bg-muted rounded-full h-1.5">
-                      <div 
-                        className="bg-primary h-1.5 rounded-full transition-all" 
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                    <span>{progressPercent}%</span>
-                  </div>
-                </div>
               </div>
-            </div>
+
+              {/* Back Link */}
+              {currentStep > 1 && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={goToPrevStep}
+                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                    Back
+                  </button>
+                </div>
+              )}
+            </form>
           </div>
+        </div>
+
+        {/* Session Summary Card */}
+        <div className="mt-6 bg-card rounded-2xl border shadow-sm p-6">
+          <h3 className="font-semibold text-lg mb-4">Session Summary</h3>
+
+          <div className="space-y-2.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Session Type</span>
+              <span className="font-medium">{sessionMode === "In-Person" ? "In Person" : "Online"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Room</span>
+              <span className="font-medium">{selectedStudio || "Not Selected"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Time</span>
+              <span className="font-medium">{selectedTimeSlots.length > 0 ? formattedTime : "Not Selected"}</span>
+            </div>
+            {selectedDate && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Date</span>
+                <span className="font-medium">{selectedDate.toLocaleDateString()}</span>
+              </div>
+            )}
+            {sessionType && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Service</span>
+                <span className="font-medium">{sessionType}</span>
+              </div>
+            )}
+            {clientName && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Name</span>
+                <span className="font-medium truncate ml-4">{clientName}</span>
+              </div>
+            )}
+          </div>
+
+          {totalPrice > 0 && (
+            <div className="border-t mt-4 pt-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Base ({duration} hr × ${studioRate})</span>
+                <span>${basePrice.toFixed(2)}</span>
+              </div>
+              {micAddOnPrice > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Add-ons</span>
+                  <span>${micAddOnPrice.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                <span>Total</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+              {depositAmount > 0 && (
+                <div className="flex justify-between text-primary font-medium">
+                  <span>Due Now</span>
+                  <span>${depositAmount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Footer */}
       <footer className="border-t bg-background mt-auto">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Platinum Sound Studios. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Platinum Sound Studios. All rights reserved.</p>
         </div>
       </footer>
     </div>
