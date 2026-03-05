@@ -810,18 +810,36 @@ export default function ClientsPage() {
                 {/* Project info */}
                 <div>
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                    Project
+                    Details
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="rounded-lg border p-3">
-                      <p className="text-xs text-muted-foreground">Project</p>
-                      <p className="font-medium mt-0.5">{detailClient.notes || '—'}</p>
+                      <p className="text-xs text-muted-foreground">Company</p>
+                      <p className="font-medium mt-0.5">{detailClient.companyName || '—'}</p>
                     </div>
                     <div className="rounded-lg border p-3">
-                      <p className="text-xs text-muted-foreground">Budget</p>
-                      <p className="font-medium text-primary mt-0.5">
-                        {detailClient.lifetimeSpend || 0 > 0 ? formatCurrency(detailClient.lifetimeSpend || 0) : "—"}
-                      </p>
+                      <p className="text-xs text-muted-foreground">City</p>
+                      <p className="font-medium mt-0.5">{detailClient.city || '—'}</p>
+                    </div>
+                    <div className="rounded-lg border p-3 col-span-2">
+                      <p className="text-xs text-muted-foreground">Address</p>
+                      <p className="font-medium mt-0.5">{detailClient.address || '—'}</p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">First Visit</p>
+                      <p className="font-medium mt-0.5">{detailClient.firstVisit ? new Date(detailClient.firstVisit).toLocaleDateString() : '—'}</p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">Client Since</p>
+                      <p className="font-medium mt-0.5">{new Date(detailClient.createdAt).toLocaleDateString()}</p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">Transactions</p>
+                      <p className="font-medium text-primary mt-0.5">{detailClient.transactionCount || 0}</p>
+                    </div>
+                    <div className="rounded-lg border p-3">
+                      <p className="text-xs text-muted-foreground">Lifetime Spend</p>
+                      <p className="font-medium text-primary mt-0.5">{formatCurrency(detailClient.lifetimeSpend || 0)}</p>
                     </div>
                     <div className="rounded-lg border p-3">
                       <p className="text-xs text-muted-foreground">Status</p>
@@ -829,12 +847,20 @@ export default function ClientsPage() {
                         <StatusBadge status={detailClient.status} />
                       </div>
                     </div>
-                    <div className="rounded-lg border p-3">
-                      <p className="text-xs text-muted-foreground">Client Since</p>
-                      <p className="font-medium mt-0.5">{detailClient.createdAt}</p>
-                    </div>
                   </div>
                 </div>
+
+                {/* Notes */}
+                {detailClient.notes && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                      Memo / Notes
+                    </h3>
+                    <div className="rounded-lg border p-3 text-sm">
+                      {detailClient.notes}
+                    </div>
+                  </div>
+                )}
 
                 {/* Booking history */}
                 {(() => {
