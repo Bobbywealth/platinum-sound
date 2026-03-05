@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, use } from "react"
+import { useEffect, useState } from "react"
 import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { MasterCalendar } from "@/components/master-calendar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -58,8 +58,10 @@ interface User {
   role: string
 }
 
-export default function CalendarPage({ params }: { params: Promise<{ userId?: string }> }) {
-  const resolvedParams = use(params)
+export default function CalendarPage() {
+  // For now, we'll use a simpler approach without route params
+  // The master calendar functionality can be extended later
+  const isMasterCalendar = true
   const [bookings, setBookings] = useState<Booking[]>([])
   const [rooms, setRooms] = useState<Room[]>([])
   const [engineers, setEngineers] = useState<Engineer[]>([])
@@ -68,8 +70,7 @@ export default function CalendarPage({ params }: { params: Promise<{ userId?: st
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Check if user has master calendar access
-  const isMasterCalendar = resolvedParams.userId === undefined
+  // Check if user has master calendar access - simplified for now
 
   useEffect(() => {
     // First get current user
