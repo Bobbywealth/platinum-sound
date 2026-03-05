@@ -489,59 +489,54 @@ export default function HelpPage() {
 
         {/* Quick Links */}
         <div className="grid gap-4 md:grid-cols-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-100">
-                <Calendar className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="font-medium">Calendar</p>
-                <p className="text-xs text-muted-foreground">Schedule & bookings</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-100">
-                <Users className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="font-medium">Clients</p>
-                <p className="text-xs text-muted-foreground">Manage clients</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-100">
-                <DollarSign className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="font-medium">Finance</p>
-                <p className="text-xs text-muted-foreground">Invoices & reports</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="cursor-pointer hover:shadow-md transition-shadow">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-orange-100">
-                <Settings className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="font-medium">Settings</p>
-                <p className="text-xs text-muted-foreground">Configure system</p>
-              </div>
-            </CardContent>
-          </Card>
-          <a href="/handbook.pdf" target="_blank" rel="noopener noreferrer" className="no-underline">
+          <a href="/dashboard/calendar" className="no-underline">
             <Card className="cursor-pointer hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-100">
-                  <Download className="h-5 w-5 text-amber-600" />
+                <div className="p-2 rounded-lg bg-blue-100">
+                  <Calendar className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <p className="font-medium">Staff Handbook</p>
-                  <p className="text-xs text-muted-foreground">Download PDF</p>
+                  <p className="font-medium">Calendar</p>
+                  <p className="text-xs text-muted-foreground">Schedule & bookings</p>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
+          <a href="/dashboard/bookings" className="no-underline">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-100">
+                  <Users className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Clients</p>
+                  <p className="text-xs text-muted-foreground">Manage clients</p>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
+          <a href="/dashboard/reports" className="no-underline">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-purple-100">
+                  <DollarSign className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Finance</p>
+                  <p className="text-xs text-muted-foreground">Invoices & reports</p>
+                </div>
+              </CardContent>
+            </Card>
+          </a>
+          <a href="/dashboard/settings" className="no-underline">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-orange-100">
+                  <Settings className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="font-medium">Settings</p>
+                  <p className="text-xs text-muted-foreground">Configure system</p>
                 </div>
               </CardContent>
             </Card>
