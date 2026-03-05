@@ -269,7 +269,7 @@ export default function Home() {
                 <h4 className="text-2xl font-bold mb-2">Jerry &quot;Wonda&quot; Duplessis</h4>
                 <p className="text-royal font-medium mb-4">Founder/Owner</p>
                 <p className="text-muted-foreground leading-relaxed">
-                  Grammy Award-winning, multi-platinum super music producer Jerry &apos;Wonda&apos; Duplessis is one of the most highly regarded and musically adept producers to emerge from the hip-hop era since the early 1990s. Today he is an entrepreneur and philanthropist whose stellar music career includes three Grammy Awards and over 16 nominations, a publishing catalog of 300+ titles, and 300+ million single and album copies sold. His 2006 hit &quot;Hips Don&apos;t Lie&quot; with Shakira and Wyclef Jean broke music records globally and is regarded as one of the best songs of all time. Jerry has also produced songs for feature films including the Golden Globe-nominated &quot;Million Voices&quot; for Hotel Rwanda and scored ten films and documentaries. His philanthropic work includes being a Goodwill Ambassador to Haiti, recognized for advocating, promoting, and supporting the country and its people globally on projects for humanitarian relief, education, health, sustainable business, and community development. He is also known for his extensive work surrounding education, affordable housing, Haiti relief, and mental health. Jerry&apos;s global vision continues to inspire. He is a stalwart in the New Jersey State and Newark community where he has worked on youth arts and entrepreneur initiatives, for which he was awarded the Impact Award by Rutgers University and honored at many other events. Jerry is also a member of the Board of Directors for the Newark Symphony Hall, Backline and the Vassar Haiti Project. He is currently working with the City of Newark and the Newark Board of Education to improve the music and video production programs for the youth. &quot;The Other Side of Newark&quot;, his newest endeavor features inner city young artists joining forces to create a peaceful harmony amongst themselves through their music.
+                  Grammy Award-winning, multi-platinum music producer Jerry "Wonda" Duplessis is one of the most respected producers to emerge from the hip-hop era since the early 1990s. Over his career, he has earned three Grammy Awards and more than 16 nominations, built a publishing catalog of over 300 titles, and contributed to over 300 million records sold worldwide. He produced global hits such as "Hips Don't Lie" by Shakira and Wyclef Jean, one of the most successful songs in music history, and has also composed for film, including the Golden Globe–nominated "Million Voices" from Hotel Rwanda. Beyond music, Duplessis is an entrepreneur and philanthropist who serves as a Goodwill Ambassador to Haiti and actively supports initiatives in humanitarian relief, education, healthcare, sustainable development, affordable housing, and mental health. Deeply connected to Newark, New Jersey, he has led youth arts and entrepreneurship initiatives, serves on several nonprofit boards including Newark Symphony Hall, and is currently working with the City of Newark and the Newark Board of Education to strengthen music and video production programs while empowering young artists through his initiative "The Other Side of Newark."
                 </p>
               </div>
             </div>
@@ -283,7 +283,6 @@ export default function Home() {
                 { name: "Lisa", role: "Manager" },
                 { name: "Spice", role: "Manager" },
                 { name: "Marshall", role: "Studio Tech" },
-                { name: "Gary Valentino", role: "CFO Manager" },
               ].map((member, i) => (
                 <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
                   <div className="w-20 h-20 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
@@ -368,27 +367,6 @@ export default function Home() {
                     </div>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Support Staff */}
-          <div>
-            <h3 className="text-2xl font-bold mb-8 text-center">Support Staff</h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { name: "Solon Ramirez", role: "Photographer/Videographer" },
-                { name: "Marshall Morton", role: "Studio Tech" },
-                { name: "Stephen \"Stitch\" Keech", role: "Studio Tech" },
-                { name: "Scotty \"Too Fly\"", role: "Public Relations" },
-              ].map((member, i) => (
-                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
-                  <div className="w-16 h-16 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-8 w-8 text-royal" />
-                  </div>
-                  <h4 className="font-bold mb-1">{member.name}</h4>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
                 </div>
               ))}
             </div>

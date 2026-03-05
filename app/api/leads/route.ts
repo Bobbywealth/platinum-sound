@@ -1,47 +1,52 @@
-import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 
-const prisma = new PrismaClient()
-
-export async function POST(request: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const data = await request.json()
+    const session = await auth();
+    
+    if (!session || !session.user?.role || !["ADMIN", "MANAGER", "BOOKING_AGENT", "FRONT_DESK"].includes(session.user.role)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const lead = await prisma.lead.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        status: "NEW",
-        source: "BOOKING_PAGE",
-        notes: `Session Type: ${data.sessionType || "Not specified"}\nStudio: ${data.studio || "Not specified"}\nDate: ${data.date || "Not specified"}\nTime: ${data.time || "Not specified"}`,
-      },
-    })
+    const leads = await prisma.lead.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-    return NextResponse.json(lead, { status: 201 })
+    return NextResponse.json(leads);
   } catch (error) {
-    console.error("Error creating lead:", error)
-    return NextResponse.json(
-      { error: "Failed to create lead" },
-      { status: 500 }
-    )
-  } finally {
-    await prisma.$disconnect()
+    console.error("Error fetching leads:", error);
+    return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
   }
 }
 
-export async function GET() {
+export async function POST(req: NextRequest) {
   try {
-    const leads = await prisma.lead.findMany({
-      orderBy: { createdAt: "desc" },
-    })
+    const body = await req.json();
+    const { name, email, phone, studio, date, time, message, referralSource } = body;
 
-    return NextResponse.json(leads)
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    const lead = await prisma.lead.create({
+      data: {
+        name: name || "",
+        email,
+        phone: phone || "",
+        studio: studio || "",
+        preferredDate: date ? new Date(date) : null,
+        preferredTime: time || "",
+        message: message || "",
+        referralSource: referralSource || "",
+        status: "NEW",
+      },
+    });
+
+    return NextResponse.json(lead, { status: 201 });
   } catch (error) {
-    console.error("Error fetching leads:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch leads" },
-      { status: 500 }
-    )
+    console.error("Error creating lead:", error);
+    return NextResponse.json({ error: "Failed to create lead" }, { status: 500 });
   }
 }
