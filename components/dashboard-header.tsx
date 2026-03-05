@@ -202,18 +202,9 @@ export default function DashboardHeader() {
       transition={{ duration: 0.3 }}
       className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b bg-white px-4 md:px-6"
     >
-      {/* Left side - Page title */}
+      {/* Left side - Logo only (page titles are in each page) */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="h-9 w-9 shrink-0 lg:hidden" aria-hidden="true" />
-        <motion.h1
-          key={getPageTitle()}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2 }}
-          className="truncate text-lg font-semibold text-gray-900 md:text-xl"
-        >
-          {getPageTitle()}
-        </motion.h1>
       </div>
 
       {/* Center - Search (Desktop) */}
