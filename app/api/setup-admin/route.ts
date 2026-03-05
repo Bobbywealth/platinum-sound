@@ -7,6 +7,59 @@ const prisma = new PrismaClient()
 // This is a one-time setup route - should be deleted after use
 export async function POST(request: Request) {
   try {
+    const { action } = await request.json()
+
+    if (action === "seed-all") {
+      // Create all staff users
+      const staffMembers = [
+        // Admin
+        { email: "admin@platinumsound.com", name: "Admin", role: Role.ADMIN, password: "admin123" },
+        // Chief Engineers
+        { email: "jerry@platinumsound.com", name: "Jerry Wonda", role: Role.ENGINEER, password: "password123" },
+        { email: "serge@platinumsound.com", name: "Serge", role: Role.ENGINEER, password: "password123" },
+        // Staff Engineers
+        { email: "julian@platinumsound.com", name: "Julian", role: Role.ENGINEER, password: "password123" },
+        { email: "jack@platinumsound.com", name: "Jack", role: Role.ENGINEER, password: "password123" },
+        { email: "solon@platinumsound.com", name: "Solon", role: Role.ENGINEER, password: "password123" },
+        // Senior Engineers
+        { email: "knice@platinumsound.com", name: "Knice", role: Role.ENGINEER, password: "password123" },
+        { email: "rene@platinumsound.com", name: "Rene", role: Role.ENGINEER, password: "password123" },
+        { email: "darren@platinumsound.com", name: "Darren", role: Role.ENGINEER, password: "password123" },
+        // Engineers
+        { email: "kyle@platinumsound.com", name: "Kyle", role: Role.ENGINEER, password: "password123" },
+        { email: "jacob@platinumsound.com", name: "Jacob", role: Role.ENGINEER, password: "password123" },
+        { email: "rohan@platinumsound.com", name: "Rohan", role: Role.ENGINEER, password: "password123" },
+        { email: "chris@platinumsound.com", name: "Chris", role: Role.ENGINEER, password: "password123" },
+        // Additional staff
+        { email: "lisa@platinumsound.com", name: "Lisa", role: Role.ENGINEER, password: "password123" },
+        { email: "spice@platinumsound.com", name: "Spice", role: Role.ENGINEER, password: "password123" },
+        { email: "marshall@platinumsound.com", name: "Marshall", role: Role.ENGINEER, password: "password123" },
+      ]
+
+      const created = []
+      for (const staff of staffMembers) {
+        const hashedPassword = await hash(staff.password, 12)
+        const user = await prisma.user.upsert({
+          where: { email: staff.email },
+          update: {},
+          create: {
+            email: staff.email,
+            name: staff.name,
+            password: hashedPassword,
+            role: staff.role,
+          },
+        })
+        created.push(user.email)
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: `Created ${created.length} users`,
+        users: created,
+      })
+    }
+
+    // Single user creation
     const { email, password, name } = await request.json()
 
     if (!email || !password) {
@@ -33,9 +86,9 @@ export async function POST(request: Request) {
     const user = await prisma.user.create({
       data: {
         email,
-        name: name || "Admin",
+        name: name || "User",
         password: hashedPassword,
-        role: Role.ADMIN,
+        role: Role.ENGINEER,
       },
     })
 
