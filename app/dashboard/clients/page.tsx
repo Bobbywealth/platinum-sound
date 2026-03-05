@@ -94,6 +94,94 @@ const emptyClientForm = {
   status: "active" as Client["status"],
 }
 
+// ── Reusable client form fields (moved outside to prevent re-renders) ──
+type ClientFormProps = {
+  form: typeof emptyClientForm
+  setForm: React.Dispatch<React.SetStateAction<typeof emptyClientForm>>
+}
+
+function ClientFormFields({ form, setForm }: ClientFormProps) {
+  return (
+    <div className="grid gap-4 py-4">
+      <div className="grid gap-2">
+        <Label htmlFor="cl-name">Client Name <span className="text-destructive">*</span></Label>
+        <Input
+          id="cl-name"
+          placeholder="Enter client name"
+          value={form.name}
+          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-email">Email</Label>
+        <Input
+          id="cl-email"
+          type="email"
+          placeholder="client@example.com"
+          value={form.email}
+          onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-phone">Phone</Label>
+        <Input
+          id="cl-phone"
+          placeholder="Phone number"
+          value={form.phone}
+          onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-label">Label / Company</Label>
+        <Input
+          id="cl-label"
+          placeholder="Record label or company"
+          value={form.label}
+          onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-project">Project</Label>
+        <Input
+          id="cl-project"
+          placeholder="Current project"
+          value={form.project}
+          onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-budget">Budget ($)</Label>
+        <Input
+          id="cl-budget"
+          type="number"
+          min="0"
+          placeholder="Project budget"
+          value={form.budget}
+          onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="cl-status">Status</Label>
+        <Select
+          value={form.status}
+          onValueChange={(val) =>
+            setForm((f) => ({ ...f, status: val as Client["status"] }))
+          }
+        >
+          <SelectTrigger id="cl-status">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  )
+}
+
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function ClientsPage() {
@@ -254,95 +342,6 @@ export default function ClientsPage() {
   // Client bookings helper
   function getClientBookings(clientId: string) {
     return bookings.filter((b) => b.clientId === clientId)
-  }
-
-  // ── Reusable client form fields ──
-  function ClientFormFields({
-    form,
-    setForm,
-  }: {
-    form: typeof emptyClientForm
-    setForm: React.Dispatch<React.SetStateAction<typeof emptyClientForm>>
-  }) {
-    return (
-      <div className="grid gap-4 py-4">
-        <div className="grid gap-2">
-          <Label htmlFor="cl-name">Client Name <span className="text-destructive">*</span></Label>
-          <Input
-            id="cl-name"
-            placeholder="Enter client name"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-email">Email</Label>
-          <Input
-            id="cl-email"
-            type="email"
-            placeholder="client@example.com"
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-phone">Phone</Label>
-          <Input
-            id="cl-phone"
-            placeholder="Phone number"
-            value={form.phone}
-            onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-label">Label / Company</Label>
-          <Input
-            id="cl-label"
-            placeholder="Record label or company"
-            value={form.label}
-            onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-project">Project</Label>
-          <Input
-            id="cl-project"
-            placeholder="Current project"
-            value={form.project}
-            onChange={(e) => setForm((f) => ({ ...f, project: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-budget">Budget ($)</Label>
-          <Input
-            id="cl-budget"
-            type="number"
-            min="0"
-            placeholder="Project budget"
-            value={form.budget}
-            onChange={(e) => setForm((f) => ({ ...f, budget: e.target.value }))}
-          />
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="cl-status">Status</Label>
-          <Select
-            value={form.status}
-            onValueChange={(val) =>
-              setForm((f) => ({ ...f, status: val as Client["status"] }))
-            }
-          >
-            <SelectTrigger id="cl-status">
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    )
   }
 
   return (
