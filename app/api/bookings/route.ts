@@ -119,14 +119,18 @@ export async function POST(request: NextRequest) {
     })
 
     if (!client) {
+      // Split name into first and last name
+      const nameParts = clientName.split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+      
       client = await prisma.client.create({
         data: {
-          name: clientName,
+          firstName,
+          lastName,
           email: clientEmail,
           phone: clientPhone,
-          label: clientLabel,
-          project,
-          budget,
+          companyName: clientLabel,
           status: 'PENDING',
         }
       })

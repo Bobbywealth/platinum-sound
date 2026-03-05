@@ -52,9 +52,9 @@ export async function GET() {
     const revenueChange = previousMonthAmount === 0 ? 0 : ((thisMonthAmount - previousMonthAmount) / previousMonthAmount) * 100
 
     const recentActivity = [
-      ...recentBookings.map((booking) => ({ id: `booking-${booking.id}`, type: 'booking' as const, title: 'New Booking', description: `${booking.client.name} booked ${booking.studio.replace('STUDIO_', 'Studio ')}`, timestamp: booking.createdAt.toISOString() })),
-      ...recentInvoices.slice(0, 2).map((invoice) => ({ id: `invoice-${invoice.id}`, type: 'invoice' as const, title: 'Invoice Pending', description: `Invoice sent to ${invoice.client.name}`, timestamp: invoice.createdAt.toISOString() })),
-      ...recentClients.map((client) => ({ id: `client-${client.id}`, type: 'client' as const, title: 'New Client', description: `${client.name} was added`, timestamp: client.createdAt.toISOString() })),
+      ...recentBookings.map((booking) => ({ id: `booking-${booking.id}`, type: 'booking' as const, title: 'New Booking', description: `${booking.client.firstName} ${booking.client.lastName} booked ${booking.studio.replace('STUDIO_', 'Studio ')}`, timestamp: booking.createdAt.toISOString() })),
+      ...recentInvoices.slice(0, 2).map((invoice) => ({ id: `invoice-${invoice.id}`, type: 'invoice' as const, title: 'Invoice Pending', description: `Invoice sent to ${invoice.client.firstName} ${invoice.client.lastName}`, timestamp: invoice.createdAt.toISOString() })),
+      ...recentClients.map((client) => ({ id: `client-${client.id}`, type: 'client' as const, title: 'New Client', description: `${client.firstName} ${client.lastName} was added`, timestamp: client.createdAt.toISOString() })),
     ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 5)
 
     return NextResponse.json({

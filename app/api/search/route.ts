@@ -56,20 +56,20 @@ export async function GET(request: Request) {
   const results = [
     ...clients.map((client) => ({
       type: 'client',
-      title: client.name,
-      subtitle: `${client.label ?? '—'} • ${client.project ?? '—'}`,
+      title: `${client.firstName} ${client.lastName}`,
+      subtitle: `${client.companyName ?? '—'} • ${client.city ?? '—'}`,
       href: `/dashboard/clients?id=${client.id}`,
     })),
     ...bookings.map((booking) => ({
       type: 'booking',
-      title: `${booking.client.name} - ${booking.studio.replace('STUDIO_', 'Studio ')}`,
+      title: `${booking.client.firstName} ${booking.client.lastName} - ${booking.studio.replace('STUDIO_', 'Studio ')}`,
       subtitle: `${booking.date.toISOString().split('T')[0]} • ${booking.startTime} - ${booking.endTime}`,
       href: `/dashboard/bookings?id=${booking.id}`,
     })),
     ...invoices.map((invoice) => ({
       type: 'invoice',
-      title: `${invoice.client.name} - ${invoice.id}`,
-      subtitle: `$${invoice.amount.toLocaleString()} • ${invoice.status}`,
+      title: `${invoice.client.firstName} ${invoice.client.lastName} - ${invoice.id}`,
+      subtitle: `${invoice.amount.toLocaleString()} • ${invoice.status}`,
       href: `/dashboard/invoices?id=${invoice.id}`,
     })),
     ...staff.map((member) => ({

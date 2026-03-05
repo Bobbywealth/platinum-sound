@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         },
         bookings: bookings.map(b => ({
           id: b.id,
-          clientName: b.client.name,
+          clientName: `${b.client.firstName} ${b.client.lastName}`,
           date: b.date,
           startTime: b.startTime,
           endTime: b.endTime,
