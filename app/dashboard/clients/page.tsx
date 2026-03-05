@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, getInitials } from "@/lib/utils"
-import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload } from "lucide-react"
+import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload, ChevronLeft, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ImportClientsDialog } from "@/components/clients/import-clients-dialog"
 import {
@@ -223,6 +223,10 @@ export default function ClientsPage() {
   const [clientList, setClientList] = useState<Client[]>([])
   const [bookings, setBookings] = useState<BookingRef[]>([])
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalClients, setTotalClients] = useState(0)
+  const clientsPerPage = 20
 
   // ── Add Client dialog ──
   const [addOpen, setAddOpen] = useState(false)
@@ -244,18 +248,28 @@ export default function ClientsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
 
+  // Fetch clients with pagination
   useEffect(() => {
-    fetch("/api/clients").then((r) => (r.ok ? r.json() : [])).then((data) => setClientList(data.map((c: any) => ({ ...c, status: (c.status || 'pending').toLowerCase() }))))
+    const fetchClients = async () => {
+      const params = new URLSearchParams()
+      params.set('page', currentPage.toString())
+      params.set('limit', clientsPerPage.toString())
+      if (searchQuery) {
+        params.set('search', searchQuery)
+      }
+      
+      const response = await fetch(`/api/clients?${params.toString()}`)
+      if (response.ok) {
+        const data = await response.json()
+        setClientList(data.clients.map((c: any) => ({ ...c, status: (c.status || 'pending').toLowerCase() })))
+        setTotalPages(data.pagination.totalPages)
+        setTotalClients(data.pagination.total)
+      }
+    }
+    
+    fetchClients()
     fetch("/api/bookings").then((r) => (r.ok ? r.json() : [])).then(setBookings)
-  }, [])
-
-  const filteredClients = clientList.filter(
-    (client) =>
-      (client.firstName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.lastName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.companyName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (client.email || '').toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  }, [currentPage, searchQuery])
 
   const activeClients = clientList.filter((c) => c.status === "active").length
   const totalLifetimeSpend = clientList.reduce((acc, c) => acc + (c.lifetimeSpend || 0), 0)
@@ -444,7 +458,10 @@ export default function ClientsPage() {
           placeholder="Search clients by name, company, or email..."
           className="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            setCurrentPage(1)
+          }}
         />
       </div>
 
@@ -468,7 +485,7 @@ export default function ClientsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredClients.map((client) => (
+                {clientList.map((client) => (
                   <tr key={client.id} className="border-b hover:bg-muted/50 transition-colors">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -547,9 +564,41 @@ export default function ClientsPage() {
         </CardContent>
       </Card>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-2">
+          <div className="text-sm text-muted-foreground">
+            Showing {((currentPage - 1) * clientsPerPage) + 1} to {Math.min(currentPage * clientsPerPage, totalClients)} of {totalClients} clients
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Client List (Mobile) */}
       <div className="md:hidden space-y-3">
-        {filteredClients.map((client) => (
+        {clientList.map((client) => (
           <Card key={client.id}>
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
@@ -632,7 +681,7 @@ export default function ClientsPage() {
           </Card>
         ))}
 
-        {filteredClients.length === 0 && (
+        {clientList.length === 0 && (
           <Card>
             <CardContent className="p-8 text-center text-muted-foreground">
               No clients found matching your search.

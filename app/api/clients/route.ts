@@ -4,15 +4,44 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const clients = await prisma.client.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        bookings: true,
-        invoices: true,
-      },
-    })
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const search = searchParams.get('search') || ''
+    const status = searchParams.get('status') || ''
+
+    const skip = (page - 1) * limit
+
+    // Build where clause
+    const where: any = {}
+    if (search) {
+      where.OR = [
+        { firstName: { contains: search, mode: 'insensitive' } },
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { companyName: { contains: search, mode: 'insensitive' } },
+        { city: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+    if (status) {
+      where.status = status.toUpperCase() as ClientStatus
+    }
+
+    const [clients, total] = await Promise.all([
+      prisma.client.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+        include: {
+          bookings: true,
+          invoices: true,
+        },
+      }),
+      prisma.client.count({ where }),
+    ])
 
     // Calculate transaction count and lifetime spend for each client
     const clientsWithStats = clients.map(client => ({
@@ -21,7 +50,15 @@ export async function GET() {
       lifetimeSpend: client.invoices.reduce((sum, inv) => sum + (inv.amount || 0), 0),
     }))
 
-    return NextResponse.json(clientsWithStats)
+    return NextResponse.json({
+      clients: clientsWithStats,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      }
+    })
   } catch (error) {
     console.error('Error fetching clients:', error)
     return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 })
