@@ -170,7 +170,7 @@ export default function CalendarPage() {
     ? workOrders.map(wo => ({
         id: wo.id,
         title: wo.title,
-        date: new Date(wo.createdAt),
+        date: new Date(wo.date),
         type: 'work-order' as const,
         status: wo.status,
         priority: wo.priority,
@@ -190,7 +190,7 @@ export default function CalendarPage() {
   // Get items for selected date (for detail dialog)
   const getDayBookings = (date: Date) => formattedBookings.filter(b => isSameDay(new Date(b.date), date))
   const getDayTasks = (date: Date) => personalTasks.filter((t: any) => t.date && isSameDay(new Date(t.date), date))
-  const getDayWorkOrders = (date: Date) => formattedWorkOrders.filter(wo => isSameDay(new Date(wo.createdAt), date))
+  const getDayWorkOrders = (date: Date) => formattedWorkOrders.filter(wo => isSameDay(new Date(wo.date), date))
 
   if (loading) {
     return (
