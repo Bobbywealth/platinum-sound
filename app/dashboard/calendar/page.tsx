@@ -322,8 +322,8 @@ export default function CalendarPage() {
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="font-medium">{wo.title}</p>
-                            {wo.assignedEngineer && (
-                              <p className="text-sm text-muted-foreground">Assigned to: {wo.assignedEngineer.name}</p>
+                            {wo.assignee && (
+                              <p className="text-sm text-muted-foreground">Assigned to: {wo.assignee}</p>
                             )}
                           </div>
                           <Badge variant={wo.priority === 'HIGH' ? 'destructive' : wo.priority === 'MEDIUM' ? 'default' : 'secondary'}>
