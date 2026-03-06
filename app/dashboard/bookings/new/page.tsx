@@ -57,7 +57,7 @@ export default function NewBookingPage() {
       fetch('/api/rooms').then(r => r.ok ? r.json() : []),
       fetch('/api/engineers').then(r => r.ok ? r.json() : []),
     ]).then(([clientsData, roomsData, engineersData]) => {
-      setClients(clientsData)
+      setClients(Array.isArray(clientsData) ? clientsData : (clientsData.clients ?? []))
       setRooms(roomsData)
       setEngineers(engineersData)
       setIsLoadingData(false)
