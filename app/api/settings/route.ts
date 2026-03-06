@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Role, EmailType } from '@prisma/client'
 import { auth } from '@/lib/auth'
+import { hash } from 'bcryptjs'
+import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,5 +105,104 @@ export async function PUT(request: NextRequest) {
   } catch (error) {
     console.error('Error updating settings:', error)
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
+  }
+}
+
+// POST /api/settings - Create a new team member (requires auth)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Only admins and managers can add team members
+    if (session.user.role !== 'ADMIN' && session.user.role !== 'MANAGER') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const body = await request.json()
+    const { action, email, name, role, password, phone } = body
+
+    // Validate input
+    if (!email || !name || !role || !password) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (existingUser) {
+      return NextResponse.json({ error: 'User with this email already exists' }, { status: 409 })
+    }
+
+    // Hash password
+    const hashedPassword = await hash(password, 12)
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        role: role as Role,
+        password: hashedPassword,
+        phone: phone || null,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        phone: true,
+        createdAt: true,
+      }
+    })
+
+    return NextResponse.json({ success: true, user })
+  } catch (error) {
+    console.error('Error creating team member:', error)
+    return NextResponse.json({ error: 'Failed to create team member' }, { status: 500 })
+  }
+}
+
+// DELETE /api/settings - Delete a team member (requires auth)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Only admins can delete team members
+    if (session.user.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const email = searchParams.get('email')
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    }
+
+    // Check if trying to delete self
+    if (session.user.email === email) {
+      return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
+    }
+
+    // Delete user
+    await prisma.user.delete({
+      where: { email }
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    }
+    console.error('Error deleting team member:', error)
+    return NextResponse.json({ error: 'Failed to delete team member' }, { status: 500 })
   }
 }

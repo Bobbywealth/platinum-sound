@@ -181,7 +181,7 @@ export default function TeamsPage() {
     if (!addForm.name.trim() || !addForm.email.trim()) return
     
     try {
-      const res = await fetch('/api/setup-admin', {
+      const res = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -259,7 +259,7 @@ export default function TeamsPage() {
     if (!confirm(`Are you sure you want to delete ${member.name}?`)) return
     
     try {
-      const res = await fetch(`/api/setup-admin?email=${encodeURIComponent(member.email)}`, {
+      const res = await fetch(`/api/settings?email=${encodeURIComponent(member.email)}`, {
         method: 'DELETE',
       })
       
