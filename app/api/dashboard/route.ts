@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { BookingStatus, InvoiceStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,11 @@ function startOfDay(date: Date) {
 }
 
 export async function GET() {
+  // Check authentication
+  const session = await auth()
+  if (!session?.user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   try {
     const now = new Date()
     const todayStart = startOfDay(now)

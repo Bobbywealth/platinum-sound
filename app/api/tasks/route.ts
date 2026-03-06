@@ -1,11 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Priority, TaskStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
+// Validation schemas
+const createTaskSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  status: z.string().optional(),
+  priority: z.string().optional(),
+  assigneeId: z.string().optional(),
+  assigneeName: z.string().optional(),
+  dueDate: z.string().optional(),
+  isRecurring: z.boolean().optional(),
+  recurrencePattern: z.string().optional(),
+  recurrenceEndDate: z.string().optional(),
+})
+
+const updateTaskSchema = z.object({
+  id: z.string().min(1, 'Task ID is required'),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  status: z.string().optional(),
+  priority: z.string().optional(),
+  assigneeId: z.string().optional(),
+  assigneeName: z.string().optional(),
+  dueDate: z.string().optional(),
+})
+
+// Auth check helper
+async function checkAuth() {
+  const session = await auth()
+  if (!session?.user) {
+    return { authorized: false, error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+  }
+  return { authorized: true, session }
+}
+
 export async function GET() {
   try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
     const tasks = await prisma.task.findMany({
       include: { assignee: true },
       orderBy: { createdAt: 'desc' },
@@ -20,7 +59,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
+
     const body = await request.json()
+
+    // Validate input
+    const validation = createTaskSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validation.error.errors },
+        { status: 400 }
+      )
+    }
 
     // If assigneeName is provided, look up the user by name
     let assigneeId = body.assigneeId || null

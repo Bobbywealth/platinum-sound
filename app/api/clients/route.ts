@@ -1,11 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ClientStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
+// Validation schemas
+const createClientSchema = z.object({
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  companyName: z.string().optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  notes: z.string().optional(),
+  firstVisit: z.string().optional(),
+  status: z.string().optional(),
+})
+
+const updateClientSchema = createClientSchema.partial().extend({
+  ids: z.string().min(1, 'Client ID is required'),
+})
+
+// Auth check helper
+async function checkAuth() {
+  const session = await auth()
+  if (!session?.user) {
+    return { authorized: false, error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+  }
+  return { authorized: true, session }
+}
+
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
@@ -68,7 +100,20 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
+
     const body = await request.json()
+
+    // Validate input
+    const validation = createClientSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validation.error.errors },
+        { status: 400 }
+      )
+    }
 
     const client = await prisma.client.create({
       data: {
@@ -94,7 +139,21 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
+
     const body = await request.json()
+
+    // Validate input
+    const validation = updateClientSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validation.error.errors },
+        { status: 400 }
+      )
+    }
+
     const { ids, ...data } = body
 
     if (!ids) {

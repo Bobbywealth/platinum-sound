@@ -4,6 +4,8 @@ import * as XLSX from 'xlsx'
 import { ClientStatus } from '@prisma/client'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { auth } from '@/lib/auth'
+import { hasPermission } from '@/lib/permissions'
 
 type ParsedRow = {
   firstName: string
@@ -89,6 +91,17 @@ async function parseFile(file: File): Promise<ParsedRow[]> {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check permission - only admins and managers can import
+    if (!hasPermission(session.user.role, 'manage_users')) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 })
+    }
+
     const formData = await request.formData()
     const file = formData.get('file')
 

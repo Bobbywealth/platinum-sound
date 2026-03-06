@@ -10,6 +10,11 @@ const prisma = new PrismaClient()
 // GET /api/work-orders - Get all work orders
 export async function GET(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const assignedEngineerId = searchParams.get('assignedEngineerId')

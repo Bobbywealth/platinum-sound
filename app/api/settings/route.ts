@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { Role, EmailType } from '@prisma/client'
+import { auth } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
-// GET /api/settings - Get all settings
+// GET /api/settings - Get all settings (requires auth)
 export async function GET() {
   try {
+    // Check authentication
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     // Get key-value settings
     const settings = await prisma.settings.findMany()
     const settingsMap: Record<string, any> = {}
@@ -57,9 +63,14 @@ export async function GET() {
   }
 }
 
-// PUT /api/settings - Update settings
+// PUT /api/settings - Update settings (requires auth)
 export async function PUT(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const body = await request.json()
     const { studio, notifications } = body
 

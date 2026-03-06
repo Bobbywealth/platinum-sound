@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient, Studio } from '@prisma/client'
+import { auth } from '@/lib/auth'
+import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
 const prisma = new PrismaClient()
 
-// GET /api/rooms - Get all rooms
+// Validation schema
+const createRoomSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+  baseRate: z.number().positive().optional(),
+  rateWithEngineer: z.number().positive().optional(),
+  rateWithoutEngineer: z.number().positive().optional(),
+  amenities: z.any().optional(),
+  images: z.any().optional(),
+})
+
+// GET /api/rooms - Get all rooms (public for booking flow)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -104,10 +117,26 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/rooms - Create a new room
+// POST /api/rooms - Create a new room (requires auth)
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
+
+    // Validate input
+    const validation = createRoomSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: validation.error.errors },
+        { status: 400 }
+      )
+    }
+
     const { name, description, baseRate, rateWithEngineer, rateWithoutEngineer, amenities, images } = body
 
     const room = await prisma.room.create({

@@ -4,8 +4,28 @@ import { hash } from "bcryptjs"
 
 const prisma = new PrismaClient()
 
+// SECURITY: This route is only allowed in development or with a secret key
+// In production, this should be disabled or deleted
+function isAllowed(): boolean {
+  // Allow in development mode
+  if (process.env.NODE_ENV === "development") return true
+  
+  // Allow with secret key in production
+  const secretKey = process.env.SETUP_ADMIN_SECRET
+  if (!secretKey) return false
+  
+  return false // Disabled in production by default - set SETUP_ADMIN_SECRET to enable
+}
+
 // This is a one-time setup route - should be deleted after use
 export async function POST(request: NextRequest) {
+  // Security check
+  if (!isAllowed()) {
+    return NextResponse.json(
+      { error: "This endpoint is disabled in production" },
+      { status: 403 }
+    )
+  }
   try {
     const body = await request.json()
     const { action } = body
@@ -121,6 +141,14 @@ export async function POST(request: NextRequest) {
 
 // DELETE /api/setup-admin - Delete a user
 export async function DELETE(request: NextRequest) {
+  // Security check
+  if (!isAllowed()) {
+    return NextResponse.json(
+      { error: "This endpoint is disabled in production" },
+      { status: 403 }
+    )
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const email = searchParams.get("email")
