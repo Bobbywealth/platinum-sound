@@ -100,10 +100,6 @@ const sectionIcons: Record<string, React.ElementType> = {
 }
 
 const navSections: NavSection[] = [
-  {
-    label: "MAIN",
-    items: [{ href: "/dashboard", label: "Overview", icon: LayoutDashboard }],
-  },
   // DASHBOARD section
   {
     label: "DASHBOARD",
