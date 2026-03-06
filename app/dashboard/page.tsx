@@ -38,7 +38,7 @@ export default function DashboardPage() {
   return (
     <DashboardPageShell className="space-y-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Revenue" value={formatCurrency(stats.totalRevenue)} icon={DollarSign} change={stats.revenueChange} />
+        <StatCard title="This Month's Revenue" value={formatCurrency(stats.totalRevenue)} icon={DollarSign} change={stats.revenueChange} />
         <StatCard title="Active Clients" value={String(stats.activeClients)} icon={Users} change={stats.clientsChange} />
         <StatCard title="Active Bookings" value={String(stats.activeBookings)} icon={Calendar} change={stats.bookingsChange} />
         <StatCard title="Pending Invoices" value={String(stats.pendingInvoices)} description={`${formatCurrency(stats.pendingAmount)} pending`} icon={TrendingUp} />

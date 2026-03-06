@@ -46,8 +46,7 @@ export async function GET() {
     ])
 
     const pendingAmount = pendingInvoices.reduce((total, invoice) => total + invoice.amount, 0)
-    const totalRevenue = paidInvoices.reduce((total, invoice) => total + invoice.amount, 0)
-    const thisMonthAmount = thisMonthRevenue?._sum?.amount ?? 0
+    const totalRevenue = thisMonthAmount
     const previousMonthAmount = previousMonthRevenue?._sum?.amount ?? 0
     const revenueChange = previousMonthAmount === 0 ? 0 : ((thisMonthAmount - previousMonthAmount) / previousMonthAmount) * 100
 
