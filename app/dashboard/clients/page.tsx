@@ -476,9 +476,7 @@ export default function ClientsPage() {
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Email</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Phone</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Company</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">City</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">First Visit</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground text-sm">Txns</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Spend</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Status</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Actions</th>
@@ -503,12 +501,8 @@ export default function ClientsPage() {
                     <td className="p-4 text-muted-foreground">{client.email}</td>
                     <td className="p-4 text-muted-foreground">{client.phone || '—'}</td>
                     <td className="p-4">{client.companyName || '—'}</td>
-                    <td className="p-4 text-muted-foreground">{client.city || '—'}</td>
                     <td className="p-4 text-muted-foreground">
                       {client.firstVisit ? new Date(client.firstVisit).toLocaleDateString() : '—'}
-                    </td>
-                    <td className="p-4 text-primary font-medium">
-                      {client.transactionCount || 0}
                     </td>
                     <td className="p-4 text-primary font-medium">
                       {formatCurrency(client.lifetimeSpend || 0)}
