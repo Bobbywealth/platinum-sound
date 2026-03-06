@@ -134,12 +134,12 @@ export default function DashboardPage() {
   return (
     <DashboardPageShell className="space-y-6">
       {/* Header with Date/Time */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 animate-fade-in">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Welcome back! Here's what's happening today.</p>
         </div>
-        <div className="flex items-center gap-2 text-lg">
+        <div className="flex items-center gap-2 text-lg animate-pulse-subtle">
           <Clock className="h-5 w-5 text-muted-foreground" />
           <span className="font-medium">{formatDate(currentTime)}</span>
           <span className="text-muted-foreground">•</span>
@@ -148,17 +148,17 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="flex gap-3">
+      <div className="flex gap-3 animate-slide-left delay-75">
         <Link 
           href="/dashboard/bookings/new" 
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all hover-lift"
         >
           <Plus className="h-4 w-4" />
           New Booking
         </Link>
         <Link 
           href="/dashboard/clients?new=true" 
-          className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-all hover-lift"
         >
           <UserPlus className="h-4 w-4" />
           Add Client
@@ -167,30 +167,38 @@ export default function DashboardPage() {
 
       {/* Stats Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          title="This Month's Revenue" 
-          value={formatCurrency(stats.totalRevenue)} 
-          icon={DollarSign} 
-          change={stats.revenueChange} 
-        />
-        <StatCard 
-          title="Active Clients" 
-          value={String(stats.activeClients)} 
-          icon={Users} 
-          change={stats.clientsChange} 
-        />
-        <StatCard 
-          title="Active Bookings" 
-          value={String(stats.activeBookings)} 
-          icon={Calendar} 
-          change={stats.bookingsChange} 
-        />
-        <StatCard 
-          title="Pending Invoices" 
-          value={String(stats.pendingInvoices)} 
-          description={`${formatCurrency(stats.pendingAmount)} pending`} 
-          icon={TrendingUp} 
-        />
+        <div className="animate-fade-in delay-75 hover-lift transition-transform">
+          <StatCard 
+            title="This Month's Revenue" 
+            value={formatCurrency(stats.totalRevenue)} 
+            icon={DollarSign} 
+            change={stats.revenueChange} 
+          />
+        </div>
+        <div className="animate-fade-in delay-150 hover-lift transition-transform">
+          <StatCard 
+            title="Active Clients" 
+            value={String(stats.activeClients)} 
+            icon={Users} 
+            change={stats.clientsChange} 
+          />
+        </div>
+        <div className="animate-fade-in delay-225 hover-lift transition-transform">
+          <StatCard 
+            title="Active Bookings" 
+            value={String(stats.activeBookings)} 
+            icon={Calendar} 
+            change={stats.bookingsChange} 
+          />
+        </div>
+        <div className="animate-fade-in delay-300 hover-lift transition-transform">
+          <StatCard 
+            title="Pending Invoices" 
+            value={String(stats.pendingInvoices)} 
+            description={`${formatCurrency(stats.pendingAmount)} pending`} 
+            icon={TrendingUp} 
+          />
+        </div>
       </div>
 
       {/* Main Content Grid */}
@@ -198,7 +206,7 @@ export default function DashboardPage() {
         {/* Left Column - Today's Sessions & Upcoming */}
         <div className="lg:col-span-2 space-y-6">
           {/* Today's Sessions */}
-          <div className="bg-card rounded-lg border p-6">
+          <div className="bg-card rounded-lg border p-6 animate-fade-in delay-375 hover-lift transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -212,10 +220,14 @@ export default function DashboardPage() {
               <p className="text-muted-foreground py-4">No sessions scheduled for today.</p>
             ) : (
               <div className="space-y-3">
-                {data?.todaySessions?.map((session) => (
-                  <div key={session.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                {data?.todaySessions?.map((session, index) => (
+                  <div 
+                    key={session.id} 
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${450 + index * 75}ms` }}
+                  >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center animate-scale-in" style={{ animationDelay: `${500 + index * 75}ms` }}>
                         <Music className="h-5 w-5 text-primary" />
                       </div>
                       <div>
@@ -236,7 +248,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Upcoming Bookings */}
-          <div className="bg-card rounded-lg border p-6">
+          <div className="bg-card rounded-lg border p-6 animate-fade-in delay-450 hover-lift transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -250,8 +262,12 @@ export default function DashboardPage() {
               <p className="text-muted-foreground py-4">No upcoming bookings.</p>
             ) : (
               <div className="space-y-3">
-                {data?.upcomingBookings?.slice(0, 5).map((booking) => (
-                  <div key={booking.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                {data?.upcomingBookings?.slice(0, 5).map((booking, index) => (
+                  <div 
+                    key={booking.id} 
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${500 + index * 75}ms` }}
+                  >
                     <div>
                       <p className="font-medium">{booking.client.firstName} {booking.client.lastName}</p>
                       <p className="text-sm text-muted-foreground">{booking.studio.replace('STUDIO_', 'Studio ')}</p>
@@ -268,7 +284,7 @@ export default function DashboardPage() {
 
           {/* Pending Invoices */}
           {(data?.recentInvoices?.length ?? 0) > 0 && (
-            <div className="bg-card rounded-lg border p-6">
+            <div className="bg-card rounded-lg border p-6 animate-fade-in delay-525 hover-lift transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -279,8 +295,12 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="space-y-3">
-                {data?.recentInvoices?.slice(0, 5).map((invoice) => (
-                  <div key={invoice.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                {data?.recentInvoices?.slice(0, 5).map((invoice, index) => (
+                  <div 
+                    key={invoice.id} 
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${575 + index * 75}ms` }}
+                  >
                     <div>
                       <p className="font-medium">{invoice.client.firstName} {invoice.client.lastName}</p>
                       <p className="text-sm text-muted-foreground">
@@ -301,7 +321,7 @@ export default function DashboardPage() {
         {/* Right Column - Activity & Studio Status */}
         <div className="space-y-6">
           {/* Recent Activity */}
-          <div className="bg-card rounded-lg border p-6">
+          <div className="bg-card rounded-lg border p-6 animate-fade-in delay-600 hover-lift transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Activity className="h-5 w-5" />
@@ -312,9 +332,13 @@ export default function DashboardPage() {
               <p className="text-muted-foreground py-4">No recent activity.</p>
             ) : (
               <div className="space-y-4">
-                {data?.recentActivity?.map((activity) => (
-                  <div key={activity.id} className="flex gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getActivityColor(activity.type)}`}>
+                {data?.recentActivity?.map((activity, index) => (
+                  <div 
+                    key={activity.id} 
+                    className="flex gap-3 animate-fade-in"
+                    style={{ animationDelay: `${650 + index * 75}ms` }}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${getActivityColor(activity.type)} animate-scale-in`} style={{ animationDelay: `${700 + index * 75}ms` }}>
                       {getActivityIcon(activity.type)}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -329,17 +353,21 @@ export default function DashboardPage() {
           </div>
 
           {/* Studio Status */}
-          <div className="bg-card rounded-lg border p-6">
+          <div className="bg-card rounded-lg border p-6 animate-fade-in delay-675 hover-lift transition-shadow">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
               <Music className="h-5 w-5" />
               Studio Status
             </h2>
             <div className="space-y-3">
-              {studioStatus.map((studio) => (
-                <div key={studio.name} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              {studioStatus.map((studio, index) => (
+                <div 
+                  key={studio.name} 
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors animate-fade-in"
+                  style={{ animationDelay: `${725 + index * 75}ms` }}
+                >
                   <div className="flex items-center gap-3">
                     {studio.inUse ? (
-                      <XCircle className="h-5 w-5 text-red-500" />
+                      <XCircle className="h-5 w-5 text-red-500 animate-pulse-subtle" />
                     ) : (
                       <CheckCircle className="h-5 w-5 text-green-500" />
                     )}
