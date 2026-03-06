@@ -15,7 +15,8 @@ import Link from "next/link"
 
 interface Client {
   id: string
-  name: string
+    firstName: string
+    lastName: string
   email: string
 }
 
@@ -143,7 +144,7 @@ export default function NewBookingPage() {
                   <SelectContent>
                     {clients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>
-                        {client.name}
+                        {client.firstName} {client.lastName}
                       </SelectItem>
                     ))}
                   </SelectContent>
