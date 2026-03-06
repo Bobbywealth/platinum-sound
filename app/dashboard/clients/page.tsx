@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { formatCurrency, getInitials } from "@/lib/utils"
-import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload, ChevronLeft, ChevronRight } from "lucide-react"
+import { Plus, Search, Mail, Phone, MoreVertical, User, Calendar, DollarSign, Trash2, Pencil, Upload, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ImportClientsDialog } from "@/components/clients/import-clients-dialog"
 import {
@@ -247,32 +247,49 @@ export default function ClientsPage() {
   // ── Delete confirmation dialog ──
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
+  const [isRecalculating, setIsRecalculating] = useState(false)
+
+  // Function to fetch clients (extracted to be reusable)
+  const fetchClients = async () => {
+    const params = new URLSearchParams()
+    params.set('page', currentPage.toString())
+    params.set('limit', clientsPerPage.toString())
+    if (searchQuery) {
+      params.set('search', searchQuery)
+    }
+    
+    const response = await fetch(`/api/clients?${params.toString()}`)
+    if (response.ok) {
+      const data = await response.json()
+      setClientList(data.clients.map((c: any) => ({ ...c, status: (c.status || 'pending').toLowerCase() })))
+      setTotalPages(data.pagination.totalPages)
+      setTotalClients(data.pagination.total)
+    }
+  }
 
   // Fetch clients with pagination
   useEffect(() => {
-    const fetchClients = async () => {
-      const params = new URLSearchParams()
-      params.set('page', currentPage.toString())
-      params.set('limit', clientsPerPage.toString())
-      if (searchQuery) {
-        params.set('search', searchQuery)
-      }
-      
-      const response = await fetch(`/api/clients?${params.toString()}`)
-      if (response.ok) {
-        const data = await response.json()
-        setClientList(data.clients.map((c: any) => ({ ...c, status: (c.status || 'pending').toLowerCase() })))
-        setTotalPages(data.pagination.totalPages)
-        setTotalClients(data.pagination.total)
-      }
-    }
-    
     fetchClients()
     fetch("/api/bookings").then((r) => (r.ok ? r.json() : [])).then(setBookings)
   }, [currentPage, searchQuery])
 
   const activeClients = clientList.filter((c) => c.status === "active").length
   const totalLifetimeSpend = clientList.reduce((acc, c) => acc + (c.lifetimeSpend || 0), 0)
+
+  const handleRecalculateRevenue = async () => {
+    setIsRecalculating(true)
+    try {
+      const response = await fetch('/api/clients/revenue', { method: 'POST' })
+      if (response.ok) {
+        // Refresh client data
+        fetchClients()
+      }
+    } catch (error) {
+      console.error('Failed to recalculate revenue:', error)
+    } finally {
+      setIsRecalculating(false)
+    }
+  }
 
   // ── Add handlers ──
   function openAddModal() {
@@ -443,6 +460,15 @@ export default function ClientsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Lifetime Spend</CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRecalculateRevenue}
+              disabled={isRecalculating}
+              title="Recalculate lifetime spend"
+            >
+              <DollarSign className={`h-4 w-4 ${isRecalculating ? 'animate-spin' : ''}`} />
+            </Button>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(totalLifetimeSpend)}</div>
