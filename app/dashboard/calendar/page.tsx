@@ -170,7 +170,7 @@ export default function CalendarPage() {
     ? workOrders.map(wo => ({
         id: wo.id,
         title: wo.title,
-        date: new Date(wo.date),
+        date: new Date(wo.createdAt),
         type: 'work-order' as const,
         status: wo.status,
         priority: wo.priority,
