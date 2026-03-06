@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Studio } from '@prisma/client'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
 
@@ -55,11 +55,22 @@ export async function POST(
       return NextResponse.json({ error: 'New room not found' }, { status: 404 })
     }
 
+    // Map room name to studio enum
+    const studioMap: Record<string, Studio> = {
+      'Studio A': Studio.STUDIO_A, 'Platinum VIP Suite': Studio.STUDIO_A,
+      'Studio B': Studio.STUDIO_B, 'Dolby Atmos Suite': Studio.STUDIO_B,
+      'Studio C': Studio.STUDIO_C, 'China Room': Studio.STUDIO_C, 'PS Chelsea': Studio.STUDIO_C,
+      'Studio D': Studio.STUDIO_D, 'Production Room': Studio.STUDIO_D,
+      'Studio E': Studio.STUDIO_E, 'Rehearsal Room': Studio.STUDIO_E,
+      'Studio F': Studio.STUDIO_F, 'Suite 122': Studio.STUDIO_F,
+    }
+    const studioKey = studioMap[newRoom.name] || Studio.STUDIO_A
+    
     // Check room availability
     const conflictingBookings = await prisma.booking.findMany({
       where: {
         id: { not: id },
-        studio: newRoom.name === 'Studio A' ? 'STUDIO_A' : newRoom.name === 'Studio B' ? 'STUDIO_B' : 'STUDIO_C',
+        studio: studioKey,
         date: booking.date,
         status: { notIn: ['CANCELLED', 'COMPLETED'] },
         OR: [
@@ -140,7 +151,7 @@ export async function POST(
       return await tx.booking.update({
         where: { id },
         data: {
-          studio: newRoom.name === 'Studio A' ? 'STUDIO_A' : newRoom.name === 'Studio B' ? 'STUDIO_B' : 'STUDIO_C',
+          studio: studioKey,
           originalRoomId,
           roomSwappedAt: new Date(),
         },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Studio } from '@prisma/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,10 +46,21 @@ export async function GET(request: NextRequest) {
     if (date && startTime && endTime) {
       const roomsWithAvailability = await Promise.all(
         rooms.map(async (room) => {
+          // Map room name to studio enum
+          const studioMap: Record<string, Studio> = {
+            'Studio A': Studio.STUDIO_A, 'Platinum VIP Suite': Studio.STUDIO_A,
+            'Studio B': Studio.STUDIO_B, 'Dolby Atmos Suite': Studio.STUDIO_B,
+            'Studio C': Studio.STUDIO_C, 'China Room': Studio.STUDIO_C, 'PS Chelsea': Studio.STUDIO_C,
+            'Studio D': Studio.STUDIO_D, 'Production Room': Studio.STUDIO_D,
+            'Studio E': Studio.STUDIO_E, 'Rehearsal Room': Studio.STUDIO_E,
+            'Studio F': Studio.STUDIO_F, 'Suite 122': Studio.STUDIO_F,
+          }
+          const studioKey = studioMap[room.name] || Studio.STUDIO_A
+          
           // Check for conflicting bookings
           const conflictingBookings = await prisma.booking.findMany({
             where: {
-              studio: room.name === 'Studio A' ? 'STUDIO_A' : room.name === 'Studio B' ? 'STUDIO_B' : 'STUDIO_C',
+              studio: studioKey,
               date: new Date(date),
               status: { notIn: ['CANCELLED', 'COMPLETED'] },
               OR: [

@@ -122,10 +122,17 @@ export default function DashboardPage() {
   }
 
   // Get studio status for today
-  const studioStatus = ['STUDIO_A', 'STUDIO_B', 'STUDIO_C'].map(studio => {
-    const sessions = data?.todaySessions?.filter(s => s.studio === studio) || []
+  const studioStatus = [
+    { key: 'STUDIO_A', name: 'Platinum VIP Suite' },
+    { key: 'STUDIO_B', name: 'Dolby Atmos Suite' },
+    { key: 'STUDIO_C', name: 'China Room (PS Chelsea)' },
+    { key: 'STUDIO_D', name: 'Production Room' },
+    { key: 'STUDIO_E', name: 'Rehearsal Room' },
+    { key: 'STUDIO_F', name: 'Suite 122' },
+  ].map(({ key, name }) => {
+    const sessions = data?.todaySessions?.filter(s => s.studio === key) || []
     return {
-      name: studio.replace('STUDIO_', 'Studio '),
+      name,
       inUse: sessions.length > 0,
       sessions: sessions.length
     }

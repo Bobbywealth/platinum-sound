@@ -138,13 +138,28 @@ export async function POST(request: NextRequest) {
 
     // Map studio string to enum
     let studioEnum: Studio
-    if (studio === 'Studio A' || studio === 'STUDIO_A') {
-      studioEnum = Studio.STUDIO_A
-    } else if (studio === 'Studio B' || studio === 'STUDIO_B') {
-      studioEnum = Studio.STUDIO_B
-    } else {
-      studioEnum = Studio.STUDIO_C
+    const studioMap: Record<string, Studio> = {
+      'Studio A': Studio.STUDIO_A,
+      'STUDIO_A': Studio.STUDIO_A,
+      'Platinum VIP Suite': Studio.STUDIO_A,
+      'Studio B': Studio.STUDIO_B,
+      'STUDIO_B': Studio.STUDIO_B,
+      'Dolby Atmos Suite': Studio.STUDIO_B,
+      'Studio C': Studio.STUDIO_C,
+      'STUDIO_C': Studio.STUDIO_C,
+      'China Room': Studio.STUDIO_C,
+      'PS Chelsea': Studio.STUDIO_C,
+      'Studio D': Studio.STUDIO_D,
+      'STUDIO_D': Studio.STUDIO_D,
+      'Production Room': Studio.STUDIO_D,
+      'Studio E': Studio.STUDIO_E,
+      'STUDIO_E': Studio.STUDIO_E,
+      'Rehearsal Room': Studio.STUDIO_E,
+      'Studio F': Studio.STUDIO_F,
+      'STUDIO_F': Studio.STUDIO_F,
+      'Suite 122': Studio.STUDIO_F,
     }
+    studioEnum = studioMap[studio] || Studio.STUDIO_A
 
     // Map session type string to enum
     const sessionTypeMap: Record<string, SessionType> = {

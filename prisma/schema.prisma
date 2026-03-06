@@ -30,9 +30,12 @@ enum ClientStatus {
 }
 
 enum Studio {
-  STUDIO_A
-  STUDIO_B
-  STUDIO_C
+  STUDIO_A  // Platinum VIP Suite
+  STUDIO_B  // Dolby Atmos Suite
+  STUDIO_C  // China Room (PS Chelsea)
+  STUDIO_D  // Production Room
+  STUDIO_E  // Rehearsal Room
+  STUDIO_F  // Suite 122
 }
 
 enum SessionType {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, ReportType, ReportPeriod, Role } from '@prisma/client'
+import { PrismaClient, ReportType, ReportPeriod, Role, Studio } from '@prisma/client'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, format } from 'date-fns'
@@ -143,9 +143,20 @@ async function calculateRoomUtilization(startDate: Date, endDate: Date) {
   const utilization = []
 
   for (const room of rooms) {
+    // Map room name to studio enum
+    const studioMap: Record<string, Studio> = {
+      'Studio A': Studio.STUDIO_A, 'Platinum VIP Suite': Studio.STUDIO_A,
+      'Studio B': Studio.STUDIO_B, 'Dolby Atmos Suite': Studio.STUDIO_B,
+      'Studio C': Studio.STUDIO_C, 'China Room': Studio.STUDIO_C, 'PS Chelsea': Studio.STUDIO_C,
+      'Studio D': Studio.STUDIO_D, 'Production Room': Studio.STUDIO_D,
+      'Studio E': Studio.STUDIO_E, 'Rehearsal Room': Studio.STUDIO_E,
+      'Studio F': Studio.STUDIO_F, 'Suite 122': Studio.STUDIO_F,
+    }
+    const studioKey = studioMap[room.name] || Studio.STUDIO_A
+    
     const bookings = await prisma.booking.findMany({
       where: {
-        studio: room.name === 'Studio A' ? 'STUDIO_A' : room.name === 'Studio B' ? 'STUDIO_B' : 'STUDIO_C',
+        studio: studioKey,
         date: {
           gte: startDate,
           lte: endDate
