@@ -249,6 +249,76 @@ export default function ClientsPage() {
   const [deletingClient, setDeletingClient] = useState<Client | null>(null)
   const [isRecalculating, setIsRecalculating] = useState(false)
 
+  // ── Bulk selection state ──
+  const [selectedClients, setSelectedClients] = useState<Set<string>>(new Set())
+  const [bulkStatusOpen, setBulkStatusOpen] = useState(false)
+  const [bulkStatus, setBulkStatus] = useState<string>('')
+  const [isBulkLoading, setIsBulkLoading] = useState(false)
+
+  // Handle select all
+  const handleSelectAll = () => {
+    if (selectedClients.size === clientList.length) {
+      setSelectedClients(new Set())
+    } else {
+      setSelectedClients(new Set(clientList.map(c => c.id)))
+    }
+  }
+
+  // Handle select individual
+  const handleSelectClient = (id: string) => {
+    const newSelected = new Set(selectedClients)
+    if (newSelected.has(id)) {
+      newSelected.delete(id)
+    } else {
+      newSelected.add(id)
+    }
+    setSelectedClients(newSelected)
+  }
+
+  // Bulk delete handler
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedClients.size} client(s)?`)) return
+    
+    setIsBulkLoading(true)
+    try {
+      for (const id of selectedClients) {
+        await fetch(`/api/clients?ids=${id}`, { method: 'DELETE' })
+      }
+      setSelectedClients(new Set())
+      fetchClients()
+    } catch (error) {
+      console.error('Error bulk deleting:', error)
+      alert('Failed to delete clients')
+    } finally {
+      setIsBulkLoading(false)
+    }
+  }
+
+  // Bulk status change handler
+  const handleBulkStatusChange = async () => {
+    if (!bulkStatus) return
+    
+    setIsBulkLoading(true)
+    try {
+      for (const id of selectedClients) {
+        await fetch(`/api/clients?ids=${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: bulkStatus.toUpperCase() })
+        })
+      }
+      setSelectedClients(new Set())
+      setBulkStatusOpen(false)
+      setBulkStatus('')
+      fetchClients()
+    } catch (error) {
+      console.error('Error bulk updating:', error)
+      alert('Failed to update clients')
+    } finally {
+      setIsBulkLoading(false)
+    }
+  }
+
   // Function to fetch clients (extracted to be reusable)
   const fetchClients = async () => {
     const params = new URLSearchParams()
@@ -477,18 +547,45 @@ export default function ClientsPage() {
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search clients by name, company, or email..."
-          className="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value)
-            setCurrentPage(1)
-          }}
-        />
+      <div className="flex flex-col sm:flex-row gap-3 justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search clients by name, company, or email..."
+            className="w-full pl-10 pr-4 py-2 rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setCurrentPage(1)
+            }}
+          />
+        </div>
+        
+        {/* Bulk Actions */}
+        {selectedClients.size > 0 && (
+          <div className="flex gap-2 items-center">
+            <span className="text-sm text-muted-foreground">
+              {selectedClients.size} selected
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setBulkStatusOpen(true)}
+            >
+              Change Status
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              disabled={isBulkLoading}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Client List (Desktop) */}
@@ -498,6 +595,14 @@ export default function ClientsPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50">
+                  <th className="p-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={selectedClients.size === clientList.length && clientList.length > 0}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4 rounded border-gray-300"
+                    />
+                  </th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Name</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Email</th>
                   <th className="text-left p-4 font-medium text-muted-foreground text-sm">Phone</th>
@@ -511,6 +616,14 @@ export default function ClientsPage() {
               <tbody>
                 {clientList.map((client) => (
                   <tr key={client.id} className="border-b hover:bg-muted/50 transition-colors">
+                    <td className="p-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedClients.has(client.id)}
+                        onChange={() => handleSelectClient(client.id)}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                    </td>
                     <td className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
@@ -963,6 +1076,38 @@ export default function ClientsPage() {
             <Button variant="destructive" onClick={handleDeleteConfirm}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Status Change Dialog */}
+      <Dialog open={bulkStatusOpen} onOpenChange={setBulkStatusOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Change Status for {selectedClients.size} Client(s)</DialogTitle>
+            <DialogDescription>
+              Select the new status for the selected clients.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={bulkStatus} onValueChange={setBulkStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ACTIVE">Active</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBulkStatusOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleBulkStatusChange} disabled={!bulkStatus || isBulkLoading}>
+              Update Status
             </Button>
           </DialogFooter>
         </DialogContent>
