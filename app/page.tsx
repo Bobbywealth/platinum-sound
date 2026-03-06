@@ -278,13 +278,12 @@ export default function Home() {
           {/* Management */}
           <div className="mb-16">
             <h3 className="text-2xl font-bold mb-8 text-center">Management</h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
               {[
                 { name: "Lisa", role: "Manager" },
                 { name: "Spice", role: "Manager" },
-                { name: "Marshall", role: "Studio Tech" },
               ].map((member, i) => (
-                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors w-48">
                   <div className="w-20 h-20 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
                     <Users className="h-10 w-10 text-royal" />
                   </div>
