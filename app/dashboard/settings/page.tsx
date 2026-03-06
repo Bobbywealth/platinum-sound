@@ -112,19 +112,18 @@ export default function SettingsPage() {
           if (data.apiKeys) {
             setApiKeys(data.apiKeys)
           }
-        }
-      })
-      .finally(() => setIsLoading(false))
-  }, [])
+          // Load studio settings
           if (data.studio) {
             setStudioName(data.studio.name || "Platinum Sound Studios")
             setEmail(data.studio.email || "")
             setPhone(data.studio.phone || "")
             setAddress(data.studio.address || "")
           }
+          // Load notifications
           if (data.notifications) {
             setNotifications(data.notifications)
           }
+          // Load team
           if (data.team) {
             setTeam(data.team)
           }

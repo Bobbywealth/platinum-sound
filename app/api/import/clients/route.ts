@@ -137,7 +137,6 @@ export async function POST(request: NextRequest) {
                   upsert: {
                     create: {
                       totalRevenue: parseFloat(row.lifetimeSpend) || 0,
-                      year: new Date().getFullYear(),
                     },
                     update: {
                       totalRevenue: parseFloat(row.lifetimeSpend) || 0,
@@ -161,7 +160,6 @@ export async function POST(request: NextRequest) {
                 revenue: {
                   create: {
                     totalRevenue: parseFloat(row.lifetimeSpend || '0') || 0,
-                    year: new Date().getFullYear(),
                   }
                 }
               },
