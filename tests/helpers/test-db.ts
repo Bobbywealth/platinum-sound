@@ -34,7 +34,7 @@ export const testDb = {
     await prisma.staff.deleteMany()
     await prisma.task.deleteMany()
     await prisma.workOrder.deleteMany()
-    await prisma.inventory.deleteMany()
+    await prisma.inventoryItem.deleteMany()
     await prisma.lead.deleteMany()
     await prisma.micOption.deleteMany()
     await prisma.referral.deleteMany()

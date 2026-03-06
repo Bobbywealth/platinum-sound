@@ -59,33 +59,40 @@ export async function parseResponse<T>(response: Response): Promise<T> {
 /**
  * Assert response status
  */
-export function expectStatus(response: Response, expected: number) {
-  expect(response.status).toBe(expected)
+export function expectStatus(response: Response, expected: number): void {
+  if (response.status !== expected) {
+    throw new Error(`Expected status ${expected}, got ${response.status}`)
+  }
 }
 
 /**
  * Assert response success
  */
-export function expectSuccess(response: Response) {
-  expect(response.status).toBeGreaterThanOrEqual(200)
-  expect(response.status).toBeLessThan(300)
+export function expectSuccess(response: Response): void {
+  if (response.status < 200 || response.status >= 300) {
+    throw new Error(`Expected success status, got ${response.status}`)
+  }
 }
 
 /**
  * Assert response error
  */
-export function expectError(response: Response) {
-  expect(response.status).toBeGreaterThanOrEqual(400)
+export function expectError(response: Response): void {
+  if (response.status < 400) {
+    throw new Error(`Expected error status (4xx/5xx), got ${response.status}`)
+  }
 }
 
 /**
  * Assert response has error message
  */
-export async function expectErrorMessage(response: Response, message?: string) {
+export async function expectErrorMessage(response: Response, message?: string): Promise<void> {
   const body = await parseResponse<{ error?: string }>(response)
-  expect(body.error).toBeDefined()
-  if (message) {
-    expect(body.error).toContain(message)
+  if (!body.error) {
+    throw new Error('Expected response to contain error message')
+  }
+  if (message && !body.error.includes(message)) {
+    throw new Error(`Expected error to contain "${message}", got "${body.error}"`)
   }
 }
 

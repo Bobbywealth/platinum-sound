@@ -60,9 +60,21 @@ export const createMockRequest = (options: {
   }
 }
 
+// Simple mock function factory (works in both test and non-test environments)
+const createMock = () => {
+  const mockFn = (...args: any[]) => mockFn
+  mockFn.mockResolvedValue = (value: any) => {
+    return async () => value
+  }
+  mockFn.mockReturnValue = (value: any) => {
+    return () => value
+  }
+  return mockFn
+}
+
 // Mock fetch for API testing
 export const mockFetch = (response: any, status = 200) => {
-  return jest.fn().mockResolvedValue({
+  return createMock().mockResolvedValue({
     ok: status >= 200 && status < 300,
     status,
     json: async () => response,
@@ -73,12 +85,12 @@ export const mockFetch = (response: any, status = 200) => {
 // Mock Stripe
 export const mockStripe = {
   paymentIntents: {
-    create: jest.fn().mockResolvedValue({
+    create: createMock().mockResolvedValue({
       id: 'pi_test123',
       client_secret: 'pi_test123_secret',
       status: 'requires_payment_method',
     }),
-    retrieve: jest.fn().mockResolvedValue({
+    retrieve: createMock().mockResolvedValue({
       id: 'pi_test123',
       status: 'succeeded',
       amount: 5000,
@@ -89,47 +101,47 @@ export const mockStripe = {
 // Mock Prisma client
 export const createMockPrisma = () => ({
   user: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
+    findUnique: createMock(),
+    findFirst: createMock(),
+    create: createMock(),
+    update: createMock(),
+    delete: createMock(),
+    findMany: createMock(),
   },
   client: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
-    count: jest.fn(),
+    findUnique: createMock(),
+    findFirst: createMock(),
+    create: createMock(),
+    update: createMock(),
+    delete: createMock(),
+    findMany: createMock(),
+    count: createMock(),
   },
   booking: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
+    findUnique: createMock(),
+    findFirst: createMock(),
+    create: createMock(),
+    update: createMock(),
+    delete: createMock(),
+    findMany: createMock(),
   },
   room: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
+    findUnique: createMock(),
+    findFirst: createMock(),
+    create: createMock(),
+    update: createMock(),
+    delete: createMock(),
+    findMany: createMock(),
   },
   invoice: {
-    findUnique: jest.fn(),
-    findFirst: jest.fn(),
-    create: jest.fn(),
-    update: jest.fn(),
-    delete: jest.fn(),
-    findMany: jest.fn(),
+    findUnique: createMock(),
+    findFirst: createMock(),
+    create: createMock(),
+    update: createMock(),
+    delete: createMock(),
+    findMany: createMock(),
   },
-  $transaction: jest.fn((callback) => callback(createMockPrisma())),
+  $transaction: createMock(),
 })
 
 // Test data factories
