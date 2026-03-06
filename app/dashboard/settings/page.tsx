@@ -72,12 +72,50 @@ export default function SettingsPage() {
   // Team members
   const [team, setTeam] = useState<User[]>([])
 
+  // API Keys state
+  const [apiKeys, setApiKeys] = useState({
+    twilioSid: '',
+    twilioToken: '',
+    twilioPhone: '',
+    openaiKey: '',
+  })
+
+  // Save API keys
+  const saveApiKeys = async () => {
+    setIsSaving(true)
+    try {
+      // Save each key to settings
+      for (const [key, value] of Object.entries(apiKeys)) {
+        if (value) {
+          await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key, value }),
+          })
+        }
+      }
+      toast({ title: 'API Keys Saved', description: 'Your API keys have been updated' })
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save API keys', variant: 'destructive' })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   // Load settings on mount
   useEffect(() => {
     fetch('/api/settings')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data) {
+          // Load API keys from settings
+          if (data.apiKeys) {
+            setApiKeys(data.apiKeys)
+          }
+        }
+      })
+      .finally(() => setIsLoading(false))
+  }, [])
           if (data.studio) {
             setStudioName(data.studio.name || "Platinum Sound Studios")
             setEmail(data.studio.email || "")
@@ -450,6 +488,106 @@ export default function SettingsPage() {
               onClick={() => window.location.href = 'mailto:support@platinumsound.com?subject=Subscription Change'}
             >
               Change Plan
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* API Integrations */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            API Integrations
+          </CardTitle>
+          <CardDescription>Configure third-party API keys for marketing and automation</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Twilio */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                <span className="text-red-600 font-bold text-sm">T</span>
+              </div>
+              <div>
+                <p className="font-medium">Twilio</p>
+                <p className="text-xs text-muted-foreground">SMS & Voice for marketing automation</p>
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="twilioSid">Account SID</Label>
+                <Input
+                  id="twilioSid"
+                  type="password"
+                  placeholder="Enter your Twilio Account SID"
+                  value={apiKeys.twilioSid}
+                  onChange={(e) => setApiKeys({...apiKeys, twilioSid: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="twilioToken">Auth Token</Label>
+                <Input
+                  id="twilioToken"
+                  type="password"
+                  placeholder="Enter your Twilio Auth Token"
+                  value={apiKeys.twilioToken}
+                  onChange={(e) => setApiKeys({...apiKeys, twilioToken: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="twilioPhone">Phone Number</Label>
+                <Input
+                  id="twilioPhone"
+                  placeholder="+1234567890"
+                  value={apiKeys.twilioPhone}
+                  onChange={(e) => setApiKeys({...apiKeys, twilioPhone: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* OpenAI */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <span className="text-green-600 font-bold text-sm">AI</span>
+              </div>
+              <div>
+                <p className="font-medium">OpenAI</p>
+                <p className="text-xs text-muted-foreground">AI-powered marketing automation</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="openaiKey">API Key</Label>
+              <Input
+                id="openaiKey"
+                type="password"
+                placeholder="sk-..."
+                value={apiKeys.openaiKey}
+                onChange={(e) => setApiKeys({...apiKeys, openaiKey: e.target.value})}
+              />
+              <p className="text-xs text-muted-foreground">
+                Used for AI-generated responses, automated messaging, and marketing copy
+              </p>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Save Button */}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setApiKeys({twilioSid: '', twilioToken: '', twilioPhone: '', openaiKey: ''})}>
+              Reset
+            </Button>
+            <Button 
+              className="bg-[#C4A77D] hover:bg-[#B3966D]"
+              onClick={saveApiKeys}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save API Keys'}
             </Button>
           </div>
         </CardContent>

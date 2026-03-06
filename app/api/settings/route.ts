@@ -44,6 +44,12 @@ export async function GET() {
       },
       notifications: notificationsMap,
       team: users,
+      apiKeys: {
+        twilioSid: settingsMap.twilioSid || '',
+        twilioToken: settingsMap.twilioToken || '',
+        twilioPhone: settingsMap.twilioPhone || '',
+        openaiKey: settingsMap.openaiKey || '',
+      },
     })
   } catch (error) {
     console.error('Error fetching settings:', error)
