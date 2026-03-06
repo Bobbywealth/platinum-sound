@@ -39,10 +39,13 @@ type StudioSettings = {
 type NotificationKey = `${string}_${string}`
 
 const EMAIL_NOTIFICATION_TYPES = [
-  { key: 'BOOKING', label: 'New Bookings', description: 'Get notified when a new booking is made' },
-  { key: 'CANCELLATION', label: 'Cancellations', description: 'Alert when a booking is cancelled' },
-  { key: 'REMINDER', label: 'Reminders', description: 'Send reminders 24h before sessions' },
-  { key: 'REPORT', label: 'Weekly Reports', description: 'Receive weekly performance summaries' },
+  { key: 'BOOKING_CREATED', label: 'New Bookings', description: 'Get notified when a new booking is made' },
+  { key: 'BOOKING_AUTHORIZATION', label: 'Authorizations', description: 'Alert when booking needs authorization' },
+  { key: 'WORK_ORDER_CREATED', label: 'Work Orders', description: 'Alert when a work order is created' },
+  { key: 'WEEKLY_REPORT', label: 'Weekly Reports', description: 'Receive weekly performance summaries' },
+  { key: 'END_OF_DAY_REPORT', label: 'Daily Reports', description: 'Receive end of day summary' },
+  { key: 'PAYMENT_RECEIVED', label: 'Payments', description: 'Alert when payment is received' },
+  { key: 'ROOM_LOCKOUT', label: 'Room Lockouts', description: 'Alert when a room is locked out' },
 ]
 
 const ROLES = ['ADMIN', 'MANAGER', 'BOOKING_AGENT', 'ENGINEER', 'INTERN', 'FINANCE', 'MARKETING', 'FRONT_DESK']
