@@ -16,6 +16,7 @@ type ParsedRow = {
   notes?: string
   firstVisit?: string
   status?: string
+  lifetimeSpend?: string
 }
 
 function normalizeHeader(header: string): string {
@@ -45,6 +46,7 @@ function mapRow(row: Record<string, unknown>): ParsedRow {
     notes: normalized.notes || normalized.memo || '',
     firstVisit: normalized.firstvisit || normalized.firstvisitdate || '',
     status: normalized.status || 'active',
+    lifetimeSpend: normalized.lifetimespend || normalized.lifetime || normalized.totalspend || '',
   }
 }
 
@@ -131,6 +133,17 @@ export async function POST(request: NextRequest) {
                 notes: row.notes?.trim() || null,
                 firstVisit,
                 status: parseStatus(row.status),
+                revenue: row.lifetimeSpend ? {
+                  upsert: {
+                    create: {
+                      totalRevenue: parseFloat(row.lifetimeSpend) || 0,
+                      year: new Date().getFullYear(),
+                    },
+                    update: {
+                      totalRevenue: parseFloat(row.lifetimeSpend) || 0,
+                    }
+                  }
+                } : undefined,
               },
             })
           : await prisma.client.create({
@@ -145,6 +158,12 @@ export async function POST(request: NextRequest) {
                 notes: row.notes?.trim() || null,
                 firstVisit,
                 status: parseStatus(row.status),
+                revenue: {
+                  create: {
+                    totalRevenue: parseFloat(row.lifetimeSpend || '0') || 0,
+                    year: new Date().getFullYear(),
+                  }
+                }
               },
             })
 
