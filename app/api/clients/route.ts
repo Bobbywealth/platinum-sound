@@ -182,3 +182,34 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to update client' }, { status: 500 })
   }
 }
+
+// DELETE /api/clients?ids=xxx - Delete client(s)
+export async function DELETE(request: NextRequest) {
+  try {
+    // Check authentication
+    const authCheck = await checkAuth()
+    if (!authCheck.authorized) return authCheck.error
+
+    const { searchParams } = new URL(request.url)
+    const idsParam = searchParams.get('ids')
+
+    if (!idsParam) {
+      return NextResponse.json({ error: 'Client ID required' }, { status: 400 })
+    }
+
+    // Support deleting multiple IDs (comma-separated)
+    const ids = idsParam.split(',').map(id => id.trim())
+
+    // Delete clients
+    await prisma.client.deleteMany({
+      where: {
+        id: { in: ids }
+      }
+    })
+
+    return NextResponse.json({ success: true, deletedCount: ids.length })
+  } catch (error) {
+    console.error('Error deleting client:', error)
+    return NextResponse.json({ error: 'Failed to delete client' }, { status: 500 })
+  }
+}
