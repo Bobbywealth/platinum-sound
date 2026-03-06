@@ -77,6 +77,7 @@ export default function ReportsPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [reportType, setReportType] = useState<string>("END_OF_DAY")
   const [reportPeriod, setReportPeriod] = useState<string>("DAILY")
+  const [reportDate, setReportDate] = useState<string>(new Date().toISOString().split('T')[0])
   const [reportData, setReportData] = useState<ReportData | null>(null)
   const [loading, setLoading] = useState(false)
   const [scheduledReports, setScheduledReports] = useState<ScheduledReport[]>([])
@@ -110,7 +111,7 @@ export default function ReportsPage() {
   const generateReport = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/reports?type=${reportType}`)
+      const res = await fetch(`/api/reports?type=${reportType}&date=${reportDate}`)
       if (res.ok) {
         const data = await res.json()
         setReportData(data)
@@ -282,6 +283,14 @@ export default function ReportsPage() {
                   <SelectItem value="MONTHLY_SUMMARY">Monthly Summary</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="w-48">
+              <Label>Date</Label>
+              <Input
+                type="date"
+                value={reportDate}
+                onChange={(e) => setReportDate(e.target.value)}
+              />
             </div>
             <div className="w-48">
               <Label>Period</Label>
