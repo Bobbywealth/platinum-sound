@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { 
   BookOpen, 
   Calendar, 
@@ -804,6 +805,8 @@ const categories = ["All", "Basics", "Training", "Scheduling", "Bookings", "Oper
 export default function HelpPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
+  const [selectedTopic, setSelectedTopic] = useState<HelpTopic | null>(null)
+  const [showTopicDialog, setShowTopicDialog] = useState(false)
 
   const filteredTopics = helpTopics.filter(topic => {
     const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -922,7 +925,15 @@ export default function HelpPage() {
                 <p className="text-sm text-muted-foreground line-clamp-3">
                   {topic.content.split('\n')[0]}
                 </p>
-                <Button variant="ghost" size="sm" className="mt-2 w-full justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="mt-2 w-full justify-between"
+                  onClick={() => {
+                    setSelectedTopic(topic)
+                    setShowTopicDialog(true)
+                  }}
+                >
                   Read more <ChevronRight className="h-4 w-4" />
                 </Button>
               </CardContent>
@@ -1019,6 +1030,28 @@ export default function HelpPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Topic Detail Dialog */}
+      <Dialog open={showTopicDialog} onOpenChange={setShowTopicDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {selectedTopic && <selectedTopic.icon className="h-5 w-5" />}
+              {selectedTopic?.title}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTopic && (
+            <div className="prose prose-sm max-w-none">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="outline">{selectedTopic.category}</Badge>
+              </div>
+              <div className="whitespace-pre-wrap text-sm">
+                {selectedTopic.content}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardPageShell>
   )
 }
