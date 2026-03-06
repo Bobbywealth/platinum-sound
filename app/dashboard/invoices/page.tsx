@@ -4,7 +4,7 @@ import { DashboardPageShell } from "@/components/dashboard-page-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatCurrency, formatDate } from "@/lib/utils"
-import { Plus, Download, Send, DollarSign, Clock, AlertTriangle, CheckCircle, Pencil } from "lucide-react"
+import { Plus, Download, Send, DollarSign, Clock, AlertTriangle, CheckCircle, Pencil, Search, User, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
 import {
   Dialog,
@@ -51,6 +51,24 @@ export default function InvoicesPage() {
   const [editInvoice, setEditInvoice] = useState<Invoice | null>(null)
   const [editForm, setEditForm] = useState<Partial<Invoice>>({})
 
+  // Client selector state
+  const [clients, setClients] = useState<any[]>([])
+  const [clientSearch, setClientSearch] = useState("")
+  const [selectedClient, setSelectedClient] = useState<{ id: string; name: string } | null>(null)
+  const [isClientsLoading, setIsClientsLoading] = useState(false)
+  const [showClientDropdown, setShowClientDropdown] = useState(false)
+
+  // Invoice line items state
+  const [invoiceItems, setInvoiceItems] = useState<{ description: string; quantity: number; rate: number }[]>([
+    { description: '', quantity: 1, rate: 0 }
+  ])
+  const [invoiceDueDate, setInvoiceDueDate] = useState('')
+  const [invoiceNotes, setInvoiceNotes] = useState('')
+  const [invoiceTerms, setInvoiceTerms] = useState('Payment due within 30 days of invoice date.')
+
+  // Services for selection
+  const [services, setServices] = useState<any[]>([])
+
   useEffect(() => {
     fetch("/api/invoices")
       .then((r) => (r.ok ? r.json() : []))
@@ -65,6 +83,78 @@ export default function InvoicesPage() {
         items: Array.isArray(inv.items) ? inv.items : [],
       }))))
   }, [])
+
+  // Fetch clients for selector
+  useEffect(() => {
+    const fetchClients = async () => {
+      setIsClientsLoading(true)
+      try {
+        const params = new URLSearchParams()
+        if (clientSearch) {
+          params.set('search', clientSearch)
+        }
+        params.set('status', 'ACTIVE')
+        params.set('limit', '20')
+        
+        const res = await fetch(`/api/clients?${params}`)
+        if (res.ok) {
+          const data = await res.json()
+          setClients(data.clients || [])
+        }
+      } catch (error) {
+        console.error('Error fetching clients:', error)
+      } finally {
+        setIsClientsLoading(false)
+      }
+    }
+
+    // Debounce search
+    const timeout = setTimeout(fetchClients, 300)
+    return () => clearTimeout(timeout)
+  }, [clientSearch])
+
+  // Fetch services for line items
+  useEffect(() => {
+    fetch('/api/services')
+      .then((r) => r.ok ? r.json() : [])
+      .then((data) => setServices(data))
+      .catch(console.error)
+  }, [])
+
+  // Calculate totals
+  const invoiceSubtotal = invoiceItems.reduce((sum, item) => sum + (item.quantity * item.rate), 0)
+  const invoiceTotal = invoiceSubtotal // Can add tax calculation here if needed
+
+  // Add/remove line items
+  const addInvoiceItem = () => {
+    setInvoiceItems([...invoiceItems, { description: '', quantity: 1, rate: 0 }])
+  }
+
+  const removeInvoiceItem = (index: number) => {
+    if (invoiceItems.length > 1) {
+      setInvoiceItems(invoiceItems.filter((_, i) => i !== index))
+    }
+  }
+
+  const updateInvoiceItem = (index: number, field: string, value: any) => {
+    const updated = [...invoiceItems]
+    updated[index] = { ...updated[index], [field]: value }
+    setInvoiceItems(updated)
+  }
+
+  const handleServiceSelect = (index: number, service: any) => {
+    updateInvoiceItem(index, 'description', service.serviceType)
+    updateInvoiceItem(index, 'rate', service.basePrice)
+  }
+
+  const resetInvoiceForm = () => {
+    setSelectedClient(null)
+    setClientSearch('')
+    setInvoiceItems([{ description: '', quantity: 1, rate: 0 }])
+    setInvoiceDueDate('')
+    setInvoiceNotes('')
+    setInvoiceTerms('Payment due within 30 days of invoice date.')
+  }
 
   const filteredInvoices = filter === "all"
     ? invoiceList
@@ -133,35 +223,195 @@ export default function InvoicesPage() {
             <DialogTrigger asChild>
               <Button className="w-full sm:w-auto">
                 <Plus className="mr-2 h-4 w-4" />
-                Create Invoice
+                Create Invoice / Quote
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create New Invoice</DialogTitle>
-                <DialogDescription>Create a new invoice for a client</DialogDescription>
+                <DialogTitle>Create Invoice / Quote</DialogTitle>
+                <DialogDescription>Create a new invoice or quote for a client</DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
                   <Label htmlFor="invoiceClient">Client</Label>
-                  <Input id="invoiceClient" placeholder="Select client" />
+                  <div className="relative">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="invoiceClient" 
+                        placeholder="Search clients..." 
+                        className="pl-9"
+                        value={clientSearch}
+                        onChange={(e) => {
+                          setClientSearch(e.target.value)
+                          setShowClientDropdown(true)
+                        }}
+                        onFocus={() => setShowClientDropdown(true)}
+                      />
+                    </div>
+                    
+                    {/* Client dropdown */}
+                    {showClientDropdown && (
+                      <div className="absolute z-50 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
+                        {isClientsLoading ? (
+                          <div className="p-3 text-center text-muted-foreground text-sm">
+                            Loading...
+                          </div>
+                        ) : clients.length > 0 ? (
+                          clients.map((client) => (
+                            <button
+                              key={client.id}
+                              type="button"
+                              className="w-full p-3 text-left hover:bg-muted flex items-center gap-3 border-b last:border-b-0"
+                              onClick={() => {
+                                const fullName = `${client.firstName} ${client.lastName}`.trim()
+                                setSelectedClient({ id: client.id, name: fullName || client.companyName || client.email })
+                                setClientSearch(fullName || client.companyName || client.email)
+                                setShowClientDropdown(false)
+                              }}
+                            >
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <User className="h-4 w-4 text-primary" />
+                              </div>
+                              <div>
+                                <div className="font-medium">
+                                  {client.firstName} {client.lastName}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {client.email || client.companyName}
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-3 text-center text-muted-foreground text-sm">
+                            {clientSearch ? 'No clients found' : 'Type to search clients'}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {selectedClient && (
+                    <p className="text-xs text-green-600 mt-1">Selected: {selectedClient.name}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="invoiceAmount">Amount</Label>
-                  <Input id="invoiceAmount" type="number" placeholder="0.00" />
+                  <Label htmlFor="invoiceAmount">Due Date</Label>
+                  <Input 
+                    id="dueDate" 
+                    type="date" 
+                    value={invoiceDueDate}
+                    onChange={(e) => setInvoiceDueDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Line Items Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold">Line Items</Label>
+                  <Button type="button" variant="outline" size="sm" onClick={addInvoiceItem}>
+                    <Plus className="h-4 w-4 mr-1" /> Add Item
+                  </Button>
+                </div>
+
+                {invoiceItems.map((item, index) => (
+                  <div key={index} className="p-4 border rounded-lg space-y-3 bg-muted/30">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 grid gap-2">
+                        <Label htmlFor={`item-desc-${index}`}>Service</Label>
+                        <div className="relative">
+                          <Input
+                            id={`item-desc-${index}`}
+                            placeholder="Select or type service..."
+                            value={item.description}
+                            onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
+                            list={`services-list-${index}`}
+                          />
+                          <datalist id={`services-list-${index}`}>
+                            {services.map((service) => (
+                              <option key={service.id} value={service.serviceType} />
+                            ))}
+                          </datalist>
+                        </div>
+                      </div>
+                      {invoiceItems.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="mt-8 text-red-500 hover:text-red-700"
+                          onClick={() => removeInvoiceItem(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="grid gap-2">
+                        <Label htmlFor={`item-qty-${index}`}>Qty/Hours</Label>
+                        <Input
+                          id={`item-qty-${index}`}
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => updateInvoiceItem(index, 'quantity', parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor={`item-rate-${index}`}>Rate ($)</Label>
+                        <Input
+                          id={`item-rate-${index}`}
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={item.rate}
+                          onChange={(e) => updateInvoiceItem(index, 'rate', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end pt-2 border-t">
+                      <span className="text-sm text-muted-foreground">
+                        Subtotal: <span className="font-semibold text-foreground">${(item.quantity * item.rate).toFixed(2)}</span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Total */}
+                <div className="flex justify-end pt-4 border-t">
+                  <div className="text-right">
+                    <div className="text-sm text-muted-foreground">Subtotal</div>
+                    <div className="text-2xl font-bold">${invoiceSubtotal.toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes and Terms */}
+              <div className="grid gap-4 pt-4 border-t">
+                <div className="grid gap-2">
+                  <Label htmlFor="invoiceNotes">Notes (Optional)</Label>
+                  <Input 
+                    id="invoiceNotes" 
+                    placeholder="Additional notes for the client..."
+                    value={invoiceNotes}
+                    onChange={(e) => setInvoiceNotes(e.target.value)}
+                  />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="dueDate">Due Date</Label>
-                  <Input id="dueDate" type="date" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Input id="description" placeholder="Service description" />
+                  <Label htmlFor="invoiceTerms">Terms & Conditions</Label>
+                  <Input 
+                    id="invoiceTerms" 
+                    value={invoiceTerms}
+                    onChange={(e) => setInvoiceTerms(e.target.value)}
+                  />
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
-                <Button onClick={() => setIsCreateDialogOpen(false)}>Create Invoice</Button>
+                <Button variant="outline" onClick={() => { setIsCreateDialogOpen(false); resetInvoiceForm(); }}>Cancel</Button>
+                <Button onClick={() => { setIsCreateDialogOpen(false); resetInvoiceForm(); }}>Create Invoice</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

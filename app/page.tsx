@@ -3,12 +3,33 @@
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PublicMobileNav } from "@/components/public-mobile-nav"
 import { Button } from "@/components/ui/button"
-import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users } from "lucide-react"
+import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users, Loader2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 
 export default function Home() {
+  const [studios, setStudios] = useState<any[]>([])
+  const [isLoadingStudios, setIsLoadingStudios] = useState(true)
+
+  useEffect(() => {
+    async function fetchStudios() {
+      try {
+        const res = await fetch('/api/rooms')
+        if (res.ok) {
+          const data = await res.json()
+          setStudios(data)
+        }
+      } catch (error) {
+        console.error('Error fetching studios:', error)
+      } finally {
+        setIsLoadingStudios(false)
+      }
+    }
+    fetchStudios()
+  }, [])
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -88,6 +109,18 @@ export default function Home() {
 
       {/* Hero Section with Background Video */}
       <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
+        {/* Background Image Layer */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/studio-hero.png"
+            alt="Studio Background"
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+
         {/* Background Video */}
         <div className="absolute inset-0 z-0">
           <video
@@ -178,67 +211,106 @@ export default function Home() {
               Two legendary rooms equipped with the finest analog and digital gear
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Studio A */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-royal">Studio A</h3>
-                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">FLAGSHIP</span>
-                </div>
-                <p className="text-xl font-semibold mb-2">Neve 88R Console</p>
-                <p className="text-muted-foreground mb-6">
-                  Our flagship room featuring a legendary Neve 88R console,
-                  perfect for tracking, mixing, and immersive audio experiences.
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <Mic2 className="h-4 w-4 text-royal" />
-                    Large live room with isolation booths
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-royal" />
-                    5.1 Surround monitoring
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-royal" />
-                    Vintage outboard gear collection
-                  </li>
-                </ul>
-              </div>
+          {isLoadingStudios ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-royal" />
             </div>
+          ) : studios.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-8">
+              {studios.slice(0, 6).map((studio) => (
+                <div key={studio.id} className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
+                  <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-2xl font-bold text-royal">{studio.name}</h3>
+                      <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">
+                        {studio.status === 'AVAILABLE' ? 'AVAILABLE' : 'UNAVAILABLE'}
+                      </span>
+                    </div>
+                    <p className="text-xl font-semibold mb-2">${studio.baseRate}/hour</p>
+                    <p className="text-muted-foreground mb-6">
+                      {studio.description || 'Professional recording studio with premium amenities.'}
+                    </p>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {studio.amenities && studio.amenities.slice(0, 3).map((amenity: string) => (
+                        <li key={amenity} className="flex items-center gap-2">
+                          <Mic2 className="h-4 w-4 text-royal" />
+                          {amenity}
+                        </li>
+                      ))}
+                      {studio.rateWithEngineer && (
+                        <li className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-royal" />
+                          ${studio.rateWithEngineer}/hr with engineer
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Fallback to hardcoded studios if no data */}
+              <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-2xl font-bold text-royal">Studio A</h3>
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">FLAGSHIP</span>
+                  </div>
+                  <p className="text-xl font-semibold mb-2">Neve 88R Console</p>
+                  <p className="text-muted-foreground mb-6">
+                    Our flagship room featuring a legendary Neve 88R console,
+                    perfect for tracking, mixing, and immersive audio experiences.
+                  </p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <Mic2 className="h-4 w-4 text-royal" />
+                      Large live room with isolation booths
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Headphones className="h-4 w-4 text-royal" />
+                      5.1 Surround monitoring
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Sliders className="h-4 w-4 text-royal" />
+                      Vintage outboard gear collection
+                    </li>
+                  </ul>
+                </div>
+              </div>
 
-            {/* Studio B */}
-            <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
-              <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-2xl font-bold text-royal">Studio B</h3>
-                  <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">MIXING</span>
+              <div className="group relative overflow-hidden rounded-2xl border bg-card p-8 hover:border-royal/50 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-royal/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-2xl font-bold text-royal">Studio B</h3>
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-royal/10 text-royal">MIXING</span>
+                  </div>
+                  <p className="text-xl font-semibold mb-2">SSL 9000K Console</p>
+                  <p className="text-muted-foreground mb-6">
+                    A mixing powerhouse with the iconic SSL 9000K,
+                    delivering the punch and clarity that defined countless hit records.
+                  </p>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <Mic2 className="h-4 w-4 text-royal" />
+                      Dedicated vocal booth
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Headphones className="h-4 w-4 text-royal" />
+                      Stereo & surround monitoring
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Sliders className="h-4 w-4 text-royal" />
+                      Full Pro Tools HDX system
+                    </li>
+                  </ul>
                 </div>
-                <p className="text-xl font-semibold mb-2">SSL 9000K Console</p>
-                <p className="text-muted-foreground mb-6">
-                  A mixing powerhouse with the iconic SSL 9000K,
-                  delivering the punch and clarity that defined countless hit records.
-                </p>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <Mic2 className="h-4 w-4 text-royal" />
-                    Dedicated vocal booth
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Headphones className="h-4 w-4 text-royal" />
-                    Stereo & surround monitoring
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Sliders className="h-4 w-4 text-royal" />
-                    Full Pro Tools HDX system
-                  </li>
-                </ul>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 

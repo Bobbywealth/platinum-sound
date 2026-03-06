@@ -84,6 +84,7 @@ export async function PATCH(request: NextRequest) {
     if (description !== undefined) updateData.description = description
     if (priority) updateData.priority = priority.toUpperCase()
     if (finalAssigneeId !== undefined) updateData.assigneeId = finalAssigneeId
+    if (body.dueDate !== undefined) updateData.dueDate = body.dueDate ? new Date(body.dueDate) : null
 
     const task = await prisma.task.update({
       where: { id },
@@ -109,7 +110,7 @@ export async function PUT(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { title, description, status, priority, isRecurring, recurrencePattern, assigneeName } = body
+    const { title, description, status, priority, isRecurring, recurrencePattern, assigneeName, dueDate } = body
     
     // If assigneeName is provided, look up the user by name
     let assigneeId = null
@@ -130,6 +131,7 @@ export async function PUT(request: NextRequest) {
         isRecurring: Boolean(isRecurring),
         recurrencePattern,
         assigneeId,
+        dueDate: dueDate ? new Date(dueDate) : null,
       },
       include: { assignee: true },
     })

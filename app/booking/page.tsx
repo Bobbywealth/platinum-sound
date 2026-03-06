@@ -143,6 +143,8 @@ export default function BookingPage() {
   const [referral, setReferral] = useState<{ referrerType: string; referrerId: string; referrerName: string } | null>(null)
   const [phoneError, setPhoneError] = useState<string | null>(null)
   const [engineersLoading, setEngineersLoading] = useState(true)
+  const [studios, setStudios] = useState<any[]>([])
+  const [studiosLoading, setStudiosLoading] = useState(true)
 
   // Stripe payment state
   const [stripeClientSecret, setStripeClientSecret] = useState<string | null>(null)
@@ -164,6 +166,18 @@ export default function BookingPage() {
         setEngineerOptions(["No preference", ...rows.map((e: any) => e.name)])
       })
       .finally(() => setEngineersLoading(false))
+  }, [])
+
+  useEffect(() => {
+    fetch('/api/rooms')
+      .then((r) => {
+        if (!r.ok) return []
+        return r.json()
+      })
+      .then((rows) => {
+        setStudios(rows)
+      })
+      .finally(() => setStudiosLoading(false))
   }, [])
 
   // Updated steps with new flow
@@ -201,8 +215,10 @@ export default function BookingPage() {
 
   // Memoize pricing calculations to avoid recalculating on every render
   const studioRate = useMemo(() => {
-    return selectedStudio ? studioOptions.find(s => s.value === selectedStudio)?.rate || 150 : 150
-  }, [selectedStudio])
+    if (!selectedStudio) return 150
+    const studio = studios.find(s => s.name === selectedStudio)
+    return studio?.baseRate || 150
+  }, [selectedStudio, studios])
 
   const duration = useMemo(() => getDuration(selectedTimeSlots), [selectedTimeSlots])
   const basePrice = useMemo(() => studioRate * duration, [studioRate, duration])
@@ -643,30 +659,43 @@ export default function BookingPage() {
               <p className="text-sm text-muted-foreground">Choose your preferred recording space</p>
             </div>
 
-            <div className="grid gap-3">
-              {studioOptions.map((studio) => (
-                <button
-                  key={studio.value}
-                  type="button"
-                  onClick={() => setSelectedStudio(studio.value)}
-                  className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
-                    selectedStudio === studio.value
-                      ? "border-primary bg-primary/5 shadow-md"
-                      : "border-border hover:border-muted-foreground/50"
-                  }`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold">{studio.value}</h3>
-                      <p className="text-muted-foreground text-sm">{studio.description}</p>
+            {studiosLoading ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : studios.length > 0 ? (
+              <div className="grid gap-3">
+                {studios.map((studio) => (
+                  <button
+                    key={studio.id}
+                    type="button"
+                    onClick={() => setSelectedStudio(studio.name)}
+                    className={`p-5 rounded-xl border-2 text-left transition-all hover:shadow-md ${
+                      selectedStudio === studio.name
+                        ? "border-primary bg-primary/5 shadow-md"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold">{studio.name}</h3>
+                        <p className="text-muted-foreground text-sm">{studio.description || 'Professional recording studio'}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-lg">${studio.baseRate}/hr</div>
+                        {studio.rateWithEngineer && (
+                          <div className="text-xs text-muted-foreground">${studio.rateWithEngineer}/hr w/ engineer</div>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-lg">${studio.rate}/hr</div>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No studios available. Please check back later.</p>
+              </div>
+            )}
 
             <p className="text-center text-xs text-muted-foreground">
               Rooms may be swapped at any time. Pricing will reflect assigned room.

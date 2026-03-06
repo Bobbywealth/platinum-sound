@@ -7,6 +7,7 @@ import {
     Calendar,
     CheckSquare,
     ChevronDown,
+    CreditCard,
     DollarSign,
     FileText,
     HelpCircle,
@@ -54,6 +55,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard/inventory",
     "/dashboard/reports",
     "/dashboard/invoices",
+    "/dashboard/billing",
     "/dashboard/clients",
     "/dashboard/teams",
     "/dashboard/settings",
@@ -77,6 +79,7 @@ const rolePageAccess: Record<Role, string[]> = {
     "/dashboard",
     "/dashboard/reports",
     "/dashboard/invoices",
+    "/dashboard/billing",
   ],
   MARKETING: [
     "/dashboard/marketing",
@@ -128,6 +131,7 @@ const navSections: NavSection[] = [
     items: [
       { href: "/dashboard/reports", label: "Reports", icon: BarChart3 },
       { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
+      { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
     ],
   },
   {

@@ -44,6 +44,7 @@ interface Task {
   assignee?: string
   isRecurring: boolean
   recurrencePattern?: "daily" | "weekly" | "biweekly" | "monthly"
+  dueDate?: string
   createdAt: string
 }
 
@@ -83,6 +84,7 @@ export default function TasksPage() {
     status: "todo" as TaskStatus,
     isRecurring: false,
     recurrencePattern: "weekly" as RecurrencePattern,
+    dueDate: "",
   })
   
   useEffect(() => {
@@ -110,6 +112,7 @@ export default function TasksPage() {
     assignee: string
     isRecurring: boolean
     recurrencePattern: RecurrencePattern
+    dueDate: string
   }>({
     title: "",
     description: "",
@@ -117,6 +120,7 @@ export default function TasksPage() {
     assignee: "",
     isRecurring: false,
     recurrencePattern: "weekly",
+    dueDate: "",
   })
 
   const handleCreateTask = async () => {
@@ -132,6 +136,7 @@ export default function TasksPage() {
           isRecurring: newTask.isRecurring,
           recurrencePattern: newTask.isRecurring ? newTask.recurrencePattern.toUpperCase() : null,
           assigneeName: newTask.assignee || null,
+          dueDate: newTask.dueDate || null,
         }),
       })
       
@@ -146,6 +151,7 @@ export default function TasksPage() {
           status: savedTask.status.toLowerCase(),
           isRecurring: savedTask.isRecurring,
           recurrencePattern: savedTask.recurrencePattern?.toLowerCase(),
+          dueDate: savedTask.dueDate,
           createdAt: savedTask.createdAt,
         }
         setTaskList([...taskList, task])
@@ -162,6 +168,7 @@ export default function TasksPage() {
       assignee: "",
       isRecurring: false,
       recurrencePattern: "weekly",
+      dueDate: "",
     })
   }
 
@@ -267,6 +274,16 @@ export default function TasksPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Due Date</Label>
+                    <Input
+                      type="date"
+                      value={newTask.dueDate}
+                      onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label>Assignee</Label>
                     <Select
@@ -288,8 +305,19 @@ export default function TasksPage() {
                     </Select>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <input
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Due Date</Label>
+                    <Input
+                      type="date"
+                      value={editForm.dueDate}
+                      onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="col-span-2 space-y-2">
+                    <Label>&nbsp;</Label>
+                    <div className="flex items-center h-10">
+                      <input
                     type="checkbox"
                     id="recurring"
                     checked={newTask.isRecurring}
@@ -484,6 +512,7 @@ export default function TasksPage() {
                             status: editForm.status.toUpperCase(),
                             isRecurring: editForm.isRecurring,
                             recurrencePattern: editForm.isRecurring ? editForm.recurrencePattern.toUpperCase() : null,
+                            dueDate: editForm.dueDate || null,
                           }),
                         })
                         
@@ -499,6 +528,7 @@ export default function TasksPage() {
                                   status: updatedTask.status.toLowerCase(),
                                   isRecurring: updatedTask.isRecurring,
                                   recurrencePattern: updatedTask.recurrencePattern?.toLowerCase(),
+                                  dueDate: editForm.dueDate || null,
                                 }
                               : t
                           ))
@@ -590,6 +620,7 @@ export default function TasksPage() {
                           status: task.status,
                           isRecurring: task.isRecurring,
                           recurrencePattern: (task.recurrencePattern as RecurrencePattern) || "weekly",
+                          dueDate: task.dueDate ? task.dueDate.split('T')[0] : "",
                         })
                         setIsEditDialogOpen(true)
                       }}
@@ -606,6 +637,12 @@ export default function TasksPage() {
                         <h4 className="font-medium mb-1">{task.title}</h4>
                         {task.description && (
                           <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
+                        )}
+                        {task.dueDate && (
+                          <div className="flex items-center gap-1 text-xs text-orange-600 mb-2">
+                            <Clock className="h-3 w-3" />
+                            Due: {new Date(task.dueDate).toLocaleDateString()}
+                          </div>
                         )}
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
                           <div className="flex items-center gap-2">
