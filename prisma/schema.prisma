@@ -45,6 +45,7 @@ enum SessionType {
   PRODUCTION
   PODCAST
   VOICEOVER
+  SPATIAL_MIXING
 }
 
 enum SessionMode {

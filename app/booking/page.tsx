@@ -62,12 +62,12 @@ const inPersonServices = [
   { value: "Podcast", description: "Capture and edit spoken word or interview sessions." },
   { value: "Voiceover", description: "Record commercial, narration, or ADR voice work." },
   { value: "Production", description: "Beat making and production session." },
+  { value: "Spatial mixing", description: "Immersive audio mixing for Dolby Atmos, 5.1, and stereo." },
 ]
 
 const paymentOptions = [
   { value: "Full payment", description: "Pay the full session total today." },
   { value: "50% deposit", description: "Reserve the booking with a 50% deposit." },
-  { value: "Pay in studio", description: "Pay in person on the day of the session." },
 ]
 
 const studioOptions = [

@@ -10,7 +10,18 @@ export async function POST(request: Request) {
 
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY
     if (!stripeSecretKey) {
+      console.error("[PAYMENT DEBUG] Stripe secret key is not configured in environment")
       return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 })
+    }
+
+    // Debug: Log key prefix to help diagnose (never log full key)
+    if (stripeSecretKey.startsWith("sk_test_")) {
+      console.log("[PAYMENT DEBUG] Stripe test key detected")
+    } else if (stripeSecretKey.startsWith("sk_live_")) {
+      console.log("[PAYMENT DEBUG] Stripe live key detected")
+    } else {
+      console.error("[PAYMENT DEBUG] Invalid Stripe key format - does not start with sk_test_ or sk_live_")
+      return NextResponse.json({ error: "Stripe key format is invalid" }, { status: 500 })
     }
 
     // Create Payment Intent via Stripe REST API
@@ -42,12 +53,14 @@ export async function POST(request: Request) {
     const paymentIntent = await stripeResponse.json()
 
     if (!stripeResponse.ok) {
-      console.error("Stripe error:", paymentIntent)
+      console.error("[PAYMENT DEBUG] Stripe API error:", JSON.stringify(paymentIntent))
       return NextResponse.json(
         { error: paymentIntent.error?.message || "Failed to create payment intent" },
         { status: stripeResponse.status }
       )
     }
+
+    console.log("[PAYMENT DEBUG] Payment intent created successfully:", paymentIntent.id)
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,

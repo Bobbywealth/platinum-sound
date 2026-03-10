@@ -169,6 +169,7 @@ export async function POST(request: NextRequest) {
       'Production': SessionType.PRODUCTION,
       'Podcast': SessionType.PODCAST,
       'Voiceover': SessionType.VOICEOVER,
+      'Spatial mixing': SessionType.SPATIAL_MIXING,
     }
     const sessionTypeEnum = sessionTypeMap[sessionType] || SessionType.RECORDING
 
