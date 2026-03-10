@@ -76,7 +76,6 @@ export function StripePaymentForm({
     if (!stripeLoaded || !paymentElementRef.current || !clientSecret) return
 
     const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-    console.log("[STRIPE CLIENT] Publishable key prefix:", publishableKey?.substring(0, 8) || "undefined")
     
     if (!publishableKey || !window.Stripe) {
       console.error("[STRIPE CLIENT] Stripe not configured - key:", publishableKey ? "present but invalid" : "missing")
