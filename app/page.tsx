@@ -3,15 +3,70 @@
 import { ThemeToggle } from "@/components/theme-toggle"
 import { PublicMobileNav } from "@/components/public-mobile-nav"
 import { Button } from "@/components/ui/button"
-import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users, Loader2 } from "lucide-react"
+import { Clock, Headphones, Mail, MapPin, Mic2, Music, Phone, Sliders, Star, Users, Loader2, Instagram, Facebook, Youtube, ArrowRight, Play, Pause } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
+import { motion, useInView, useScroll, useTransform } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
 
 export default function Home() {
   const [studios, setStudios] = useState<any[]>([])
   const [isLoadingStudios, setIsLoadingStudios] = useState(true)
+  const [scrolled, setScrolled] = useState(false)
+  const [activeTeamFilter, setActiveTeamFilter] = useState("all")
+  const [isPlaying, setIsPlaying] = useState(true)
+
+  // Scroll handler for glassmorphism nav
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
+  // Parallax scroll hook
+  const { scrollY } = useScroll()
+  const y1 = useTransform(scrollY, [0, 500], [0, 150])
+  const y2 = useTransform(scrollY, [0, 500], [0, -100])
+
+  // Count up animation component
+  function CountUpStat({ value, suffix, label, icon: Icon }: { value: number; suffix: string; label: string; icon: any }) {
+    const ref = useRef(null)
+    const isInView = useInView(ref, { once: true })
+    const [count, setCount] = useState(0)
+
+    useEffect(() => {
+      if (isInView) {
+        let start = 0
+        const end = value
+        const duration = 2000
+        const increment = end / (duration / 16)
+        const timer = setInterval(() => {
+          start += increment
+          if (start >= end) {
+            setCount(end)
+            clearInterval(timer)
+          } else {
+            setCount(Math.floor(start))
+          }
+        }, 16)
+        return () => clearInterval(timer)
+      }
+    }, [isInView, value])
+
+    return (
+      <div ref={ref} className="text-center">
+        <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-3">
+          <Icon className="h-6 w-6 text-royal" />
+        </div>
+        <div className="text-4xl md:text-5xl font-extrabold text-royal mb-2">
+          {count}{suffix}
+        </div>
+        <div className="text-muted-foreground text-sm uppercase tracking-wider">{label}</div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     async function fetchStudios() {
@@ -33,7 +88,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 backdrop-blur-md">
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? "bg-background/90 backdrop-blur-md border-b shadow-sm" 
+          : "bg-transparent"
+      }`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center">
             <Image
@@ -78,7 +137,7 @@ export default function Home() {
             </Link>
             <Link
               href="/booking"
-              className="px-4 py-2 text-base font-semibold text-royal hover:text-royal/80 hover:bg-royal/5 rounded-md transition-all"
+              className="px-4 py-2 text-base font-semibold text-black hover:text-black/80 hover:bg-black/5 rounded-md transition-all"
             >
               BOOKING
             </Link>
@@ -110,7 +169,7 @@ export default function Home() {
       {/* Hero Section with Background Video */}
       <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
         {/* Background Image Layer */}
-        <div className="absolute inset-0 z-0">
+        <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
           <Image
             src="/studio-hero.png"
             alt="Studio Background"
@@ -119,10 +178,10 @@ export default function Home() {
             priority
           />
           <div className="absolute inset-0 bg-black/40" />
-        </div>
+        </motion.div>
 
         {/* Background Video */}
-        <div className="absolute inset-0 z-0">
+        <motion.div style={{ y: y2 }} className="absolute inset-0 z-0">
           <video
             autoPlay
             loop
@@ -133,7 +192,7 @@ export default function Home() {
             <source src="/hero-video.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/60" />
-        </div>
+        </motion.div>
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto">
@@ -183,22 +242,14 @@ export default function Home() {
       {/* Stats Section */}
       <section className="py-16 px-6 border-y bg-card/50">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-royal mb-2">20+</div>
-            <div className="text-muted-foreground text-sm uppercase tracking-wider">Years of Excellence</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-platinum-gradient mb-2">500+</div>
-            <div className="text-muted-foreground text-sm uppercase tracking-wider">Albums Recorded</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-royal mb-2">50+</div>
-            <div className="text-muted-foreground text-sm uppercase tracking-wider">Grammy Wins</div>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl md:text-5xl font-extrabold text-platinum-gradient mb-2">24/7</div>
-            <div className="text-muted-foreground text-sm uppercase tracking-wider">Studio Access</div>
-          </div>
+          {[
+            { value: 20, suffix: "+", label: "Years of Excellence", icon: Clock },
+            { value: 500, suffix: "+", label: "Albums Recorded", icon: Music },
+            { value: 50, suffix: "+", label: "Grammy Wins", icon: Star },
+            { value: 24, suffix: "/7", label: "Studio Access", icon: Headphones },
+          ].map((stat, i) => (
+            <CountUpStat key={i} {...stat} />
+          ))}
         </div>
       </section>
 
@@ -245,6 +296,17 @@ export default function Home() {
                         </li>
                       )}
                     </ul>
+                    <div className="flex gap-3 mt-6">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <Play className="h-4 w-4 mr-2" />
+                        Virtual Tour
+                      </Button>
+                      <Link href="/booking" className="flex-1">
+                        <Button size="sm" className="w-full bg-royal hover:bg-royal/90">
+                          Book Now
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -278,6 +340,17 @@ export default function Home() {
                       Vintage outboard gear collection
                     </li>
                   </ul>
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Play className="h-4 w-4 mr-2" />
+                      Virtual Tour
+                    </Button>
+                    <Link href="/booking" className="flex-1">
+                      <Button size="sm" className="w-full bg-royal hover:bg-royal/90">
+                        Book Now
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -307,6 +380,17 @@ export default function Home() {
                       Full Pro Tools HDX system
                     </li>
                   </ul>
+                  <div className="flex gap-3 mt-6">
+                    <Button variant="outline" size="sm" className="flex-1">
+                      <Play className="h-4 w-4 mr-2" />
+                      Virtual Tour
+                    </Button>
+                    <Link href="/booking" className="flex-1">
+                      <Button size="sm" className="w-full bg-royal hover:bg-royal/90">
+                        Book Now
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -324,123 +408,151 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Founder/Owner */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold mb-8 text-center">Founder/Owner</h3>
-            <div className="max-w-3xl mx-auto">
-              <div className="text-center p-8 rounded-2xl border bg-background">
-                <div className="relative w-40 h-56 mx-auto mb-6 rounded-xl overflow-hidden border-4 border-royal/20">
-                  <Image
-                    src="/jerrywonda1.png"
-                    alt="Jerry 'Wonda' Duplessis - Founder/Owner"
-                    fill
-                    className="object-cover object-top"
-                    priority
-                  />
+          {/* Filter Tabs */}
+          <div className="flex justify-center gap-2 mb-10 flex-wrap">
+            {[
+              { id: "all", label: "All" },
+              { id: "founder", label: "Founder" },
+              { id: "management", label: "Management" },
+              { id: "engineers", label: "Engineers" },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => setActiveTeamFilter(filter.id)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                  activeTeamFilter === filter.id
+                    ? "bg-royal text-white"
+                    : "bg-background border hover:border-royal/50"
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Team Grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* Founder/Owner - Show when 'all' or 'founder' selected */}
+            {(activeTeamFilter === "all" || activeTeamFilter === "founder") && (
+              <div className="col-span-full lg:col-span-2 lg:row-span-2 p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  <div className="relative w-32 h-40 mx-auto md:mx-0 rounded-xl overflow-hidden border-4 border-royal/20 shrink-0">
+                    <Image
+                      src="/jerrywonda1.png"
+                      alt="Jerry 'Wonda' Duplessis - Founder/Owner"
+                      fill
+                      className="object-cover object-top"
+                      priority
+                    />
+                  </div>
+                  <div className="flex-1 text-center md:text-left">
+                    <h4 className="text-xl font-bold mb-1">Jerry "Wonda" Duplessis</h4>
+                    <p className="text-royal font-medium mb-3">Founder/Owner</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Grammy Award-winning, multi-platinum music producer with 3 Grammy Awards and over 16 nominations. Produced global hits like "Hips Don't Lie" and composed for film. Goodwill Ambassador to Haiti.
+                    </p>
+                  </div>
                 </div>
-                <h4 className="text-2xl font-bold mb-2">Jerry &quot;Wonda&quot; Duplessis</h4>
-                <p className="text-royal font-medium mb-4">Founder/Owner</p>
-                <p className="text-muted-foreground leading-relaxed">
-                  Grammy Award-winning, multi-platinum music producer Jerry "Wonda" Duplessis is one of the most respected producers to emerge from the hip-hop era since the early 1990s. Over his career, he has earned three Grammy Awards and more than 16 nominations, built a publishing catalog of over 300 titles, and contributed to over 300 million records sold worldwide. He produced global hits such as "Hips Don't Lie" by Shakira and Wyclef Jean, one of the most successful songs in music history, and has also composed for film, including the Golden Globe–nominated "Million Voices" from Hotel Rwanda. Beyond music, Duplessis is an entrepreneur and philanthropist who serves as a Goodwill Ambassador to Haiti and actively supports initiatives in humanitarian relief, education, healthcare, sustainable development, affordable housing, and mental health. Deeply connected to Newark, New Jersey, he has led youth arts and entrepreneurship initiatives, serves on several nonprofit boards including Newark Symphony Hall, and is currently working with the City of Newark and the Newark Board of Education to strengthen music and video production programs while empowering young artists through his initiative "The Other Side of Newark."
-                </p>
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Management */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold mb-8 text-center">Management</h3>
-            <div className="flex flex-wrap justify-center gap-6">
-              {[
-                { name: "Lisa", role: "Manager" },
-                { name: "Spice", role: "Manager" },
-              ].map((member, i) => (
-                <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors w-48">
-                  <div className="w-20 h-20 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
-                    <Users className="h-10 w-10 text-royal" />
-                  </div>
-                  <h4 className="font-bold text-lg mb-1">{member.name}</h4>
-                  <p className="text-sm text-muted-foreground">{member.role}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Engineers */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold mb-8 text-center">Engineers</h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  name: "Serge",
-                  role: "Chief Engineer",
-                  bio: "Grammy-winning, multi-platinum recording and mix engineer with over 20 years of experience. Based in NYC since 1989, Serge is Chief Engineer at Platinum Sound, working with artists like Shakira, Kanye West, Justin Bieber, and Client E. His credits include Grammy-winning albums, an Oscar-nominated soundtrack, and collabs with Aretha Franklin and Carlos Santana. Known for his \"Sonic Air Bending\" techniques, he also mentors upcoming engineers and artists."
-                },
-                {
-                  name: "Julian",
-                  role: "Staff Engineer",
-                  bio: "Talented staff engineer at Platinum Sound Studios with expertise in recording and mixing. Committed to delivering exceptional audio quality for every session."
-                },
-                {
-                  name: "Jack",
-                  role: "Staff Engineer",
-                  bio: "Skilled staff engineer known for his precision and dedication to achieving the perfect sound. Brings technical expertise and creativity to every project."
-                },
-                {
-                  name: "Solon",
-                  role: "Staff Engineer",
-                  bio: "Experienced staff engineer specializing in recording and production. Works closely with artists to bring their creative vision to life."
-                },
-                {
-                  name: "Knice",
-                  role: "Senior Engineer",
-                  bio: "Recording and Immersive Mixing engineer from Brooklyn, New York. Knice graduated from SAE with a 4.0 and went on to work up the ranks at Platinum Sound Studios as a recording engineer, ultimately joining the Senior Engineer Staff. Has worked with French Montana, Brandy, Miguel, EST Gee, Lola Brooke, Desiigner, Rich The Kid, and many more label and local artists."
-                },
-                {
-                  name: "Rene",
-                  role: "Senior Engineer",
-                  bio: "Brooklyn-born recording and mixing engineer, joined Platinum Sound in 2015 and has worked with top artists like Wyclef Jean and Mary J. Blige. Known for his exceptional quality, he also mentors the next generation of audio engineers. Recently expanded into Dolby Atmos Surround Sound, earning credits with artists like French Montana."
-                },
-                {
-                  name: "Darren",
-                  role: "Senior Engineer",
-                  bio: "South African recording hop, R&B engineer specializing in hip, and Dolby Atmos mixing. With a Master's in Music Tech from NYU and experience at NYU's James L Dolan studio and Platinum Sound, he's crafted standout tracks for artists like Leon John and Langa Mavuso. Known for his speed and intuitive approach, Darren creates immersive soundscapes that enhance every project."
-                },
-                {
-                  name: "Kyle",
-                  role: "Engineer",
-                  bio: "Dedicated engineer at Platinum Sound committed to delivering high-quality recordings. Brings technical expertise and a passion for music to every session."
-                },
-                {
-                  name: "Jacob",
-                  role: "Engineer",
-                  bio: "Talented engineer with a keen ear for detail. Works diligently to capture the best possible sound for all artists."
-                },
-                {
-                  name: "Rohan",
-                  role: "Engineer",
-                  bio: "Skilled engineer specializing in recording and mixing. Committed to helping artists achieve their sonic goals."
-                },
-                {
-                  name: "Chris",
-                  role: "Engineer",
-                  bio: "Brooklyn-born Audio Engineer and Producer, developed his craft at LaGuardia Community College. Has worked with top artists like Nas, Wyclef Jean, Maino, Jim Jones, Homixide Gang, and Asian Doll, reflecting his commitment and influence in the music industry."
-                },
-              ].map((member, i) => (
-                <div key={i} className="p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-14 h-14 rounded-full bg-royal/10 flex items-center justify-center shrink-0">
-                      <Sliders className="h-7 w-7 text-royal" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold">{member.name}</h4>
-                      <p className="text-sm text-royal">{member.role}</p>
+            {/* Management - Show when 'all' or 'management' selected */}
+            {(activeTeamFilter === "all" || activeTeamFilter === "management") && (
+              <>
+                {[
+                  { name: "Lisa", role: "Manager" },
+                  { name: "Spice", role: "Manager" },
+                ].map((member, i) => (
+                  <div key={`mgmt-${i}`} className="p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center shrink-0">
+                        <Users className="h-6 w-6 text-royal" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{member.name}</h4>
+                        <p className="text-sm text-royal">{member.role}</p>
+                      </div>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </>
+            )}
+
+            {/* Engineers - Show when 'all' or 'engineers' selected */}
+            {(activeTeamFilter === "all" || activeTeamFilter === "engineers") && (
+              <>
+                {[
+                  {
+                    name: "Serge",
+                    role: "Chief Engineer",
+                    bio: "Grammy-winning engineer with 20+ years experience. Worked with Shakira, Kanye West, and Aretha Franklin."
+                  },
+                  {
+                    name: "Knice",
+                    role: "Senior Engineer",
+                    bio: "Brooklyn-based recording & immersive mixing engineer. Worked with French Montana, Brandy, and Miguel."
+                  },
+                  {
+                    name: "Rene",
+                    role: "Senior Engineer",
+                    bio: "Brooklyn-born mixing engineer since 2015. Specializes in Dolby Atmos. Worked with Wyclef Jean and Mary J. Blige."
+                  },
+                  {
+                    name: "Darren",
+                    role: "Senior Engineer",
+                    bio: "NYU Master's in Music Tech. Dolby Atmos specialist. Worked with Leon John and Langa Mavuso."
+                  },
+                  {
+                    name: "Julian",
+                    role: "Staff Engineer",
+                    bio: "Talented staff engineer with expertise in recording and mixing."
+                  },
+                  {
+                    name: "Jack",
+                    role: "Staff Engineer",
+                    bio: "Known for precision and dedication to achieving the perfect sound."
+                  },
+                  {
+                    name: "Solon",
+                    role: "Staff Engineer",
+                    bio: "Experienced in recording and production. Works closely with artists."
+                  },
+                  {
+                    name: "Kyle",
+                    role: "Engineer",
+                    bio: "Committed to delivering high-quality recordings."
+                  },
+                  {
+                    name: "Jacob",
+                    role: "Engineer",
+                    bio: "Talented engineer with a keen ear for detail."
+                  },
+                  {
+                    name: "Rohan",
+                    role: "Engineer",
+                    bio: "Specializing in recording and mixing."
+                  },
+                  {
+                    name: "Chris",
+                    role: "Engineer",
+                    bio: "Brooklyn-born Audio Engineer. Worked with Nas, Wyclef Jean, and Maino."
+                  },
+                ].map((member, i) => (
+                  <div key={`eng-${i}`} className="p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center shrink-0">
+                        <Sliders className="h-6 w-6 text-royal" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold">{member.name}</h4>
+                        <p className="text-sm text-royal">{member.role}</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{member.bio}</p>
+                  </div>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -461,20 +573,27 @@ export default function Home() {
               { icon: Headphones, title: "Mastering", desc: "Final polish for streaming and physical release" },
               { icon: Users, title: "Production", desc: "Full production services with in-house producers" },
             ].map((service, i) => (
-              <div key={i} className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors">
-                <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4">
-                  <service.icon className="h-6 w-6 text-royal" />
+              <motion.div 
+                key={i} 
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-6 rounded-xl border bg-background hover:border-royal/50 transition-colors cursor-pointer group"
+              >
+                <div className="w-12 h-12 rounded-full bg-royal/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-royal group-hover:text-white transition-colors">
+                  <service.icon className="h-6 w-6 text-royal group-hover:text-white" />
                 </div>
                 <h3 className="font-semibold mb-2">{service.title}</h3>
-                <p className="text-sm text-muted-foreground">{service.desc}</p>
-              </div>
+                <p className="text-sm text-muted-foreground mb-4">{service.desc}</p>
+                <div className="flex items-center justify-center gap-1 text-royal text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  Learn More <ArrowRight className="h-4 w-4" />
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials / Notable Clients */}
-      <section id="clients" className="py-20 px-6">
+      <section id="clients" className="py-20 px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Notable Sessions</h2>
@@ -482,6 +601,34 @@ export default function Home() {
               Where legends create and new stars are born
             </p>
           </div>
+
+          {/* Artist Logos Marquee */}
+          <div className="mb-16">
+            <div className="relative">
+              <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10" />
+              <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10" />
+              <div className="flex gap-8 animate-marquee">
+                {[
+                  "Shakira", "Wyclef Jean", "Kanye West", "Drake", "Beyoncé", "Jay-Z", 
+                  "Rihanna", "Bruno Mars", "Kendrick Lamar", "Travis Scott", "French Montana", "Mary J. Blige"
+                ].map((artist, i) => (
+                  <div key={i} className="text-2xl md:text-3xl font-bold text-muted-foreground/30 whitespace-nowrap">
+                    {artist}
+                  </div>
+                ))}
+                {[
+                  "Shakira", "Wyclef Jean", "Kanye West", "Drake", "Beyoncé", "Jay-Z", 
+                  "Rihanna", "Bruno Mars", "Kendrick Lamar", "Travis Scott", "French Montana", "Mary J. Blige"
+                ].map((artist, i) => (
+                  <div key={`dup-${i}`} className="text-2xl md:text-3xl font-bold text-muted-foreground/30 whitespace-nowrap">
+                    {artist}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Testimonial Cards */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { artist: "Client A", project: "Certified Lover Boy Sessions", rating: 5 },
@@ -506,19 +653,23 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-card/50 border-t">
-        <div className="max-w-3xl mx-auto text-center">
+      <section className="py-20 px-6 relative overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-royal/20 via-purple-500/20 to-royal/20 animate-gradient" />
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-5" />
+        
+        <div className="max-w-3xl mx-auto text-center relative z-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Create?</h2>
           <p className="text-muted-foreground text-lg mb-8">
             Book your session today and join the legacy of platinum records
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/booking">
-              <Button size="lg" className="text-lg px-8">
+              <Button size="lg" className="text-lg px-8 bg-royal hover:bg-royal/90">
                 Book a Session
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8">
+            <Button size="lg" variant="outline" className="text-lg px-8 bg-background/80">
               <Mail className="mr-2 h-5 w-5" />
               info@platinumsoundny.com
             </Button>
@@ -535,9 +686,21 @@ export default function Home() {
                 <Music className="h-5 w-5 text-primary" />
                 <span className="font-bold">Platinum Sound</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-4">
                 World-class recording studios in the heart of New York City.
               </p>
+              {/* Social Icons */}
+              <div className="flex gap-3">
+                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-royal/10 flex items-center justify-center hover:bg-royal hover:text-white transition-colors">
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-royal/10 flex items-center justify-center hover:bg-royal hover:text-white transition-colors">
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-royal/10 flex items-center justify-center hover:bg-royal hover:text-white transition-colors">
+                  <Youtube className="h-4 w-4" />
+                </a>
+              </div>
             </div>
             <div>
               <h4 className="font-semibold text-primary text-sm uppercase tracking-wider mb-4">Address</h4>
@@ -560,10 +723,19 @@ export default function Home() {
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-primary text-sm uppercase tracking-wider mb-4">Hours</h4>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>Open 24/7 for Sessions</span>
+              <h4 className="font-semibold text-primary text-sm uppercase tracking-wider mb-4">Newsletter</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Get updates on new services and studio news.
+              </p>
+              <div className="flex gap-2">
+                <input 
+                  type="email" 
+                  placeholder="Your email" 
+                  className="flex-1 px-3 py-2 text-sm rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-royal"
+                />
+                <Button size="sm" className="bg-royal hover:bg-royal/90">
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>

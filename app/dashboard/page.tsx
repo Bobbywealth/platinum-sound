@@ -59,9 +59,38 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState<DashboardData | null>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [topClients, setTopClients] = useState<{id: string, client: {firstName: string, lastName: string}, totalRevenue: number}[]>([])
 
   useEffect(() => {
-    fetch('/api/dashboard').then(r => r.json()).then(setData).finally(() => setLoading(false))
+    // Fetch dashboard data
+    fetch('/api/dashboard')
+      .then(r => {
+        if (!r.ok) throw new Error('Failed to fetch')
+        return r.json()
+      })
+      .then(setData)
+      .catch(err => {
+        console.error('Dashboard fetch error:', err)
+        setData(null)
+      })
+      .finally(() => setLoading(false))
+    
+    // Fetch top clients
+    fetch('/api/clients/revenue')
+      .then(r => r.ok ? r.json() : { revenues: [] })
+      .then(d => {
+        if (d.revenues && d.revenues.length > 0) {
+          setTopClients(d.revenues.slice(0, 5))
+        } else {
+          // Trigger revenue calculation if no data exists, then fetch again
+          fetch('/api/clients/revenue', { method: 'POST' })
+            .then(() => fetch('/api/clients/revenue'))
+            .then(r => r.ok ? r.json() : { revenues: [] })
+            .then(d2 => setTopClients(d2.revenues?.slice(0, 5) || []))
+            .catch(() => setTopClients([]))
+        }
+      })
+      .catch(() => setTopClients([]))
   }, [])
 
   useEffect(() => {
@@ -288,6 +317,47 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          {/* Top Clients - Under Upcoming Bookings */}
+          {(topClients.length > 0) && (
+            <div className="bg-card rounded-lg border p-6 animate-fade-in delay-450 hover-lift transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Top Clients
+                </h2>
+                <Link href="/dashboard/clients" className="text-sm text-primary hover:underline">
+                  View all
+                </Link>
+              </div>
+              <div className="space-y-3">
+                {topClients.slice(0, 5).map((item, index) => (
+                  <div 
+                    key={item.id} 
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${500 + index * 75}ms` }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        index === 0 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' :
+                        index === 1 ? 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' :
+                        index === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-medium">{item.client?.firstName} {item.client?.lastName}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-primary">{formatCurrency(item.totalRevenue || 0)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Pending Invoices */}
           {(data?.recentInvoices?.length ?? 0) > 0 && (

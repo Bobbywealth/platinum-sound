@@ -77,7 +77,16 @@ export async function GET() {
 
     // Get all client revenues
     const revenues = await prisma.clientRevenue.findMany({
-      orderBy: { totalRevenue: 'desc' }
+      orderBy: { totalRevenue: 'desc' },
+      include: {
+        client: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true
+          }
+        }
+      }
     })
 
     const totalRevenue = revenues.reduce((sum, r) => sum + r.totalRevenue, 0)

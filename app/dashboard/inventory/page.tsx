@@ -124,9 +124,10 @@ export default function InventoryPage() {
     }
   }
 
-  const totalItems = inventoryItems.length
-  const lowStockCount = inventoryItems.filter((item) => item.status === "LOW_STOCK").length
-  const outOfStockCount = inventoryItems.filter((item) => item.status === "OUT_OF_STOCK").length
+  const items = Array.isArray(inventoryItems) ? inventoryItems : []
+  const totalItems = items.length
+  const lowStockCount = items.filter((item) => item.status === "LOW_STOCK").length
+  const outOfStockCount = items.filter((item) => item.status === "OUT_OF_STOCK").length
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -309,13 +310,13 @@ export default function InventoryPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {inventoryItems.length === 0 ? (
+            {items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                   No inventory items yet. Click "Add Item" to add one.
                 </TableCell>
               </TableRow>
-            ) : inventoryItems.map((item) => (
+            ) : items.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="font-medium">
                   {item.name}

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useEffect, useCallback, useMemo } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -179,6 +179,48 @@ export default function BookingPage() {
       })
       .finally(() => setStudiosLoading(false))
   }, [])
+
+  // Auto-save form progress to localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('booking_progress')
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        if (data.clientName) setClientName(data.clientName)
+        if (data.clientEmail) setClientEmail(data.clientEmail)
+        if (data.clientPhone) setClientPhone(data.clientPhone)
+        if (data.sessionMode) setSessionMode(data.sessionMode)
+        if (data.sessionType) setSessionType(data.sessionType)
+        if (data.selectedStudio) setSelectedStudio(data.selectedStudio)
+        if (data.selectedDate) setSelectedDate(new Date(data.selectedDate))
+        if (data.currentStep) setCurrentStep(data.currentStep)
+      } catch (e) {
+        console.error('Failed to load saved progress:', e)
+      }
+    }
+  }, [])
+
+  // Save form progress on changes
+  useEffect(() => {
+    const data = {
+      clientName,
+      clientEmail,
+      clientPhone,
+      sessionMode,
+      sessionType,
+      selectedStudio,
+      selectedDate: selectedDate?.toISOString(),
+      currentStep,
+    }
+    localStorage.setItem('booking_progress', JSON.stringify(data))
+  }, [clientName, clientEmail, clientPhone, sessionMode, sessionType, selectedStudio, selectedDate, currentStep])
+
+  // Clear saved progress on successful submission
+  useEffect(() => {
+    if (paymentComplete) {
+      localStorage.removeItem('booking_progress')
+    }
+  }, [paymentComplete])
 
   // Updated steps with new flow
   const steps = [
@@ -711,7 +753,18 @@ export default function BookingPage() {
               <p className="text-sm text-muted-foreground">Choose your preferred session date</p>
             </div>
 
-            <div className="max-w-md mx-auto bg-muted/30 rounded-xl p-5">
+            <div className="max-w-md mx-auto bg-muted/30 rounded-xl p-5" onTouchStart={(e) => {
+              const touch = e.touches[0]
+              e.currentTarget.dataset.touchStartX = touch.clientX.toString()
+            }} onTouchEnd={(e) => {
+              const touchEndX = e.changedTouches[0].clientX
+              const touchStartX = parseFloat(e.currentTarget.dataset.touchStartX || "0")
+              const diff = touchEndX - touchStartX
+              if (Math.abs(diff) > 50) {
+                if (diff > 0) prevMonth()
+                else nextMonth()
+              }
+            }}>
               <div className="flex items-center justify-between mb-4">
                 <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
                   <ChevronLeft className="h-4 w-4" />
@@ -789,10 +842,10 @@ export default function BookingPage() {
                       key={service.value}
                       type="button"
                       onClick={() => setSessionType(service.value)}
-                      className={`w-full p-4 rounded-xl border-2 text-left transition-all hover:shadow-sm ${
+                      className={`w-full p-4 rounded-xl border-2 text-left transition-all duration-200 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] ${
                         sessionType === service.value
-                          ? "border-primary bg-primary/5"
-                          : "border-border hover:border-muted-foreground/50"
+                          ? "border-primary bg-primary/5 shadow-sm scale-[1.01]"
+                          : "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
                       }`}
                     >
                       <div className="font-medium text-sm">{service.value}</div>
@@ -851,7 +904,13 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <p className="text-sm text-muted-foreground mb-3 flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-medium rounded-full">
+                  <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+                  3 people viewing
+                </span>
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {timeSlots.map((slot) => {
                   const isSelected = selectedTimeSlots.includes(slot)
 
@@ -879,12 +938,12 @@ export default function BookingPage() {
                           setSelectedTimeSlots(newSlots)
                         }
                       }}
-                      className={`p-3 rounded-lg text-sm transition-all ${
+                      className={`p-4 rounded-xl text-sm font-medium transition-all min-h-[60px] touch-manipulation ${
                         isSelected
-                          ? "bg-primary text-primary-foreground shadow-md"
+                          ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
                           : wouldBreakConsecutive
                           ? "bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
-                          : "bg-muted hover:bg-muted/80"
+                          : "bg-muted hover:bg-muted/80 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                     >
                       {slot}
@@ -922,6 +981,36 @@ export default function BookingPage() {
                 onSelectionChange={setMicSelection}
                 quantity={1}
               />
+            </div>
+
+            {/* Frequently Booked Together */}
+            <div className="border-t pt-6 mt-6">
+              <h3 className="font-semibold mb-3 text-center">Frequently Booked Together</h3>
+              <div className="grid gap-3">
+                {[
+                  { name: "Extended Session (1 hr)", price: 150, description: "Add an hour to your session" },
+                  { name: "Mixing Package", price: 200, description: "Professional mixing included" },
+                  { name: "Priority Scheduling", price: 50, description: "Get your preferred time slots" },
+                ].map((item, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className="flex items-center justify-between p-4 rounded-xl border bg-muted/30 hover:bg-muted/50 hover:border-primary/50 transition-all text-left group"
+                    onClick={() => {
+                      toast({ title: "Added to booking", description: `${item.name} added` })
+                    }}
+                  >
+                    <div>
+                      <div className="font-medium text-sm">{item.name}</div>
+                      <div className="text-xs text-muted-foreground">{item.description}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-sm">+${item.price}</div>
+                      <div className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">Add</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )
@@ -1138,7 +1227,15 @@ export default function BookingPage() {
       </div>
 
       {/* Step Progress Indicator */}
-      <div className="border-b bg-background">
+      <div className="border-b bg-background sticky top-16 z-40">
+        {/* Progress Bar */}
+        <div className="h-1 bg-muted">
+          <div 
+            className="h-full bg-primary transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        
         <div className="mx-auto max-w-3xl px-4 py-6 overflow-x-auto">
           <div className="flex items-center justify-between min-w-[600px]">
             {steps.map((step, index) => {
@@ -1186,7 +1283,7 @@ export default function BookingPage() {
       </div>
 
       {/* Main Content */}
-      <div className="mx-auto max-w-2xl px-4 py-8">
+      <div className="mx-auto max-w-2xl px-4 py-8 pb-24 lg:pb-8">
         {/* Form Card */}
         <div className="bg-card rounded-2xl border shadow-sm">
           <div className="p-6 sm:p-8">
@@ -1297,6 +1394,46 @@ export default function BookingPage() {
               )}
             </div>
           )}
+        </div>
+
+        {/* Mobile Bottom Stepper */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t z-50 px-4 py-3 pb-safe">
+          <div className="flex items-center justify-between gap-2 overflow-x-auto">
+            {steps.slice(0, 5).map((step, index) => {
+              const isActive = currentStep === step.number
+              const isCompleted = visitedSteps.includes(step.number) && currentStep > step.number
+              const isVisited = visitedSteps.includes(step.number)
+              
+              return (
+                <button
+                  key={step.number}
+                  type="button"
+                  onClick={() => isVisited && setCurrentStep(step.number)}
+                  disabled={!isVisited}
+                  className={`flex flex-col items-center min-w-[50px] ${
+                    isActive ? "text-primary" : isCompleted ? "text-green-600" : "text-muted-foreground/50"
+                  }`}
+                >
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 ${
+                    isCompleted 
+                      ? "bg-green-600 border-green-600 text-white" 
+                      : isActive 
+                      ? "border-primary bg-primary/10" 
+                      : "border-current opacity-50"
+                  }`}>
+                    {isCompleted ? <Check className="h-3 w-3" /> : step.number}
+                  </div>
+                  <span className="text-[10px] mt-1 truncate max-w-[60px]">{step.shortLabel ?? step.label}</span>
+                </button>
+              )
+            })}
+            {/* Show more indicator if there are more steps */}
+            {steps.length > 5 && (
+              <div className="flex items-center justify-center min-w-[50px] text-muted-foreground">
+                <span className="text-2xl">...</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

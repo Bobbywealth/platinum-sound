@@ -75,6 +75,8 @@ export default function TasksPage() {
   // Edit/View dialog state
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [draggedTask, setDraggedTask] = useState<Task | null>(null)
+  const [dragOverStatus, setDragOverStatus] = useState<TaskStatus | null>(null)
   const [editForm, setEditForm] = useState({
     title: "",
     description: "",
@@ -102,6 +104,57 @@ export default function TasksPage() {
       })
       .catch(() => {})
   }, [])
+
+  // HTML5 Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent, task: Task) => {
+    setDraggedTask(task)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', task.id)
+  }
+
+  const handleDragOver = (e: React.DragEvent, status: TaskStatus) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverStatus(status)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverStatus(null)
+  }
+
+  const handleDrop = async (e: React.DragEvent, newStatus: TaskStatus) => {
+    e.preventDefault()
+    setDragOverStatus(null)
+    
+    if (!draggedTask || draggedTask.status === newStatus) {
+      setDraggedTask(null)
+      return
+    }
+
+    const taskId = draggedTask.id
+    const oldStatus = draggedTask.status
+    
+    // Optimistically update the UI
+    setTaskList(prev => prev.map(t => 
+      t.id === taskId ? { ...t, status: newStatus } : t
+    ))
+    setDraggedTask(null)
+
+    // Update the task status in the API
+    try {
+      await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus.toUpperCase() })
+      })
+    } catch (error) {
+      console.error('Failed to update task status:', error)
+      // Revert on error
+      setTaskList(prev => prev.map(t => 
+        t.id === taskId ? { ...t, status: oldStatus } : t
+      ))
+    }
+  }
 
   const [newTask, setNewTask] = useState<{
     title: string
@@ -569,7 +622,15 @@ export default function TasksPage() {
             const StatusIcon = config.icon
 
             return (
-              <div>
+              <div
+                onDragOver={(e) => handleDragOver(e, status)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, status)}
+                className={cn(
+                  "transition-colors rounded-lg",
+                  dragOverStatus === status && "bg-primary/5 border-2 border-dashed border-primary"
+                )}
+              >
                 <div className={cn("flex items-center justify-between p-4 rounded-lg border", config.color)}>
                   <div className="flex items-center gap-2">
                     <StatusIcon className="h-5 w-5" />
@@ -577,11 +638,16 @@ export default function TasksPage() {
                   </div>
                   <Badge variant="secondary">{statusTasks.length}</Badge>
                 </div>
-                <div className="space-y-3 min-h-[400px]">
+                <div className="space-y-3 min-h-[400px] pt-2">
                   {statusTasks.map((task) => (
                     <Card 
                       key={task.id} 
-                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, task)}
+                      className={cn(
+                        "cursor-grab hover:shadow-md transition-all",
+                        draggedTask?.id === task.id && "opacity-50 scale-95"
+                      )}
                       onClick={() => {
                         setSelectedTask(task)
                         setEditForm({
@@ -601,7 +667,7 @@ export default function TasksPage() {
                           <Badge className={cn(priorityColors[task.priority])} variant="secondary">
                             {task.priority}
                           </Badge>
-                          <Button variant="ghost" size="icon" className="h-4 w-4">
+                          <Button variant="ghost" size="icon" className="h-4 w-4 cursor-grab">
                             <GripVertical className="h-4 w-4 text-muted-foreground" />
                           </Button>
                         </div>
