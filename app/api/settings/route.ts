@@ -112,6 +112,9 @@ export async function PUT(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
+    console.log("[SETTINGS DEBUG] Session:", session ? "exists" : "null")
+    console.log("[SETTINGS DEBUG] User role:", session?.user?.role)
+    
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -162,7 +165,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, user })
   } catch (error) {
-    console.error('Error creating team member:', error)
+    console.error('[SETTINGS DEBUG] Error creating team member:', error)
     return NextResponse.json({ error: 'Failed to create team member' }, { status: 500 })
   }
 }
