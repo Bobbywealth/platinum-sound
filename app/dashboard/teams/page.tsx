@@ -26,7 +26,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn, getInitials } from "@/lib/utils"
 import { Mail, Pencil, Phone, Plus, Search, Shield, Trash2, Users } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // ─── Role definitions ─────────────────────────────────────────────────────────
 
@@ -155,6 +155,22 @@ export default function TeamsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [filterRole, setFilterRole] = useState<RoleKey | "ALL">("ALL")
   const [pageAccess, setPageAccess] = useState(defaultPageAccess)
+
+  // Load team members on page load
+  useEffect(() => {
+    async function loadMembers() {
+      try {
+        const res = await fetch('/api/settings')
+        if (res.ok) {
+          const data = await res.json()
+          setMembers(data.team || [])
+        }
+      } catch (error) {
+        console.error('Failed to load team members:', error)
+      }
+    }
+    loadMembers()
+  }, [])
 
   const [addOpen, setAddOpen] = useState(false)
   const [addForm, setAddForm] = useState({ ...emptyAddForm })
