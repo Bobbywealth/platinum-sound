@@ -168,16 +168,27 @@ export default function Home() {
 
       {/* Hero Section with Background Video */}
       <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Background Image Layer */}
+        {/* Background Image Layer - Main Studio */}
         <motion.div style={{ y: y1 }} className="absolute inset-0 z-0">
           <Image
             src="/studio-hero.png"
-            alt="Studio Background"
+            alt="Platinum Sound Studio A"
             fill
             className="object-cover"
             priority
           />
           <div className="absolute inset-0 bg-black/40" />
+        </motion.div>
+        
+        {/* Secondary Studio Image - Overlay */}
+        <motion.div style={{ y: y2 }} className="absolute inset-0 z-0 opacity-50">
+          <Image
+            src="/jerrywonda1.png"
+            alt="Platinum Sound Studio B"
+            fill
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-black/70" />
         </motion.div>
 
         {/* Background Video */}
