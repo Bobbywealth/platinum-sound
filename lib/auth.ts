@@ -60,7 +60,6 @@ const { handlers, signIn, signOut, auth } = NextAuth({
             role: true,
             phone: true,
             discountLimit: true,
-            emailVerified: true,
           }
         })
 
@@ -72,24 +71,6 @@ const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isValid) {
           return null
         }
-
-        // Check if email verification is required (optional - can be enabled by uncommenting)
-        // If you want to require email verification, uncomment the following block:
-        /*
-        if (!user.emailVerified) {
-          // Return a special error that indicates email is not verified
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name || '',
-            role: user.role,
-            phone: user.phone,
-            discountLimit: user.discountLimit,
-            emailVerified: false, // This is a custom field we'll add to track verification status
-            isNotVerified: true, // Custom flag to indicate verification issue
-          }
-        }
-        */
 
         return {
           id: user.id,

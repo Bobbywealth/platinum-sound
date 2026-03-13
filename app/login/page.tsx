@@ -10,7 +10,7 @@ import { signIn } from "next-auth/react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -21,20 +21,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [emailError, setEmailError] = useState("")
   const [passwordError, setPasswordError] = useState("")
-  const [currentSlide, setCurrentSlide] = useState(0)
-
-  // Slideshow effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev === 0 ? 1 : 0))
-    }, 5000) // Change slide every 5 seconds
-    return () => clearInterval(interval)
-  }, [])
-
-  const headerImages = [
-    "/header-image-1.png",
-    "/header-image-2.png",
-  ]
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -190,53 +176,11 @@ export default function LoginPage() {
         {/* Glassmorphism Card */}
         <Card className="backdrop-blur-xl bg-black/40 border-white/10 shadow-2xl shadow-royal/10">
           <CardHeader className="text-center pb-2 space-y-6">
-            {/* Image Slideshow */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="relative inline-block mx-auto"
-            >
-              <div className="relative w-64 h-32 mx-auto overflow-hidden rounded-lg">
-                {headerImages.map((src, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: currentSlide === index ? 1 : 0 }}
-                    transition={{ duration: 0.8 }}
-                    className="absolute inset-0"
-                  >
-                    <Image
-                      src={src}
-                      alt={`Slide ${index + 1}`}
-                      fill
-                      className="object-contain"
-                      priority={index === 0}
-                    />
-                  </motion.div>
-                ))}
-                {/* Slide indicators */}
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                  {headerImages.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        currentSlide === index
-                          ? "bg-royal w-4"
-                          : "bg-white/40 hover:bg-white/60"
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
             {/* Animated Logo with floating effect */}
             <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               className="relative inline-block mx-auto"
             >
               <motion.div
@@ -249,7 +193,7 @@ export default function LoginPage() {
                     alt="Platinum Sound Logo"
                     width={300}
                     height={68}
-                    className="h-20 w-auto drop-shadow-lg"
+                    className="h-24 w-auto drop-shadow-lg"
                     priority
                   />
                 </Link>
