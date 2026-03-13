@@ -1,9 +1,8 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { PrismaClient, Role } from "@prisma/client"
+import { Role } from "@prisma/client"
 import { compare } from "bcryptjs"
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 declare module "next-auth" {
   interface User {

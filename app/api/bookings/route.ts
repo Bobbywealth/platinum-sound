@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, BookingStatus, SessionMode, SessionType, Studio } from '@prisma/client'
+import { BookingStatus, SessionMode, SessionType, Studio } from '@prisma/client'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
+import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
-
-const prisma = new PrismaClient()
 
 // GET /api/bookings - Get all bookings with filters
 export async function GET(request: NextRequest) {

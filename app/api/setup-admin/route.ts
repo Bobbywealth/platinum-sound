@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { PrismaClient, Role } from "@prisma/client"
 import { hash } from "bcryptjs"
+import { rateLimit, getClientIp, rateLimitConfigs } from "@/lib/rate-limit"
 
 const prisma = new PrismaClient()
 
@@ -26,6 +27,18 @@ export async function POST(request: NextRequest) {
       { status: 403 }
     )
   }
+
+  // Apply rate limiting - very strict for this sensitive endpoint
+  const clientIp = getClientIp(request)
+  const { allowed, resetTime } = rateLimit(clientIp, rateLimitConfigs.strict)
+  
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil((resetTime - Date.now()) / 1000)) } }
+    )
+  }
+
   try {
     const body = await request.json()
     const { action } = body

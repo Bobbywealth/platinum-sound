@@ -4,6 +4,7 @@ import { Role, EmailType } from '@prisma/client'
 import { auth } from '@/lib/auth'
 import { hash } from 'bcryptjs'
 import { z } from 'zod'
+import { rateLimit, getClientIp, rateLimitConfigs } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -112,8 +113,6 @@ export async function PUT(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    console.log("[SETTINGS DEBUG] Session:", session ? "exists" : "null")
-    console.log("[SETTINGS DEBUG] User role:", session?.user?.role)
     
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -122,6 +121,17 @@ export async function POST(request: NextRequest) {
     // Only admins and managers can add team members
     if (session.user.role !== 'ADMIN' && session.user.role !== 'MANAGER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Apply rate limiting - strict for user creation
+    const clientIp = getClientIp(request)
+    const { allowed, resetTime } = rateLimit(clientIp, rateLimitConfigs.strict)
+    
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((resetTime - Date.now()) / 1000)) } }
+      )
     }
 
     const body = await request.json()
@@ -165,7 +175,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, user })
   } catch (error) {
-    console.error('[SETTINGS DEBUG] Error creating team member:', error)
+    // Log only in development, never expose details
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[SETTINGS] Error creating team member:', error)
+    }
     return NextResponse.json({ error: 'Failed to create team member' }, { status: 500 })
   }
 }

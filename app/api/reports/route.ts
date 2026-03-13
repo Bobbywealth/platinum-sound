@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient, ReportType, ReportPeriod, Role, Studio } from '@prisma/client'
+import { ReportType, ReportPeriod, Role, Studio } from '@prisma/client'
 import { auth } from '@/lib/auth'
 import { hasPermission } from '@/lib/permissions'
+import { prisma } from '@/lib/prisma'
 import { startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subDays, format } from 'date-fns'
 
 export const dynamic = 'force-dynamic'
-
-const prisma = new PrismaClient()
 
 // GET /api/reports - Get reports
 export async function GET(request: NextRequest) {
@@ -140,30 +139,45 @@ export async function GET(request: NextRequest) {
 
 async function calculateRoomUtilization(startDate: Date, endDate: Date) {
   const rooms = await prisma.room.findMany()
-  const utilization = []
 
-  for (const room of rooms) {
-    // Map room name to studio enum
-    const studioMap: Record<string, Studio> = {
-      'Studio A': Studio.STUDIO_A, 'Platinum VIP Suite': Studio.STUDIO_A,
-      'Studio B': Studio.STUDIO_B, 'Dolby Atmos Suite': Studio.STUDIO_B,
-      'Studio C': Studio.STUDIO_C, 'China Room': Studio.STUDIO_C, 'PS Chelsea': Studio.STUDIO_C,
-      'Studio D': Studio.STUDIO_D, 'Production Room': Studio.STUDIO_D,
-      'Studio E': Studio.STUDIO_E, 'Rehearsal Room': Studio.STUDIO_E,
-      'Studio F': Studio.STUDIO_F, 'Suite 122': Studio.STUDIO_F,
+  // Map room name to studio enum
+  const studioMap: Record<string, Studio> = {
+    'Studio A': Studio.STUDIO_A, 'Platinum VIP Suite': Studio.STUDIO_A,
+    'Studio B': Studio.STUDIO_B, 'Dolby Atmos Suite': Studio.STUDIO_B,
+    'Studio C': Studio.STUDIO_C, 'China Room': Studio.STUDIO_C, 'PS Chelsea': Studio.STUDIO_C,
+    'Studio D': Studio.STUDIO_D, 'Production Room': Studio.STUDIO_D,
+    'Studio E': Studio.STUDIO_E, 'Rehearsal Room': Studio.STUDIO_E,
+    'Studio F': Studio.STUDIO_F, 'Suite 122': Studio.STUDIO_F,
+  }
+
+  // Fetch ALL bookings for the date range in a single query (no N+1!)
+  const allBookings = await prisma.booking.findMany({
+    where: {
+      date: {
+        gte: startDate,
+        lte: endDate
+      },
+      status: { notIn: ['CANCELLED'] }
     }
+  })
+
+  // Group bookings by studio in memory
+  const bookingsByStudio = new Map<Studio, typeof allBookings>()
+  for (const booking of allBookings) {
+    if (!bookingsByStudio.has(booking.studio)) {
+      bookingsByStudio.set(booking.studio, [])
+    }
+    bookingsByStudio.get(booking.studio)!.push(booking)
+  }
+
+  // Calculate available hours (assuming 12 hours per day)
+  const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+  const availableHours = days * 12
+
+  // Calculate utilization for each room using the grouped data
+  const utilization = rooms.map(room => {
     const studioKey = studioMap[room.name] || Studio.STUDIO_A
-    
-    const bookings = await prisma.booking.findMany({
-      where: {
-        studio: studioKey,
-        date: {
-          gte: startDate,
-          lte: endDate
-        },
-        status: { notIn: ['CANCELLED'] }
-      }
-    })
+    const bookings = bookingsByStudio.get(studioKey) || []
 
     // Calculate total hours booked
     const totalHours = bookings.reduce((sum, b) => {
@@ -172,17 +186,13 @@ async function calculateRoomUtilization(startDate: Date, endDate: Date) {
       return sum + (end - start)
     }, 0)
 
-    // Calculate available hours (assuming 12 hours per day)
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const availableHours = days * 12
-
-    utilization.push({
+    return {
       room: room.name,
       totalHours,
       availableHours,
       utilizationRate: availableHours > 0 ? (totalHours / availableHours) * 100 : 0
-    })
-  }
+    }
+  })
 
   return utilization
 }

@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server"
+import { rateLimit, getClientIp, rateLimitConfigs } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
+    // Apply rate limiting - strict limits for payment operations
+    const clientIp = getClientIp(request)
+    const { allowed, remaining, resetTime } = rateLimit(clientIp, rateLimitConfigs.strict)
+    
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil((resetTime - Date.now()) / 1000)) } }
+      )
+    }
+
     const { amount, currency = "usd", description, metadata } = await request.json()
 
     if (!amount || amount <= 0) {
@@ -10,17 +22,20 @@ export async function POST(request: Request) {
 
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY
     if (!stripeSecretKey) {
-      console.error("[PAYMENT DEBUG] Stripe secret key is not configured in environment")
+      console.error("Stripe secret key is not configured in environment")
       return NextResponse.json({ error: "Stripe is not configured" }, { status: 500 })
     }
 
-    // Debug: Log key prefix to help diagnose (never log full key)
-    if (stripeSecretKey.startsWith("sk_test_")) {
-      console.log("[PAYMENT DEBUG] Stripe test key detected")
-    } else if (stripeSecretKey.startsWith("sk_live_")) {
-      console.log("[PAYMENT DEBUG] Stripe live key detected")
-    } else {
-      console.error("[PAYMENT DEBUG] Invalid Stripe key format - does not start with sk_test_ or sk_live_")
+    // Verify key format - only log key type in development
+    if (process.env.NODE_ENV === 'development') {
+      if (stripeSecretKey.startsWith("sk_test_")) {
+        console.log("Stripe test key detected")
+      } else if (stripeSecretKey.startsWith("sk_live_")) {
+        console.log("Stripe live key detected")
+      }
+    }
+    
+    if (!stripeSecretKey.startsWith("sk_test_") && !stripeSecretKey.startsWith("sk_live_")) {
       return NextResponse.json({ error: "Stripe key format is invalid" }, { status: 500 })
     }
 
@@ -53,21 +68,30 @@ export async function POST(request: Request) {
     const paymentIntent = await stripeResponse.json()
 
     if (!stripeResponse.ok) {
-      console.error("[PAYMENT DEBUG] Stripe API error:", JSON.stringify(paymentIntent))
+      // Log error details only in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Stripe API error:", JSON.stringify(paymentIntent))
+      }
       return NextResponse.json(
         { error: paymentIntent.error?.message || "Failed to create payment intent" },
         { status: stripeResponse.status }
       )
     }
 
-    console.log("[PAYMENT DEBUG] Payment intent created successfully:", paymentIntent.id)
+    // Log success only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log("Payment intent created successfully:", paymentIntent.id)
+    }
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
     })
   } catch (error) {
-    console.error("Error creating payment intent:", error)
+    // Log error only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error("Error creating payment intent:", error)
+    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
