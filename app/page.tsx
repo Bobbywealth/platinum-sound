@@ -168,8 +168,8 @@ export default function Home() {
 
       {/* Hero Section with Background */}
       <section className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 z-0">
+        {/* Background Image - on top */}
+        <div className="absolute inset-0 z-10">
           <Image
             src="/studio-hero.png"
             alt="Platinum Sound Studio"
@@ -177,22 +177,8 @@ export default function Home() {
             className="object-cover"
             priority
           />
-          <div className="absolute inset-0 bg-black/50" />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-
-        {/* Background Video */}
-        <motion.div style={{ y: y2 }} className="absolute inset-0 z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src="/hero-video.mp4" type="video/mp4" />
-          </video>
-          <div className="absolute inset-0 bg-black/60" />
-        </motion.div>
 
         {/* Hero Content */}
         <div className="relative z-10 text-center px-4 sm:px-6 max-w-4xl mx-auto">
