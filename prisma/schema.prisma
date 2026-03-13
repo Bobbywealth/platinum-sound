@@ -188,15 +188,19 @@ enum SignatureType {
 // ============================================
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String    @id @default(cuid())
+  email         String    @unique
   name          String?
   password      String
   phone         String?
-  role          Role     @default(MANAGER)
+  role          Role      @default(MANAGER)
   discountLimit Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  emailVerified DateTime?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  verificationToken       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
   
   // Relations
   tasks              Task[]
